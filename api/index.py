@@ -29,6 +29,19 @@ class ChatRequest(BaseModel):
     history: list[dict] = Field(default_factory=list)
 
 
+@app.get("/api/debug")
+async def debug():
+    """배포 진단용 — 함수 번들에 어떤 파일이 들어있는지 확인."""
+    root = Path(__file__).resolve().parent.parent
+    public_dir = root / "public"
+    return {
+        "root": str(root),
+        "root_files": sorted(p.name for p in root.iterdir()),
+        "public_exists": public_dir.is_dir(),
+        "public_files": sorted(p.name for p in public_dir.iterdir()) if public_dir.is_dir() else [],
+    }
+
+
 @app.get("/api")
 @app.get("/api/index")
 async def api_root():
