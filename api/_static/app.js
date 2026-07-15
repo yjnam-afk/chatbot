@@ -10,6 +10,7 @@ const logEl = document.getElementById("activity-log");
 
 const history = []; // [{role, content}] — 클라이언트가 유지
 let agentNames = {};
+let agentColors = {};
 
 function addMessage(role, text, meta) {
   const div = document.createElement("div");
@@ -26,14 +27,26 @@ function addMessage(role, text, meta) {
   return div;
 }
 
-function addLog(agentId, state, activity) {
-  const name = agentNames[agentId] || agentId;
-  const line = document.createElement("div");
-  const stateKo = Office.STATE_KO[state] || state;
-  line.innerHTML = `<b>${name}</b> · ${stateKo}${activity ? " — " + activity : ""}`;
+function pushLog(line) {
   logEl.appendChild(line);
-  while (logEl.children.length > 60) logEl.removeChild(logEl.firstChild);
+  while (logEl.children.length > 80) logEl.removeChild(logEl.firstChild);
   logEl.scrollTop = logEl.scrollHeight;
+}
+
+function addLog(agentId, state, activity) {
+  const line = document.createElement("div");
+  line.className = "log-status";
+  const stateKo = Office.STATE_KO[state] || state;
+  line.innerHTML = `<b style="color:${agentColors[agentId] || "#fff"}">${agentNames[agentId] || agentId}</b> · ${stateKo}${activity ? " — " + activity : ""}`;
+  pushLog(line);
+}
+
+function addTalk(agentId, text) {
+  const line = document.createElement("div");
+  line.className = "log-talk";
+  line.innerHTML = `<b style="color:${agentColors[agentId] || "#fff"}">${agentNames[agentId] || agentId}</b> 💬 <span></span>`;
+  line.querySelector("span").textContent = text;
+  pushLog(line);
 }
 
 // 에이전트 명단 + 모드 로드
@@ -41,7 +54,10 @@ fetch("/api/agents")
   .then((r) => r.json())
   .then((data) => {
     Office.setAgents(data.agents);
-    for (const a of data.agents) agentNames[a.id] = `${a.name}(${a.role})`;
+    for (const a of data.agents) {
+      agentNames[a.id] = a.name;
+      agentColors[a.id] = a.color;
+    }
     if (data.demo) {
       badgeEl.textContent = "데모 모드 (LLM 키 없음)";
       badgeEl.className = "badge demo";
@@ -56,6 +72,9 @@ function handleEvent(ev, ui) {
   if (ev.type === "agent") {
     Office.setState(ev.agent, ev.state, ev.activity);
     addLog(ev.agent, ev.state, ev.activity);
+  } else if (ev.type === "talk") {
+    Office.say(ev.agent, ev.text);
+    addTalk(ev.agent, ev.text);
   } else if (ev.type === "reply") {
     ui.typing.remove();
     let meta = "";
@@ -112,5 +131,11 @@ formEl.addEventListener("submit", async (e) => {
 
 addMessage(
   "bot",
-  "안녕하세요! 왼쪽 픽셀 오피스에서 다섯 에이전트가 일하는 모습을 보면서 대화해 보세요. 🙌"
+  "안녕하세요! 저희는 5명이 한 팀으로 일하는 픽셀 오피스 챗봇이에요. 🙌\n\n" +
+    "🟡 코디 — 팀장. 일을 나눠주고 마무리해요\n" +
+    "🔵 누리 — 당신의 말의 의도·감정을 분석해요\n" +
+    "🟣 다인 — 어떤 톤과 전략으로 답할지 설계해요\n" +
+    "🟢 로운 — 실제 답변 초안을 써요\n" +
+    "🩷 세아 — 초안을 검수하고 최종 승인해요\n\n" +
+    "메시지를 보내면 왼쪽 오피스에서 서로 대화하며 일하는 모습이 보여요!"
 );

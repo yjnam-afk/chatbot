@@ -4,6 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>픽셀 오피스 챗봇</title>
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+        href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/Galmuri11.woff2" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+        href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/Galmuri9.woff2" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -15,6 +19,8 @@
   <main>
     <section id="office-panel">
       <canvas id="office" width="760" height="480"></canvas>
+      <div id="legend">💤 휴식 · 💭 생각 · ⚙️ 작업 · ✅ 완료 · ❌ 오류</div>
+      <div class="log-title">▸ 팀 대화</div>
       <div id="activity-log"></div>
     </section>
 

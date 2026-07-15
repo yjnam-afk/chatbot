@@ -98,6 +98,11 @@ def _ev(agent: str, state: str, activity: str = "") -> dict:
     return {"type": "agent", "agent": agent, "state": state, "activity": activity}
 
 
+def _talk(agent: str, text: str) -> dict:
+    """에이전트가 팀 동료에게 하는 말 — 오피스 말풍선/팀 대화 피드에 표시된다."""
+    return {"type": "talk", "agent": agent, "text": str(text)[:120]}
+
+
 # ---------------------------------------------------------------- 데모 모드
 
 _DEMO_REPLIES = [
@@ -120,15 +125,21 @@ async def _demo(message: str, turn: int) -> AsyncIterator[dict]:
         yield _ev(agent_id, "done", done)
 
     yield _ev("orchestrator", "working", "작업 분배 중…")
+    yield _talk("orchestrator", "새 메시지 도착! 다들 시작할게요 🙌")
     async for e in step("nlu", "발화 읽는 중…", "의도 분석 중…", "의도: 일반 대화", 1.6):
         yield e
+    yield _talk("nlu", "분석 끝! 의도는 '일반 대화', 감정은 중립이에요.")
     async for e in step("designer", "전략 고민 중…", "응답 설계 중…", "톤: 친근함", 1.4):
         yield e
+    yield _talk("designer", "그럼 친근한 톤으로 간결하게 가죠. 로운님 부탁해요!")
     async for e in step("writer", "초안 구상 중…", "응답 작성 중…", "초안 완성", 2.0):
         yield e
+    yield _talk("writer", "초안 완성했어요! 세아님 검토 부탁드려요 📝")
     async for e in step("reviewer", "초안 검토 중…", "품질 검수 중…", "승인 ✔", 1.4):
         yield e
+    yield _talk("reviewer", "톤도 내용도 좋네요. 승인합니다! ✔")
     yield _ev("orchestrator", "done", "턴 완료")
+    yield _talk("orchestrator", "고객님께 전달 완료! 다들 수고했어요 ☕")
     yield {
         "type": "reply",
         "reply": _DEMO_REPLIES[turn % len(_DEMO_REPLIES)],
@@ -154,25 +165,29 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
 
     try:
         yield _ev("orchestrator", "working", "작업 분배 중…")
+        yield _talk("orchestrator", "새 메시지 도착! 누리님, 분석 먼저 부탁해요 🙌")
 
         yield _ev("nlu", "thinking", "발화 분석 중…")
         nlu = _parse_json(
             await _chat(
-                "당신은 챗봇 팀의 NLU 분석가입니다. 사용자 발화를 분석해 JSON만 출력하세요. "
+                "당신은 챗봇 팀의 NLU 분석가 '누리'입니다. 사용자 발화를 분석해 JSON만 출력하세요. "
                 '형식: {"intent": "핵심 의도(짧은 한국어 구)", "entities": ["개체", ...], '
-                '"sentiment": "긍정|중립|부정", "summary": "요약 한 문장"}',
+                '"sentiment": "긍정|중립|부정", "summary": "요약 한 문장", '
+                '"say": "팀 동료들에게 분석 결과를 전하는 짧은 구어체 한 마디 (예: 의도는 ~네요! ~한 것 같아요)"}',
                 [{"role": "user", "content": message}],
                 json_mode=True,
             ),
             {"intent": "일반 대화", "entities": [], "sentiment": "중립", "summary": message[:40]},
         )
         yield _ev("nlu", "done", f"의도: {nlu.get('intent', '?')}")
+        yield _talk("nlu", nlu.get("say") or f"의도는 '{nlu.get('intent', '?')}', 감정은 {nlu.get('sentiment', '중립')}이에요!")
 
         yield _ev("designer", "thinking", "응답 전략 설계 중…")
         design = _parse_json(
             await _chat(
-                "당신은 챗봇 팀의 대화 설계자입니다. NLU 분석을 바탕으로 응답 전략을 JSON만으로 출력하세요. "
-                '형식: {"tone": "응답 톤", "strategy": "전략 한 문장", "key_points": ["포인트", ...]}',
+                "당신은 챗봇 팀의 대화 설계자 '다인'입니다. NLU 분석을 바탕으로 응답 전략을 JSON만으로 출력하세요. "
+                '형식: {"tone": "응답 톤", "strategy": "전략 한 문장", "key_points": ["포인트", ...], '
+                '"say": "응답 생성가 로운에게 전략을 전달하는 짧은 구어체 한 마디"}',
                 [{
                     "role": "user",
                     "content": f"사용자 발화: {message}\n\nNLU 분석: {json.dumps(nlu, ensure_ascii=False)}",
@@ -182,25 +197,29 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
             {"tone": "친근함", "strategy": "간결하고 자연스럽게 답한다", "key_points": []},
         )
         yield _ev("designer", "done", f"톤: {design.get('tone', '?')}")
+        yield _talk("designer", design.get("say") or f"{design.get('tone', '친근한')} 톤으로 가죠. 로운님 부탁해요!")
 
         yield _ev("writer", "working", "응답 작성 중…")
         draft = await _chat(
-            "당신은 챗봇 팀의 응답 생성가입니다. 대화 설계자의 전략에 따라 한국어로 응답을 작성합니다.\n"
+            "당신은 챗봇 팀의 응답 생성가 '로운'입니다. 대화 설계자의 전략에 따라 한국어로 응답을 작성합니다.\n"
             f"톤: {design.get('tone', '')}\n전략: {design.get('strategy', '')}\n"
             f"핵심 포인트: {', '.join(design.get('key_points', []))}\n"
             f"사용자 의도: {nlu.get('intent', '')} / 감정: {nlu.get('sentiment', '')}\n"
-            "간결하고 자연스럽게 답하세요.",
+            "간결하고 자연스럽게 답하세요. 응답 본문만 출력하세요.",
             history[-10:] + [{"role": "user", "content": message}],
             max_tokens=2048,
         )
         yield _ev("writer", "done", "초안 완성")
+        snippet = draft.replace("\n", " ")[:28]
+        yield _talk("writer", f'초안 썼어요 — "{snippet}…" 세아님 검토 부탁해요 📝')
 
         yield _ev("reviewer", "thinking", "품질 검수 중…")
         review = _parse_json(
             await _chat(
-                "당신은 챗봇 팀의 품질 검수자입니다. 응답 초안의 정확성/톤/안전성을 검수하고 JSON만 출력하세요. "
+                "당신은 챗봇 팀의 품질 검수자 '세아'입니다. 응답 초안의 정확성/톤/안전성을 검수하고 JSON만 출력하세요. "
                 '형식: {"approved": true|false, "final_reply": "최종 응답(문제 있으면 수정본, 없으면 초안 그대로)", '
-                '"feedback": "검수 코멘트 한 문장"}',
+                '"feedback": "검수 코멘트 한 문장", '
+                '"say": "팀에게 검수 결과를 알리는 짧은 구어체 한 마디"}',
                 [{"role": "user", "content": f"사용자 발화: {message}\n\n응답 초안:\n{draft}"}],
                 json_mode=True,
                 max_tokens=2048,
@@ -208,8 +227,10 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
             {"approved": True, "final_reply": draft, "feedback": "자동 승인"},
         )
         yield _ev("reviewer", "done", "승인 ✔" if review.get("approved") else "수정 후 승인")
+        yield _talk("reviewer", review.get("say") or (review.get("feedback") or "검수 완료, 승인합니다!"))
 
         yield _ev("orchestrator", "done", "턴 완료")
+        yield _talk("orchestrator", "고객님께 전달 완료! 다들 수고했어요 ☕")
         yield {
             "type": "reply",
             "reply": review.get("final_reply") or draft,
