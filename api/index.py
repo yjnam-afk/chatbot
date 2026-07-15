@@ -29,6 +29,16 @@ class ChatRequest(BaseModel):
     history: list[dict] = Field(default_factory=list)
 
 
+@app.get("/api")
+@app.get("/api/index")
+async def api_root():
+    return {
+        "ok": True,
+        "hint": "여기는 API 엔드포인트입니다. 챗봇 화면은 사이트 루트(/)로 접속하세요.",
+        "endpoints": ["/api/agents", "POST /api/chat"],
+    }
+
+
 @app.get("/api/agents")
 async def get_agents():
     p = provider()
