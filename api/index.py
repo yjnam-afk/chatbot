@@ -32,13 +32,11 @@ class ChatRequest(BaseModel):
 @app.get("/api/debug")
 async def debug():
     """배포 진단용 — 함수 번들에 어떤 파일이 들어있는지 확인."""
-    root = Path(__file__).resolve().parent.parent
-    public_dir = root / "public"
+    static_dir = Path(__file__).resolve().parent / "_static"
     return {
-        "root": str(root),
-        "root_files": sorted(p.name for p in root.iterdir()),
-        "public_exists": public_dir.is_dir(),
-        "public_files": sorted(p.name for p in public_dir.iterdir()) if public_dir.is_dir() else [],
+        "api_dir_files": sorted(p.name for p in Path(__file__).resolve().parent.iterdir()),
+        "static_exists": static_dir.is_dir(),
+        "static_files": sorted(p.name for p in static_dir.iterdir()) if static_dir.is_dir() else [],
     }
 
 
@@ -76,8 +74,9 @@ async def chat(req: ChatRequest):
     )
 
 
-# 정적 서빙 — Vercel(FastAPI 프리셋)에서는 모든 요청이 이 앱으로 오므로
-# 로컬/배포 구분 없이 FastAPI가 public/을 직접 서빙한다.
-public = Path(__file__).resolve().parent.parent / "public"
-if public.is_dir():
-    app.mount("/", StaticFiles(directory=public, html=True), name="static")
+# 정적 서빙 — 모든 요청이 이 앱으로 오므로 FastAPI가 직접 서빙한다.
+# 정적 파일은 api/_static/에 둔다: Vercel 파이썬 빌더가 루트의 public/은
+# 번들에서 제외하지만 api/ 디렉터리는 통째로 포함하기 때문.
+_static = Path(__file__).resolve().parent / "_static"
+if _static.is_dir():
+    app.mount("/", StaticFiles(directory=_static, html=True), name="static")
