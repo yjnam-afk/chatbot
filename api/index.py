@@ -63,8 +63,8 @@ async def chat(req: ChatRequest):
     )
 
 
-# 로컬 개발용 정적 서빙 (Vercel에서는 public/을 CDN이 직접 서빙)
-if not os.environ.get("VERCEL"):
-    public = Path(__file__).resolve().parent.parent / "public"
-    if public.is_dir():
-        app.mount("/", StaticFiles(directory=public, html=True), name="static")
+# 정적 서빙 — Vercel(FastAPI 프리셋)에서는 모든 요청이 이 앱으로 오므로
+# 로컬/배포 구분 없이 FastAPI가 public/을 직접 서빙한다.
+public = Path(__file__).resolve().parent.parent / "public"
+if public.is_dir():
+    app.mount("/", StaticFiles(directory=public, html=True), name="static")
