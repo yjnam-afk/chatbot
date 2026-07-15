@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>픽셀 오피스 챗봇</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🏢 픽셀 오피스 챗봇</h1>
+    <span id="mode-badge" class="badge">connecting…</span>
+  </header>
+
+  <main>
+    <section id="office-panel">
+      <canvas id="office" width="760" height="480"></canvas>
+      <div id="activity-log"></div>
+    </section>
+
+    <section id="chat-panel">
+      <div id="messages"></div>
+      <form id="chat-form">
+        <input id="chat-input" type="text" placeholder="메시지를 입력하세요…" autocomplete="off" />
+        <button type="submit">전송</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="office.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
