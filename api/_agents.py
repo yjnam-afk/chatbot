@@ -1,19 +1,18 @@
-"""멀티 에이전트 챗봇 파이프라인 (Vercel 서버리스 + 무료 LLM 대응).
+"""멀티 에이전트 메이커 팀 파이프라인 (Vercel 서버리스 + 무료 LLM 대응).
 
-harness-100의 38-chatbot-builder 패턴: 오케스트레이터 → NLU → 대화설계 → 응답생성 → 품질검수.
+harness-100 패턴의 5인 팀이 실제 작업물을 만든다:
+팀장(코디) → 기획(누리) → 디자인(다인) → 개발(로운) → QA(세아)
 
-OpenAI 호환 chat/completions API를 사용하므로 무료 LLM을 그대로 쓸 수 있다.
-키 환경변수만 설정하면 공급자를 자동 인식한다:
+- "~만들어줘" 요청이면: 기획 → 디자인 → 개발(단일 HTML 파일 생성) → QA → 작업물 전달
+- 일반 질문/대화면: 기획자가 판별 후 개발자가 바로 답변 (호출 2회)
 
-  GROQ_API_KEY    → Groq (llama-3.3-70b-versatile)
-  GEMINI_API_KEY  → Google Gemini (gemini-2.5-flash)
-  LLM_API_KEY + LLM_BASE_URL + LLM_MODEL → 임의의 OpenAI 호환 엔드포인트
+OpenAI 호환 chat/completions API 사용. 키 환경변수로 공급자 자동 인식:
+  GROQ_API_KEY / GEMINI_API_KEY / (LLM_API_KEY + LLM_BASE_URL + LLM_MODEL)
+아무 키도 없으면 데모 모드.
 
-아무 키도 없으면 데모 모드로 동작한다 (LLM 호출 없이 파이프라인 재현).
-
-`run_pipeline`은 async generator다 — 에이전트 상태 이벤트를 순서대로 yield하고
-마지막에 {"type": "reply", ...}를 yield한다. 서버리스에서는 요청 간 메모리가
-공유되지 않으므로, 상태 이벤트를 별도 채널(SSE 허브) 대신 응답 스트림에 실어 보낸다.
+`run_pipeline`은 async generator — {type:"agent"|"talk"} 이벤트를 yield하고
+마지막에 {type:"reply", reply, artifact?}를 yield한다. (서버리스: 상태는 응답
+스트림에, 대화 이력은 클라이언트에)
 """
 
 from __future__ import annotations
@@ -27,11 +26,11 @@ from typing import Any, AsyncIterator
 import httpx
 
 AGENTS = [
-    {"id": "orchestrator", "name": "코디", "role": "오케스트레이터", "color": "#f2b544"},
-    {"id": "nlu", "name": "누리", "role": "NLU 분석가", "color": "#5bc8f5"},
-    {"id": "designer", "name": "다인", "role": "대화 설계자", "color": "#b78ef0"},
-    {"id": "writer", "name": "로운", "role": "응답 생성가", "color": "#6fd88a"},
-    {"id": "reviewer", "name": "세아", "role": "품질 검수자", "color": "#f28ba8"},
+    {"id": "orchestrator", "name": "코디", "role": "팀장", "color": "#f2b544"},
+    {"id": "nlu", "name": "누리", "role": "기획자", "color": "#5bc8f5"},
+    {"id": "designer", "name": "다인", "role": "디자이너", "color": "#b78ef0"},
+    {"id": "writer", "name": "로운", "role": "개발자", "color": "#6fd88a"},
+    {"id": "reviewer", "name": "세아", "role": "QA", "color": "#f28ba8"},
 ]
 
 
@@ -94,29 +93,47 @@ def _parse_json(text: str, fallback: dict) -> dict:
     return fallback
 
 
+def _extract_html(text: str) -> str:
+    """LLM 출력에서 단일 HTML 문서를 추출한다."""
+    m = re.search(r"```(?:html)?\s*(.*?)```", text, re.S)
+    if m:
+        text = m.group(1)
+    m = re.search(r"(<!DOCTYPE.*?</html\s*>)", text, re.S | re.I)
+    if m:
+        return m.group(1).strip()
+    low = text.lower()
+    if "<html" in low:
+        return text[low.index("<html"):].strip()
+    return text.strip()
+
+
 def _ev(agent: str, state: str, activity: str = "") -> dict:
     return {"type": "agent", "agent": agent, "state": state, "activity": activity}
 
 
 def _talk(agent: str, text: str) -> dict:
-    """에이전트가 팀 동료에게 하는 말 — 오피스 말풍선/팀 대화 피드에 표시된다."""
+    """에이전트가 팀 동료에게 하는 말 — 광장 말풍선/팀 대화 피드에 표시된다."""
     return {"type": "talk", "agent": agent, "text": str(text)[:120]}
+
+
+BUILD_WORDS = ("만들", "제작", "게임", "페이지", "사이트", "웹앱", "앱 ", "툴 ", "계산기", "타이머")
 
 
 # ---------------------------------------------------------------- 데모 모드
 
-_DEMO_REPLIES = [
-    "안녕하세요! 저는 5명의 픽셀 에이전트가 함께 만드는 챗봇이에요. "
-    "지금은 데모 모드라서 정해진 답변을 드리고 있어요. "
-    "GROQ_API_KEY나 GEMINI_API_KEY(무료)를 설정하면 실제 LLM이 답변해 드립니다!",
-    "왼쪽 오피스를 보시면 방금 누리(NLU) → 다인(설계) → 로운(생성) → 세아(검수) "
-    "순서로 작업이 넘어간 걸 보실 수 있어요.",
-    "데모 모드에서도 파이프라인은 진짜와 똑같이 돌아가요. "
-    "무료 LLM 키만 있으면 이 자리에 실제 답변이 들어갑니다.",
-]
+_DEMO_HTML = """<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>데모 작업물</title>
+<style>body{font-family:sans-serif;display:flex;flex-direction:column;align-items:center;
+justify-content:center;height:100vh;margin:0;background:linear-gradient(160deg,#7ebf5a,#4f9e4f);color:#fff}
+h1{text-shadow:0 2px 0 rgba(0,0,0,.2)}button{font-size:22px;padding:14px 28px;border:none;
+border-radius:14px;background:#fdf6dd;color:#6b5537;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.15)}
+button:active{transform:translateY(3px);box-shadow:none}</style></head>
+<body><h1>🍃 픽셀 사무소 데모 작업물</h1><p>LLM 키를 넣으면 진짜 요청한 걸 만들어드려요!</p>
+<button onclick="this.textContent='🍀 '+(++window.n||(window.n=1))+'번 눌렀어요!'">눌러보세요</button>
+</body></html>"""
 
 
-async def _demo(message: str, turn: int) -> AsyncIterator[dict]:
+async def _demo(message: str) -> AsyncIterator[dict]:
     async def step(agent_id, thinking, working, done, secs):
         yield _ev(agent_id, "thinking", thinking)
         await asyncio.sleep(secs * 0.4)
@@ -124,125 +141,172 @@ async def _demo(message: str, turn: int) -> AsyncIterator[dict]:
         await asyncio.sleep(secs * 0.6)
         yield _ev(agent_id, "done", done)
 
+    build = any(w in message for w in BUILD_WORDS)
     yield _ev("orchestrator", "working", "작업 분배 중…")
-    yield _talk("orchestrator", "새 메시지 도착! 다들 시작할게요 🙌")
-    async for e in step("nlu", "발화 읽는 중…", "의도 분석 중…", "의도: 일반 대화", 1.6):
+    yield _talk("orchestrator", "새 의뢰 도착! 다들 모여주세요 🍃")
+    async for e in step("nlu", "의뢰 읽는 중…", "요구사항 정리 중…", "기획 완료", 1.5):
         yield e
-    yield _talk("nlu", "분석 끝! 의도는 '일반 대화', 감정은 중립이에요.")
-    async for e in step("designer", "전략 고민 중…", "응답 설계 중…", "톤: 친근함", 1.4):
-        yield e
-    yield _talk("designer", "그럼 친근한 톤으로 간결하게 가죠. 로운님 부탁해요!")
-    async for e in step("writer", "초안 구상 중…", "응답 작성 중…", "초안 완성", 2.0):
-        yield e
-    yield _talk("writer", "초안 완성했어요! 세아님 검토 부탁드려요 📝")
-    async for e in step("reviewer", "초안 검토 중…", "품질 검수 중…", "승인 ✔", 1.4):
-        yield e
-    yield _talk("reviewer", "톤도 내용도 좋네요. 승인합니다! ✔")
-    yield _ev("orchestrator", "done", "턴 완료")
-    yield _talk("orchestrator", "고객님께 전달 완료! 다들 수고했어요 ☕")
-    yield {
-        "type": "reply",
-        "reply": _DEMO_REPLIES[turn % len(_DEMO_REPLIES)],
-        "demo": True,
-        "nlu": {"intent": "일반 대화", "sentiment": "중립"},
-        "review": {"approved": True, "feedback": "데모 모드 자동 승인"},
-    }
+    if build:
+        yield _talk("nlu", "요구사항 정리했어요! 다인님, 디자인 부탁해요.")
+        async for e in step("designer", "레이아웃 구상 중…", "디자인 설계 중…", "디자인 완료", 1.5):
+            yield e
+        yield _talk("designer", "산뜻한 그린 톤으로 갈게요. 로운님, 개발 고고!")
+        async for e in step("writer", "코드 구상 중…", "코딩 중…", "구현 완료", 2.2):
+            yield e
+        yield _talk("writer", "다 짰어요! 세아님 테스트 부탁해요 🛠")
+        async for e in step("reviewer", "코드 읽는 중…", "테스트 중…", "QA 통과", 1.5):
+            yield e
+        yield _talk("reviewer", "버튼도 잘 눌리고 이상 없어요. 출고! ✅")
+        yield _ev("orchestrator", "done", "납품 완료")
+        yield _talk("orchestrator", "작업물 전달 완료! 다들 수고했어요 ☕")
+        yield {
+            "type": "reply",
+            "reply": "데모 작업물을 만들어봤어요! 🎁 미리보기를 눌러 확인해보세요.\n"
+                     "GROQ_API_KEY(무료)를 설정하면 요청하신 걸 진짜로 만들어드립니다.",
+            "demo": True,
+            "artifact": {"title": "데모 작업물", "html": _DEMO_HTML},
+        }
+    else:
+        yield _talk("nlu", "이건 그냥 질문이네요. 로운님이 바로 답할게요!")
+        async for e in step("writer", "답변 구상 중…", "답변 작성 중…", "답변 완료", 1.8):
+            yield e
+        yield _talk("writer", "답변 보냈어요!")
+        yield _ev("orchestrator", "done", "턴 완료")
+        yield {
+            "type": "reply",
+            "reply": "지금은 데모 모드예요! 🍃 GROQ_API_KEY(무료)를 설정하면 실제 LLM이 답변하고, "
+                     "\"테트리스 만들어줘\" 같은 의뢰를 하면 진짜 동작하는 웹앱을 만들어드려요.",
+            "demo": True,
+        }
 
 
 # ---------------------------------------------------------------- 파이프라인
 
 
 async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]:
-    """사용자 메시지 하나를 5-에이전트 파이프라인으로 처리한다.
-
-    history: [{"role": "user"|"assistant", "content": str}, ...] (클라이언트가 유지)
-    """
+    """사용자 메시지 하나를 5인 메이커 팀 파이프라인으로 처리한다."""
     if provider() is None:
-        turn = sum(1 for m in history if m.get("role") == "user")
-        async for e in _demo(message, turn):
+        async for e in _demo(message):
             yield e
         return
 
     try:
         yield _ev("orchestrator", "working", "작업 분배 중…")
-        yield _talk("orchestrator", "새 메시지 도착! 누리님, 분석 먼저 부탁해요 🙌")
+        yield _talk("orchestrator", "새 의뢰 도착! 누리님, 기획 먼저 부탁해요 🍃")
 
-        yield _ev("nlu", "thinking", "발화 분석 중…")
-        nlu = _parse_json(
+        # ---- 기획 (누리)
+        yield _ev("nlu", "thinking", "요구사항 분석 중…")
+        recent = " / ".join(m.get("content", "")[:60] for m in history[-4:])
+        plan = _parse_json(
             await _chat(
-                "당신은 챗봇 팀의 NLU 분석가 '누리'입니다. 사용자 발화를 분석해 JSON만 출력하세요. "
-                '형식: {"intent": "핵심 의도(짧은 한국어 구)", "entities": ["개체", ...], '
-                '"sentiment": "긍정|중립|부정", "summary": "요약 한 문장", '
-                '"say": "팀 동료들에게 분석 결과를 전하는 짧은 구어체 한 마디 (예: 의도는 ~네요! ~한 것 같아요)"}',
-                [{"role": "user", "content": message}],
+                "당신은 메이커 팀의 기획자 '누리'입니다. 사용자 의뢰를 분석해 JSON만 출력하세요. "
+                "무언가 만들어달라는 요청(웹페이지, 게임, 앱, 도구 등)이면 type을 build로, "
+                "일반 질문/대화면 chat으로 판별합니다. 형식: "
+                '{"type": "build|chat", "title": "작업물 이름(build일 때, 짧게)", '
+                '"requirements": ["구체적 요구사항", ...], '
+                '"say": "팀 동료들에게 기획 내용을 전하는 짧은 구어체 한 마디"}',
+                [{"role": "user", "content": f"이전 대화: {recent}\n\n의뢰: {message}"}],
                 json_mode=True,
             ),
-            {"intent": "일반 대화", "entities": [], "sentiment": "중립", "summary": message[:40]},
+            {"type": "chat", "title": "", "requirements": []},
         )
-        yield _ev("nlu", "done", f"의도: {nlu.get('intent', '?')}")
-        yield _talk("nlu", nlu.get("say") or f"의도는 '{nlu.get('intent', '?')}', 감정은 {nlu.get('sentiment', '중립')}이에요!")
+        is_build = plan.get("type") == "build"
+        yield _ev("nlu", "done", f"기획: {plan.get('title') or '일반 문의'}")
+        yield _talk("nlu", plan.get("say") or ("요구사항 정리했어요!" if is_build else "이건 질문이네요, 로운님이 바로 답할게요!"))
 
-        yield _ev("designer", "thinking", "응답 전략 설계 중…")
+        if not is_build:
+            # ---- 일반 대화: 개발자가 바로 답변
+            yield _ev("writer", "working", "답변 작성 중…")
+            reply = await _chat(
+                "당신은 메이커 팀의 개발자 '로운'입니다. 친절하고 간결한 한국어로 답하세요. "
+                "당신의 팀은 '~만들어줘' 의뢰를 받으면 실제 동작하는 웹앱을 만들어주는 팀입니다.",
+                history[-10:] + [{"role": "user", "content": message}],
+                max_tokens=2048,
+            )
+            yield _ev("writer", "done", "답변 완료")
+            yield _talk("writer", "답변 보냈어요!")
+            yield _ev("orchestrator", "done", "턴 완료")
+            yield {"type": "reply", "reply": reply, "plan": plan}
+            return
+
+        # ---- 제작 파이프라인
+        title = plan.get("title") or "새 작업물"
+        reqs = plan.get("requirements") or [message]
+
+        # 디자인 (다인)
+        yield _ev("designer", "thinking", "디자인 설계 중…")
         design = _parse_json(
             await _chat(
-                "당신은 챗봇 팀의 대화 설계자 '다인'입니다. NLU 분석을 바탕으로 응답 전략을 JSON만으로 출력하세요. "
-                '형식: {"tone": "응답 톤", "strategy": "전략 한 문장", "key_points": ["포인트", ...], '
-                '"say": "응답 생성가 로운에게 전략을 전달하는 짧은 구어체 한 마디"}',
+                "당신은 메이커 팀의 디자이너 '다인'입니다. 웹 작업물의 디자인 명세를 JSON만으로 출력하세요. "
+                '형식: {"layout": "화면 구성 설명", "style": "색/폰트/무드", '
+                '"features": ["UX 디테일", ...], "say": "개발자 로운에게 디자인을 전달하는 짧은 한 마디"}',
+                [{"role": "user", "content": f"작업물: {title}\n요구사항: {json.dumps(reqs, ensure_ascii=False)}"}],
+                json_mode=True,
+            ),
+            {"layout": "단일 화면", "style": "깔끔하고 밝은 스타일", "features": []},
+        )
+        yield _ev("designer", "done", "디자인 완료")
+        yield _talk("designer", design.get("say") or "디자인 넘겼어요. 로운님 부탁해요!")
+
+        # 개발 (로운)
+        yield _ev("writer", "working", "코딩 중…")
+        raw = await _chat(
+            "당신은 숙련된 프론트엔드 개발자 '로운'입니다. 요구사항과 디자인 명세에 따라 "
+            "완전한 단일 HTML 파일을 작성하세요. 규칙:\n"
+            "- 외부 리소스 없이 인라인 <style>과 <script>만 사용\n"
+            "- 실제로 동작해야 함 (게임이면 플레이 가능하게)\n"
+            "- UI 텍스트는 한국어\n"
+            "- 모바일에서도 보이도록 반응형\n"
+            "- 코드만 출력 (```html 펜스 사용 가능, 설명 금지)",
+            [{
+                "role": "user",
+                "content": (
+                    f"작업물: {title}\n"
+                    f"요구사항: {json.dumps(reqs, ensure_ascii=False)}\n"
+                    f"디자인: {json.dumps({k: design.get(k) for k in ('layout', 'style', 'features')}, ensure_ascii=False)}"
+                ),
+            }],
+            max_tokens=8000,
+        )
+        html = _extract_html(raw)
+        lines = html.count("\n") + 1
+        yield _ev("writer", "done", f"구현 완료 ({lines}줄)")
+        yield _talk("writer", f"코드 {lines}줄 완성! 세아님 테스트 부탁해요 🛠")
+
+        # QA (세아)
+        yield _ev("reviewer", "thinking", "테스트 중…")
+        review = _parse_json(
+            await _chat(
+                "당신은 메이커 팀의 QA '세아'입니다. HTML 코드를 검토해 JSON만 출력하세요. "
+                '형식: {"approved": true|false, "issues": ["발견한 문제", ...], '
+                '"say": "팀에게 검수 결과를 알리는 짧은 한 마디"}',
                 [{
                     "role": "user",
-                    "content": f"사용자 발화: {message}\n\nNLU 분석: {json.dumps(nlu, ensure_ascii=False)}",
+                    "content": f"요구사항: {json.dumps(reqs, ensure_ascii=False)}\n\n코드:\n{html[:6000]}",
                 }],
                 json_mode=True,
             ),
-            {"tone": "친근함", "strategy": "간결하고 자연스럽게 답한다", "key_points": []},
+            {"approved": True, "issues": []},
         )
-        yield _ev("designer", "done", f"톤: {design.get('tone', '?')}")
-        yield _talk("designer", design.get("say") or f"{design.get('tone', '친근한')} 톤으로 가죠. 로운님 부탁해요!")
+        yield _ev("reviewer", "done", "QA 통과" if review.get("approved") else "이슈 발견")
+        yield _talk("reviewer", review.get("say") or "테스트 끝! 출고해도 되겠어요 ✅")
 
-        yield _ev("writer", "working", "응답 작성 중…")
-        draft = await _chat(
-            "당신은 챗봇 팀의 응답 생성가 '로운'입니다. 대화 설계자의 전략에 따라 한국어로 응답을 작성합니다.\n"
-            f"톤: {design.get('tone', '')}\n전략: {design.get('strategy', '')}\n"
-            f"핵심 포인트: {', '.join(design.get('key_points', []))}\n"
-            f"사용자 의도: {nlu.get('intent', '')} / 감정: {nlu.get('sentiment', '')}\n"
-            "간결하고 자연스럽게 답하세요. 응답 본문만 출력하세요.",
-            history[-10:] + [{"role": "user", "content": message}],
-            max_tokens=2048,
-        )
-        yield _ev("writer", "done", "초안 완성")
-        snippet = draft.replace("\n", " ")[:28]
-        yield _talk("writer", f'초안 썼어요 — "{snippet}…" 세아님 검토 부탁해요 📝')
+        yield _ev("orchestrator", "done", "납품 완료")
+        yield _talk("orchestrator", "작업물 전달 완료! 다들 수고했어요 ☕")
 
-        yield _ev("reviewer", "thinking", "품질 검수 중…")
-        review = _parse_json(
-            await _chat(
-                "당신은 챗봇 팀의 품질 검수자 '세아'입니다. 응답 초안의 정확성/톤/안전성을 검수하고 JSON만 출력하세요. "
-                '형식: {"approved": true|false, "final_reply": "최종 응답(문제 있으면 수정본, 없으면 초안 그대로)", '
-                '"feedback": "검수 코멘트 한 문장", '
-                '"say": "팀에게 검수 결과를 알리는 짧은 구어체 한 마디"}',
-                [{"role": "user", "content": f"사용자 발화: {message}\n\n응답 초안:\n{draft}"}],
-                json_mode=True,
-                max_tokens=2048,
-            ),
-            {"approved": True, "final_reply": draft, "feedback": "자동 승인"},
-        )
-        yield _ev("reviewer", "done", "승인 ✔" if review.get("approved") else "수정 후 승인")
-        yield _talk("reviewer", review.get("say") or (review.get("feedback") or "검수 완료, 승인합니다!"))
-
-        yield _ev("orchestrator", "done", "턴 완료")
-        yield _talk("orchestrator", "고객님께 전달 완료! 다들 수고했어요 ☕")
+        issues = review.get("issues") or []
+        note = f"\n\nQA 메모: {' / '.join(str(i) for i in issues[:3])}" if issues else ""
         yield {
             "type": "reply",
-            "reply": review.get("final_reply") or draft,
-            "demo": False,
-            "nlu": nlu,
-            "design": design,
-            "review": {"approved": review.get("approved", True), "feedback": review.get("feedback", "")},
+            "reply": f"'{title}' 완성했어요! 🎁 미리보기 버튼으로 바로 확인해보세요.{note}",
+            "plan": plan,
+            "review": review,
+            "artifact": {"title": title, "html": html},
         }
-    except Exception as exc:  # API 오류는 오피스에 표시하고 사용자에게 알림
+    except Exception as exc:
         yield _ev("orchestrator", "error", f"오류: {type(exc).__name__}")
         yield {
             "type": "reply",
-            "reply": f"죄송해요, 응답 생성 중 오류가 발생했어요. ({type(exc).__name__}: {exc})",
+            "reply": f"죄송해요, 작업 중 오류가 발생했어요. ({type(exc).__name__}: {exc})",
             "error": str(exc),
         }

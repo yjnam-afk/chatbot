@@ -1,5 +1,5 @@
-/* 채팅 UI — /api/chat NDJSON 스트림에서 에이전트 상태 + 최종 답변 수신.
-   (서버리스 환경 대응: 이벤트 채널과 대화 이력을 모두 클라이언트가 관리) */
+/* 채팅 UI — /api/chat NDJSON 스트림에서 에이전트 상태/대화 + 최종 결과(작업물) 수신.
+   (서버리스 대응: 이벤트 채널과 대화 이력을 모두 클라이언트가 관리) */
 
 const messagesEl = document.getElementById("messages");
 const formEl = document.getElementById("chat-form");
@@ -7,6 +7,10 @@ const inputEl = document.getElementById("chat-input");
 const sendBtn = formEl.querySelector("button");
 const badgeEl = document.getElementById("mode-badge");
 const logEl = document.getElementById("activity-log");
+
+const pmModal = document.getElementById("preview-modal");
+const pmTitle = document.getElementById("pm-title");
+const pmFrame = document.getElementById("pm-frame");
 
 const history = []; // [{role, content}] — 클라이언트가 유지
 let agentNames = {};
@@ -37,19 +41,75 @@ function addLog(agentId, state, activity) {
   const line = document.createElement("div");
   line.className = "log-status";
   const stateKo = Office.STATE_KO[state] || state;
-  line.innerHTML = `<b style="color:${agentColors[agentId] || "#fff"}">${agentNames[agentId] || agentId}</b> · ${stateKo}${activity ? " — " + activity : ""}`;
+  line.innerHTML = `<b style="color:${agentColors[agentId] || "#8a745c"}">${agentNames[agentId] || agentId}</b> · ${stateKo}${activity ? " — " + activity : ""}`;
   pushLog(line);
 }
 
 function addTalk(agentId, text) {
   const line = document.createElement("div");
   line.className = "log-talk";
-  line.innerHTML = `<b style="color:${agentColors[agentId] || "#fff"}">${agentNames[agentId] || agentId}</b> 💬 <span></span>`;
+  line.innerHTML = `<b style="color:${agentColors[agentId] || "#5a4632"}">${agentNames[agentId] || agentId}</b> 💬 <span></span>`;
   line.querySelector("span").textContent = text;
   pushLog(line);
 }
 
-// 에이전트 명단 + 모드 로드
+// ---------------------------------------------------------- 작업물(artifact)
+function artifactBlobUrl(art) {
+  return URL.createObjectURL(new Blob([art.html], { type: "text/html" }));
+}
+
+function downloadArtifact(art) {
+  const a = document.createElement("a");
+  a.href = artifactBlobUrl(art);
+  a.download = (art.title || "작업물").replace(/[\\/:*?"<>|]/g, "_") + ".html";
+  a.click();
+}
+
+function openPreview(art) {
+  pmTitle.textContent = "🎁 " + (art.title || "미리보기");
+  pmFrame.srcdoc = art.html;
+  pmModal.hidden = false;
+  document.getElementById("pm-open").onclick = () => window.open(artifactBlobUrl(art));
+  document.getElementById("pm-down").onclick = () => downloadArtifact(art);
+}
+
+document.getElementById("pm-close").onclick = () => {
+  pmModal.hidden = true;
+  pmFrame.srcdoc = "";
+};
+pmModal.addEventListener("click", (e) => {
+  if (e.target === pmModal) document.getElementById("pm-close").onclick();
+});
+
+function addArtifactCard(art) {
+  const div = document.createElement("div");
+  div.className = "msg bot artifact";
+  const title = document.createElement("div");
+  title.className = "art-title";
+  title.textContent = "🎁 " + (art.title || "작업물") + " 완성!";
+  const actions = document.createElement("div");
+  actions.className = "art-actions";
+  const bPrev = document.createElement("button");
+  bPrev.className = "art-btn";
+  bPrev.textContent = "▶ 미리보기";
+  bPrev.onclick = () => openPreview(art);
+  const bOpen = document.createElement("button");
+  bOpen.className = "art-btn secondary";
+  bOpen.textContent = "새 탭";
+  bOpen.onclick = () => window.open(artifactBlobUrl(art));
+  const bDown = document.createElement("button");
+  bDown.className = "art-btn secondary";
+  bDown.textContent = "다운로드";
+  bDown.onclick = () => downloadArtifact(art);
+  actions.append(bPrev, bOpen, bDown);
+  div.append(title, actions);
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  // 완성되면 자동으로 미리보기를 열어준다
+  openPreview(art);
+}
+
+// ---------------------------------------------------------- 초기화
 fetch("/api/agents")
   .then((r) => r.json())
   .then((data) => {
@@ -78,9 +138,10 @@ function handleEvent(ev, ui) {
   } else if (ev.type === "reply") {
     ui.typing.remove();
     let meta = "";
-    if (ev.nlu) meta = `의도: ${ev.nlu.intent} · 감정: ${ev.nlu.sentiment}`;
-    if (ev.review) meta += (meta ? " · " : "") + `검수: ${ev.review.approved ? "승인" : "수정됨"}`;
+    if (ev.plan && ev.plan.type === "build") meta = `기획: ${ev.plan.title || "-"}`;
+    if (ev.review) meta += (meta ? " · " : "") + `QA: ${ev.review.approved ? "통과" : "이슈 있음"}`;
     addMessage("bot", ev.reply, meta || null);
+    if (ev.artifact && ev.artifact.html) addArtifactCard(ev.artifact);
     history.push({ role: "assistant", content: ev.reply });
     if (history.length > 30) history.splice(0, history.length - 30);
   }
@@ -93,7 +154,7 @@ formEl.addEventListener("submit", async (e) => {
   inputEl.value = "";
   sendBtn.disabled = true;
   addMessage("user", text);
-  const ui = { typing: addMessage("bot typing", "에이전트 팀이 작업 중이에요…") };
+  const ui = { typing: addMessage("bot typing", "메이커 팀이 작업 중이에요") };
 
   try {
     const res = await fetch("/api/chat", {
@@ -104,7 +165,6 @@ formEl.addEventListener("submit", async (e) => {
     if (!res.ok) throw new Error("HTTP " + res.status);
     history.push({ role: "user", content: text });
 
-    // NDJSON 스트림 파싱
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buf = "";
@@ -131,11 +191,12 @@ formEl.addEventListener("submit", async (e) => {
 
 addMessage(
   "bot",
-  "안녕하세요! 저희는 5명이 한 팀으로 일하는 픽셀 오피스 챗봇이에요. 🙌\n\n" +
-    "🟡 코디 — 팀장. 일을 나눠주고 마무리해요\n" +
-    "🔵 누리 — 당신의 말의 의도·감정을 분석해요\n" +
-    "🟣 다인 — 어떤 톤과 전략으로 답할지 설계해요\n" +
-    "🟢 로운 — 실제 답변 초안을 써요\n" +
-    "🩷 세아 — 초안을 검수하고 최종 승인해요\n\n" +
-    "메시지를 보내면 왼쪽 오피스에서 서로 대화하며 일하는 모습이 보여요!"
+  "🍃 픽셀 사무소에 어서 오세요! 저희는 의뢰를 받으면 진짜 동작하는 웹앱을 만들어드리는 5인 메이커 팀이에요.\n\n" +
+    "🐶 코디 — 팀장. 일을 나눠주고 마무리해요\n" +
+    "🐱 누리 — 기획자. 의뢰를 요구사항으로 정리해요\n" +
+    "🐰 다인 — 디자이너. 화면과 스타일을 설계해요\n" +
+    "🐸 로운 — 개발자. 실제 코드를 짜요\n" +
+    "🐻 세아 — QA. 테스트하고 승인해요\n\n" +
+    '예시: "테트리스 게임 만들어줘", "뽀모도로 타이머 만들어줘", "고양이 카페 랜딩페이지 만들어줘"\n' +
+    "일반 질문도 얼마든지 환영이에요!"
 );

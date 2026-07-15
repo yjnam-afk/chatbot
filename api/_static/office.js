@@ -1,11 +1,11 @@
-/* 픽셀 오피스 렌더러 — 밝고 아기자기한 오피스 디오라마.
+/* 픽셀 사무소 렌더러 — 동물의 숲 컨셉의 야외 광장.
    외부 에셋 없이 fillRect 픽셀아트로 전부 코드 렌더링한다. */
 
 const Office = (() => {
   const canvas = document.getElementById("office");
   const ctx = canvas.getContext("2d");
   const W = canvas.width, H = canvas.height;
-  const PX = 4; // 캐릭터 픽셀 크기
+  const PX = 4;
 
   let fontOK = false;
   if (document.fonts) {
@@ -15,80 +15,60 @@ const Office = (() => {
 
   // ------------------------------------------------------------ 팔레트
   const C = {
-    wall: "#efe3c8",
-    wallTop: "#f7eeda",
-    wallShade: "#ddcba6",
-    baseboard: "#cbb28a",
-    floorA: "#e2c294",
-    floorB: "#dab88a",
-    seam: "#c39e6e",
-    furn: "#5a4632",     // 가구 외곽선
-    ink: "#463930",      // 어두운 텍스트
-    charLine: "#332a38", // 캐릭터 외곽선
+    grassA: "#7ebf5a",
+    grassB: "#76b654",
+    grassDot: "#6cab4b",
+    path: "#e3cfa0",
+    pathEdge: "#c9b382",
+    wood: "#c98f56",
+    woodDark: "#a06c3c",
+    furn: "#5a4028",
+    ink: "#5a4632",
   };
 
-  // ------------------------------------------------------------ 스프라이트
-  // o외곽선 H머리 S피부 e눈 r볼터치 B상의 b상의음영 P하의 E신발
-  const HEAD_SHORT = [
+  // ------------------------------------------------------------ 동물 스프라이트
+  // o외곽선 F털 f털음영 m주둥이 n코 e눈 B옷 b옷음영 P하의 E발
+  const HEAD = [
     "...oooooo...",
-    "..oHHHHHHo..",
-    ".oHHHHHHHHo.",
-    ".oHHHHHHHHo.",
-    ".oHSSSSSSHo.",
-    ".oHSeSSeSHo.",
-    ".oHSSSSSSHo.",
-    ".oSrSSSSrSo.",
-    "..oSSSSSSo..",
-    "...oSSSSo...",
-  ];
-  const HEAD_LONG = [
-    "...oooooo...",
-    "..oHHHHHHo..",
-    ".oHHHHHHHHo.",
-    ".oHHHHHHHHo.",
-    ".oHSSSSSSHo.",
-    ".oHSeSSeSHo.",
-    ".oHSSSSSSHo.",
-    ".oHrSSSSrHo.",
-    ".oHSSSSSSHo.",
-    ".oHoSSSSoHo.",
+    "..oFFFFFFo..",
+    ".oFFFFFFFFo.",
+    ".oFFFFFFFFo.",
+    ".oFeFFFFeFo.",
+    ".oFFmmmmFFo.",
+    ".oFmmnnmmFo.",
+    ".oFFmmmmFFo.",
+    "..oFFFFFFo..",
+    "...oFFFFo...",
   ];
   const TORSO = [
     "..oBBBBBBo..",
     ".oBbBBBBbBo.",
     ".oBbBBBBbBo.",
-    ".oSoBBBBoSo.",
+    ".oFoBBBBoFo.",
     "..oBBBBBBo..",
   ];
   const LEGS = {
-    stand: [
-      "...oPPPPo...",
-      "...oPPPPo...",
-      "...oP..Po...",
-      "..oEE..EEo..",
-    ],
-    walkA: [
-      "...oPPPPo...",
-      "..oPP..PPo..",
-      "..oP....Po..",
-      ".oEE....EEo.",
-    ],
-    walkB: [
-      "...oPPPPo...",
-      "...oPPPPo...",
-      "....oPPo....",
-      "...oEEEEo...",
-    ],
+    stand: ["...oPPPPo...", "...oPPPPo...", "...oP..Po...", "..oEE..EEo.."],
+    walkA: ["...oPPPPo...", "..oPP..PPo..", "..oP....Po..", ".oEE....EEo."],
+    walkB: ["...oPPPPo...", "...oPPPPo...", "....oPPo....", "...oEEEEo..."],
   };
   const SPRITE_W = 12 * PX;
   const SPRITE_H = (10 + 5 + 4) * PX;
 
+  // 귀 오버레이 (머리 위/옆에 종별로 그린다) — [dx(칸), dy(칸), w, h] 단위: 스프라이트 픽셀
+  const SPECIES = {
+    dog:    { fur: "#e8b04a", ears: [[1, 1, 2, 5], [9, 1, 2, 5]], earShade: true },   // 늘어진 귀
+    cat:    { fur: "#9db8d8", ears: [[2, -2, 2, 2], [8, -2, 2, 2]] },       // 뾰족 귀
+    rabbit: { fur: "#c9aee6", ears: [[3, -5, 2, 6], [7, -5, 2, 6]] },                  // 긴 귀
+    frog:   { fur: "#8ecf7a", bumps: [[3, -1], [7, -1]] },                             // 눈 볼록
+    bear:   { fur: "#f0b0c0", ears: [[1, -1, 3, 3], [8, -1, 3, 3]] },                  // 둥근 귀
+  };
   const LOOKS = {
-    orchestrator: { hair: "#8a5a2c", long: false },
-    nlu:          { hair: "#31456e", long: false },
-    designer:     { hair: "#6a4088", long: true },
-    writer:       { hair: "#3c5a40", long: false },
-    reviewer:     { hair: "#a04e66", long: true },
+    orchestrator: "dog",
+    nlu: "cat",
+    designer: "rabbit",
+    writer: "frog",
+    reviewer: "bear",
   };
 
   // ------------------------------------------------------------ 배치
@@ -100,11 +80,12 @@ const Office = (() => {
     writer:       { x: 520, y: 316 },
   };
   const LOUNGE = [
-    { x: 225, y: 428 }, { x: 118, y: 450 }, { x: 182, y: 452 },
-    { x: 262, y: 460 }, { x: 86, y: 432 },
+    { x: 150, y: 420 }, { x: 96, y: 448 }, { x: 208, y: 452 },
+    { x: 252, y: 420 }, { x: 60, y: 420 },
   ];
+  const CAMPFIRE = { x: 152, y: 448 };
 
-  const BUBBLE = { thinking: "💭", working: "⚙️", done: "✅", error: "❌" };
+  const BUBBLE = { thinking: "💭", working: "⚒️", done: "✅", error: "❌" };
   const STATE_KO = { idle: "휴식", thinking: "생각 중", working: "작업 중", done: "완료", error: "오류" };
 
   let agents = [];
@@ -148,20 +129,17 @@ const Office = (() => {
     return desk ? { x: desk.x, y: desk.y } : a.loungeSpot;
   }
 
-  // ------------------------------------------------------------ 그리기 유틸
+  // ------------------------------------------------------------ 유틸
   function px(x, y, w, h, c) { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); }
-
   function outlined(x, y, w, h, fill, line = C.furn) {
     px(x - 2, y - 2, w + 4, h + 4, line);
     px(x, y, w, h, fill);
   }
-
   function shadow(x, y, w) {
-    ctx.globalAlpha = 0.13;
-    px(x, y, w, 6, "#3b2a18");
+    ctx.globalAlpha = 0.15;
+    px(x, y, w, 6, "#274018");
     ctx.globalAlpha = 1;
   }
-
   function wrapText(text, maxChars) {
     const out = [];
     let cur = "";
@@ -178,164 +156,167 @@ const Office = (() => {
     return out.slice(0, 3);
   }
 
-  // ------------------------------------------------------------ 배경
-  function drawRoom(t) {
-    // 벽 + 바닥
-    px(0, 0, W, 96, C.wall);
-    px(0, 0, W, 8, C.wallTop);
-    px(0, 84, W, 12, C.baseboard);
-    px(0, 82, W, 2, C.wallShade);
-    for (let y = 96; y < H; y += 20) {
-      const row = (y - 96) / 20;
-      px(0, y, W, 20, row % 2 ? C.floorA : C.floorB);
-      px(0, y, W, 1, C.seam);
-      const off = (row % 2) * 70;
-      for (let x = off; x < W; x += 140) px(x, y, 2, 20, C.seam);
-    }
-
-    // 창문 3개 (낮 하늘 + 구름)
-    for (const wx of [70, 335, 600]) {
-      px(wx - 4, 8, 98, 66, "#fbf6ea");
-      px(wx - 6, 6, 102, 4, C.wallShade);
-      px(wx, 12, 90, 56, "#a5d8f2");
-      px(wx, 12, 90, 18, "#c2e6f8");
-      // 구름
-      const cx = wx + 8 + ((t / 300) % 110) - 20;
-      ctx.save(); ctx.beginPath(); ctx.rect(wx, 12, 90, 56); ctx.clip();
-      px(cx, 24, 26, 8, "#ffffff"); px(cx + 5, 20, 14, 6, "#ffffff");
-      px(cx - 46, 42, 20, 6, "#f2fbff");
-      ctx.restore();
-      // 창살
-      px(wx + 43, 12, 4, 56, "#fbf6ea");
-      px(wx, 38, 90, 4, "#fbf6ea");
-      px(wx - 4, 70, 98, 5, "#e8dcc2");
-    }
-
-    // 화이트보드
-    outlined(196, 22, 108, 46, "#fdfcf7");
-    px(200, 30, 56, 4, "#e06a5a");
-    px(200, 40, 72, 3, "#8aa8d8");
-    px(200, 48, 44, 3, "#8aa8d8");
-    px(200, 56, 62, 3, "#a8cf9a");
-    px(240, 70, 20, 5, "#d8cba8");
-
-    // 액자 2개
-    outlined(480, 26, 30, 24, "#fdf8ec");
-    px(484, 34, 22, 12, "#a5d8f2");
-    px(488, 30, 8, 8, "#f2c14e");
-    outlined(524, 30, 24, 20, "#fdf8ec");
-    px(528, 34, 16, 12, "#f0a8b8");
-
-    // 벽시계
-    const cx = 706, cy = 40;
-    ctx.fillStyle = C.furn; ctx.beginPath(); ctx.arc(cx, cy, 17, 0, 7); ctx.fill();
-    ctx.fillStyle = "#fdfcf7"; ctx.beginPath(); ctx.arc(cx, cy, 13, 0, 7); ctx.fill();
-    const now = new Date();
-    const ma = (now.getMinutes() / 60) * Math.PI * 2 - Math.PI / 2;
-    const ha = ((now.getHours() % 12) / 12 + now.getMinutes() / 720) * Math.PI * 2 - Math.PI / 2;
-    ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(ha) * 6, cy + Math.sin(ha) * 6); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(ma) * 10, cy + Math.sin(ma) * 10); ctx.stroke();
+  // ------------------------------------------------------------ 배경 (잔디 광장)
+  const FLOWERS = [];
+  for (let i = 0; i < 14; i++) {
+    FLOWERS.push({
+      x: (i * 173 + 40) % (W - 40) + 20,
+      y: (i * 97 + 60) % (H - 120) + 80,
+      c: ["#f2c14e", "#ef8aa0", "#fdfcf7"][i % 3],
+    });
   }
 
-  function drawLounge() {
-    // 러그
-    outlined(44, 388, 264, 82, "#9cc4dd", "#7ba6c4");
-    px(52, 396, 248, 66, "#b3d5e8");
-    px(52, 396, 248, 3, "#cde6f2");
-    px(52, 459, 248, 3, "#7ba6c4");
-    // 소파
-    shadow(54, 424, 140);
-    outlined(58, 400, 132, 24, "#e8896a");
-    px(58, 390, 132, 14, "#f09a78");
-    px(62, 408, 60, 12, "#f0926f");
-    px(126, 408, 60, 12, "#f0926f");
-    px(50, 396, 10, 28, "#d97a5c");
-    px(188, 396, 10, 28, "#d97a5c");
-    // 커피 테이블
-    shadow(216, 452, 70);
-    outlined(214, 436, 68, 14, "#caa06b");
-    px(222, 428, 10, 9, "#fdfcf7");
-    px(258, 428, 10, 9, "#f2c14e");
-    // 스탠드 조명
-    px(310, 380, 4, 54, C.furn);
-    px(296, 366, 32, 18, "#f6d98a");
-    px(298, 368, 28, 6, "#fbe8b4");
-    px(302, 434, 20, 5, C.furn);
+  function drawGrass() {
+    // 동숲식 체크 잔디
+    for (let y = 0; y < H; y += 24) {
+      for (let x = 0; x < W; x += 24) {
+        px(x, y, 24, 24, ((x + y) / 24) % 2 === 0 ? C.grassA : C.grassB);
+      }
+    }
+    // 풀 무늬 (작은 삼각 점)
+    for (let y = 12; y < H; y += 48) {
+      for (let x = 12; x < W; x += 48) {
+        px(x, y, 3, 2, C.grassDot);
+        px(x + 1, y - 2, 1, 2, C.grassDot);
+        px(x + 24, y + 24, 3, 2, C.grassDot);
+        px(x + 25, y + 22, 1, 2, C.grassDot);
+      }
+    }
   }
 
-  function drawDeco() {
-    // 자판기
-    shadow(682, 434, 62);
-    outlined(684, 352, 56, 88, "#e06a5a");
-    px(690, 360, 30, 50, "#463930");
-    for (let r = 0; r < 3; r++)
-      for (let c = 0; c < 3; c++)
-        px(694 + c * 9, 366 + r * 15, 6, 9, ["#f2c14e", "#8ec9e8", "#a8cf9a"][(r + c) % 3]);
-    px(724, 364, 10, 24, "#fdf3e0");
-    px(690, 416, 30, 14, "#5a4632");
-    // 정수기
-    shadow(628, 436, 34);
-    outlined(630, 394, 30, 44, "#fdf8ec");
-    px(635, 378, 20, 20, "#9ed2ef");
-    px(639, 382, 7, 9, "#cdeaf8");
-    px(637, 412, 7, 7, "#6db4dd");
-    // 화분 (오른쪽)
-    shadow(586, 436, 30);
-    px(588, 414, 26, 22, "#b06a3c");
-    px(584, 386, 34, 30, "#5fa86a");
-    px(592, 376, 18, 18, "#7cc487");
-    // 화분 (창가)
-    px(320, 96, 22, 6, C.wallShade);
-    px(324, 80, 14, 16, "#7cc487");
-    px(326, 88, 10, 10, "#5fa86a");
+  function drawPath() {
+    // 책상 구역을 잇는 흙길
+    ctx.globalAlpha = 0.9;
+    px(60, 226, 640, 26, C.path);
+    px(60, 224, 640, 2, C.pathEdge);
+    px(60, 252, 640, 2, C.pathEdge);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawTree(x, y) {
+    shadow(x - 24, y - 2, 52);
+    px(x - 7, y - 26, 14, 28, "#8a5f36");
+    px(x - 3, y - 26, 4, 28, "#9c7044");
+    ctx.fillStyle = "#3f8f47";
+    ctx.beginPath(); ctx.arc(x, y - 52, 30, 0, 7); ctx.fill();
+    ctx.fillStyle = "#4fa653";
+    ctx.beginPath(); ctx.arc(x - 12, y - 44, 20, 0, 7); ctx.fill();
+    ctx.fillStyle = "#65bd68";
+    ctx.beginPath(); ctx.arc(x + 8, y - 62, 18, 0, 7); ctx.fill();
+    px(x - 16, y - 52, 6, 6, "#e85d4a");
+    px(x + 10, y - 44, 6, 6, "#e85d4a");
+    px(x - 2, y - 70, 6, 6, "#e85d4a");
+  }
+
+  function drawFlowers(t) {
+    for (const f of FLOWERS) {
+      const sway = Math.sin(t / 600 + f.x) > 0.6 ? 1 : 0;
+      px(f.x + 1, f.y + 3, 2, 4, "#4c8f3c");
+      px(f.x - 2 + sway, f.y - 2, 8, 5, f.c);
+      px(f.x + sway, f.y - 4, 4, 9, f.c);
+      px(f.x + 1 + sway, f.y - 1, 2, 3, "#f6e2a0");
+    }
+  }
+
+  function drawSign() {
+    shadow(28, 96, 90);
+    px(56, 60, 8, 40, "#8a5f36");
+    outlined(26, 32, 96, 34, "#d9a869");
+    px(30, 36, 88, 4, "#e8bc80");
+    ctx.fillStyle = "#4d3620"; ctx.font = F9(); ctx.textAlign = "center";
+    ctx.fillText("픽셀 사무소", 74, 48);
+    px(70, 52, 8, 6, "#4f9e4f");
+    px(74, 50, 4, 4, "#65bd68");
+    px(69, 57, 3, 2, "#3f8540");
+  }
+
+  function drawCampsite(t) {
+    // 텐트
+    shadow(38, 380, 110);
+    ctx.fillStyle = C.furn;
+    ctx.beginPath(); ctx.moveTo(40, 384); ctx.lineTo(92, 330); ctx.lineTo(144, 384); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#f2a25c";
+    ctx.beginPath(); ctx.moveTo(46, 381); ctx.lineTo(92, 335); ctx.lineTo(138, 381); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#e88a3c";
+    ctx.beginPath(); ctx.moveTo(70, 381); ctx.lineTo(92, 349); ctx.lineTo(114, 381); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#7a4a24";
+    ctx.beginPath(); ctx.moveTo(80, 381); ctx.lineTo(92, 360); ctx.lineTo(104, 381); ctx.closePath(); ctx.fill();
+    // 캠프파이어
+    const f = CAMPFIRE;
+    px(f.x - 16, f.y - 4, 32, 8, "#8a5f36");
+    px(f.x - 12, f.y - 8, 24, 6, "#a06c3c");
+    const flick = Math.floor(t / 160) % 2;
+    px(f.x - 7, f.y - 22 + flick, 14, 14, "#f2903c");
+    px(f.x - 4, f.y - 28 + flick * 2, 8, 12, "#f6b83c");
+    px(f.x - 2, f.y - 20 + flick, 4, 8, "#fbe27a");
+    // 통나무 의자
+    px(196, 428, 34, 12, C.woodDark);
+    px(196, 424, 34, 6, C.wood);
+    px(236, 448, 34, 12, C.woodDark);
+    px(236, 444, 34, 6, C.wood);
+  }
+
+  function drawPond(t) {
+    const x = 640, y = 420;
+    ctx.fillStyle = "#5a8ac4";
+    ctx.beginPath(); ctx.ellipse(x, y, 74, 40, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = "#74a8d8";
+    ctx.beginPath(); ctx.ellipse(x, y, 64, 32, 0, 0, 7); ctx.fill();
+    const r = Math.floor(t / 500) % 3;
+    ctx.strokeStyle = "rgba(255,255,255,0.5)"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(x - 14, y - 6, 6 + r * 4, 3 + r * 2, 0, 0, 7); ctx.stroke();
+    // 수련잎
+    ctx.fillStyle = "#5fae57";
+    ctx.beginPath(); ctx.ellipse(x + 26, y + 10, 11, 7, 0, 0, 7); ctx.fill();
+    px(x + 24, y + 4, 4, 4, "#ef8aa0");
+  }
+
+  function drawButterfly(t) {
+    const bx = W / 2 + Math.sin(t / 2400) * 300;
+    const by = 110 + Math.sin(t / 1300) * 40 + Math.sin(t / 300) * 6;
+    const flap = Math.floor(t / 120) % 2;
+    px(bx - 4, by - flap * 2, 4, 4 + flap * 2, "#fdfcf7");
+    px(bx + 1, by - flap * 2, 4, 4 + flap * 2, "#fdfcf7");
+    px(bx, by + 1, 1, 4, "#5a4632");
   }
 
   function drawDesk(x, y, a, busy, t) {
-    // 바닥 매트
-    ctx.globalAlpha = 0.25;
-    px(x - 62, y - 10, 124, 26, "#c9a06a");
-    ctx.globalAlpha = 1;
-    // 책상
-    shadow(x - 56, y + 46, 116);
-    outlined(x - 56, y + 8, 112, 14, "#f0d7ae");
-    px(x - 56, y + 22, 112, 22, "#caa06b");
-    px(x - 56, y + 22, 112, 3, "#b78e58");
-    px(x + 26, y + 26, 24, 14, "#b78e58");   // 서랍
-    px(x + 34, y + 31, 8, 3, "#8a6a42");
-    px(x - 52, y + 44, 8, 8, "#8a6a42");     // 다리
-    px(x + 44, y + 44, 8, 8, "#8a6a42");
-    // 모니터
-    if (busy) { // 화면 빛
+    // 통나무 책상
+    shadow(x - 54, y + 44, 112);
+    outlined(x - 54, y + 8, 108, 14, "#d9a869");
+    px(x - 54, y + 8, 108, 4, "#e8bc80");
+    px(x - 54, y + 22, 108, 20, C.wood);
+    px(x - 54, y + 22, 108, 3, C.woodDark);
+    px(x - 50, y + 42, 8, 8, C.woodDark);
+    px(x + 42, y + 42, 8, 8, C.woodDark);
+    // 노트북 (크림색)
+    if (busy) {
       ctx.globalAlpha = 0.18;
-      px(x - 34, y - 32, 68, 48, "#8ec9e8");
+      px(x - 30, y - 28, 60, 42, "#bde3f5");
       ctx.globalAlpha = 1;
     }
-    outlined(x - 26, y - 26, 52, 34, "#4a4458");
+    outlined(x - 22, y - 22, 44, 30, "#fdf6dd");
     if (busy) {
-      px(x - 22, y - 22, 44, 26, "#123048");
-      const cols = ["#f2c14e", "#a8cf9a", "#f0a8b8", "#8ec9e8"];
+      px(x - 18, y - 18, 36, 22, "#12303f");
+      const cols = ["#f2c14e", "#8ecf7a", "#ef8aa0", "#7fc4ea"];
       for (let i = 0; i < 4; i++) {
-        const wLine = 10 + ((t / 150 + i * 4) % 26);
-        px(x - 18, y - 18 + i * 5, wLine, 3, cols[i % 4]);
+        const wLine = 8 + ((t / 150 + i * 4) % 22);
+        px(x - 15, y - 15 + i * 5, wLine, 3, cols[i % 4]);
       }
     } else {
-      px(x - 22, y - 22, 44, 26, "#2b2836");
+      px(x - 18, y - 18, 36, 22, "#3d4d42");
     }
-    px(x - 5, y + 8, 10, 4, "#4a4458");
-    // 키보드 + 마우스 + 머그컵 + 서류
-    px(x - 24, y + 11, 30, 7, "#5c5670");
-    px(x - 21, y + 13, 24, 1, "#8a84a0");
-    px(x + 12, y + 12, 7, 6, "#5c5670");
+    px(x - 26, y + 8, 52, 5, "#e8dcc0");
+    // 소품: 머그컵 + 서류
     px(x - 44, y + 10, 11, 10, a.color);
     px(x - 33, y + 12, 4, 5, a.color);
     px(x + 30, y + 10, 16, 3, "#fdfcf7");
     px(x + 32, y + 7, 16, 3, "#f4efe2");
     // 명패
-    outlined(x - 34, y + 52, 68, 14, "#fdf8ec");
-    px(x - 30, y + 55, 8, 8, a.color);
+    outlined(x - 40, y + 52, 80, 14, "#fdf6dd");
+    px(x - 36, y + 55, 8, 8, a.color);
     ctx.fillStyle = C.ink; ctx.font = F9(); ctx.textAlign = "left";
-    ctx.fillText(a.name + " · " + a.role, x - 18, y + 63);
+    ctx.fillText(a.name + " · " + a.role, x - 24, y + 63);
   }
 
   // ------------------------------------------------------------ 캐릭터
@@ -353,10 +334,30 @@ const Office = (() => {
     return oy;
   }
 
-  function shade(hex) {
+  function shade(hex, d = 42) {
     const n = parseInt(hex.slice(1), 16);
-    const r = Math.max(0, (n >> 16) - 42), g = Math.max(0, ((n >> 8) & 255) - 42), b = Math.max(0, (n & 255) - 42);
+    const r = Math.max(0, (n >> 16) - d), g = Math.max(0, ((n >> 8) & 255) - d), b = Math.max(0, (n & 255) - d);
     return `rgb(${r},${g},${b})`;
+  }
+
+  function drawEars(a, ox, oy, sp) {
+    const fur = sp.fur, dark = shade(fur, 30);
+    if (sp.ears) {
+      for (const [dx, dy, w, h] of sp.ears) {
+        const ex = ox + dx * PX, ey = oy + dy * PX;
+        px(ex - PX / 2, ey - PX / 2, w * PX + PX, h * PX + PX, C.furnLine || "#3d3226");
+        px(ex, ey, w * PX, h * PX, sp.earShade ? dark : fur);
+        if (!sp.earShade && h >= 3) px(ex + PX / 2, ey + PX, w * PX - PX, (h - 2) * PX, "#f0c8d0");
+      }
+    }
+    if (sp.bumps) {
+      for (const [dx, dy] of sp.bumps) {
+        const ex = ox + dx * PX, ey = oy + dy * PX;
+        px(ex - PX / 2, ey - PX / 2, 2 * PX + PX, 2 * PX + PX, "#3d3226");
+        px(ex, ey, 2 * PX, 2 * PX, fur);
+        px(ex + PX / 2, ey + PX / 2, PX, PX, "#3d3226");
+      }
+    }
   }
 
   function drawAgent(a, t) {
@@ -364,47 +365,50 @@ const Office = (() => {
     const ox = a.x - SPRITE_W / 2;
     const oy = a.y - SPRITE_H + bob;
 
-    ctx.globalAlpha = 0.18;
-    ctx.fillStyle = "#3b2a18";
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle = "#274018";
     ctx.beginPath();
     ctx.ellipse(a.x, a.y + 3, 19, 6, 0, 0, 7);
     ctx.fill();
     ctx.globalAlpha = 1;
 
-    const look = LOOKS[a.id] || { hair: "#3b2b20", long: false };
+    const sp = SPECIES[LOOKS[a.id] || "dog"];
     const palette = {
-      o: C.charLine,
-      H: look.hair,
-      S: "#f8d0a8",
-      e: "#332a38",
-      r: "#f2a58c",
+      o: "#3d3226",
+      F: sp.fur,
+      f: shade(sp.fur, 30),
+      m: "#fbf0dc",
+      n: "#3d3226",
+      e: "#3d3226",
       B: a.color,
       b: shade(a.color),
-      P: "#46507a",
-      E: "#332a38",
+      P: "#8a6a4a",
+      E: "#3d3226",
     };
+    drawEars(a, ox, oy, sp);
     const legs = a.moving
       ? (Math.floor(t / 130) % 2 ? LEGS.walkA : LEGS.walkB)
       : LEGS.stand;
     const flip = a.facing < 0;
-    let yy = drawSpriteRows(look.long ? HEAD_LONG : HEAD_SHORT, ox, oy, palette, flip);
+    let yy = drawSpriteRows(HEAD, ox, oy, palette, flip);
     yy = drawSpriteRows(TORSO, ox, yy, palette, flip);
     drawSpriteRows(legs, ox, yy, palette, flip);
 
-    // 이름표 (휴게실/이동 중에만 — 책상에서는 명패가 있음)
     if (a.state === "idle" || a.moving) {
       ctx.font = F9(); ctx.textAlign = "center";
-      ctx.fillStyle = "rgba(70,57,48,0.85)";
+      ctx.fillStyle = "rgba(39,64,24,0.9)";
+      ctx.fillText(a.name, a.x + 1, a.y + 19);
+      ctx.fillStyle = "#ffffff";
       ctx.fillText(a.name, a.x, a.y + 18);
     }
 
     if (a.state === "idle" && !a.say && !a.moving && Math.floor(t / 1100) % 3 === 0) {
-      ctx.font = F9(); ctx.fillStyle = "#7f96c4";
-      ctx.fillText("Zzz", a.x + 24, oy - 4);
+      ctx.font = F9(); ctx.fillStyle = "#fdf6dd";
+      ctx.fillText("Zzz", a.x + 24, oy - 6);
     }
   }
 
-  // 말풍선은 항상 최상단에
+  // 말풍선 (동숲식: 이름표 달린 흰 풍선) — 항상 최상단
   function drawBubbles() {
     for (const a of agents) {
       if (a.say && performance.now() < a.say.until) {
@@ -412,24 +416,29 @@ const Office = (() => {
         ctx.font = F9();
         let wMax = 0;
         for (const l of lines) wMax = Math.max(wMax, ctx.measureText(l).width);
-        const bw = Math.min(220, wMax + 18), bh = lines.length * 14 + 12;
-        let bx = a.x - bw / 2, by = a.y - SPRITE_H - bh - 12;
+        const bw = Math.min(224, Math.max(wMax + 18, 70)), bh = lines.length * 14 + 12;
+        let bx = a.x - bw / 2, by = a.y - SPRITE_H - bh - 16;
         bx = Math.max(6, Math.min(W - bw - 6, bx));
-        by = Math.max(6, by);
-        outlined(bx, by, bw, bh, "#ffffff", C.charLine);
-        px(a.x - 5, by + bh + 2, 10, 4, C.charLine);
-        px(a.x - 4, by + bh, 8, 4, "#ffffff");
-        ctx.fillStyle = C.ink; ctx.textAlign = "left";
+        by = Math.max(20, by);
+        outlined(bx, by, bw, bh, "#fffdf4", "#5a4632");
+        px(a.x - 5, by + bh + 2, 10, 4, "#5a4632");
+        px(a.x - 4, by + bh, 8, 4, "#fffdf4");
+        // 이름표
+        const tagW = ctx.measureText(a.name).width + 14;
+        outlined(bx + 6, by - 9, tagW, 13, a.color, "#5a4632");
+        ctx.fillStyle = "#ffffff"; ctx.textAlign = "left";
+        ctx.fillText(a.name, bx + 13, by + 2);
+        ctx.fillStyle = C.ink;
         lines.forEach((l, i) => ctx.fillText(l, bx + 9, by + 17 + i * 14));
         continue;
       }
       if (a.say && performance.now() >= a.say.until) a.say = null;
       if (a.state !== "idle") {
         const emoji = BUBBLE[a.state] || "";
-        const bx = a.x + 12, by = a.y - SPRITE_H - 30;
-        outlined(bx, by, 28, 22, "#ffffff", C.charLine);
-        px(bx + 3, by + 22, 7, 4, C.charLine);
-        px(bx + 4, by + 21, 5, 3, "#ffffff");
+        const bx = a.x + 12, by = a.y - SPRITE_H - 32;
+        outlined(bx, by, 28, 22, "#fffdf4", "#5a4632");
+        px(bx + 3, by + 22, 7, 4, "#5a4632");
+        px(bx + 4, by + 21, 5, 3, "#fffdf4");
         ctx.font = "14px sans-serif"; ctx.textAlign = "center";
         ctx.fillStyle = C.ink;
         ctx.fillText(emoji, bx + 14, by + 16);
@@ -440,9 +449,14 @@ const Office = (() => {
   // ------------------------------------------------------------ 루프
   function tick(t) {
     ctx.clearRect(0, 0, W, H);
-    drawRoom(t);
-    drawLounge();
-    drawDeco();
+    drawGrass();
+    drawPath();
+    drawPond(t);
+    drawTree(438, 452);
+    drawTree(716, 150);
+    drawFlowers(t);
+    drawSign();
+    drawCampsite(t);
 
     for (const a of agents) {
       const target = targetOf(a);
@@ -467,6 +481,7 @@ const Office = (() => {
       if (desk) drawDesk(desk.x, desk.y, a, a.state === "working" || a.state === "thinking", t);
     }
     for (const a of resting) drawAgent(a, t);
+    drawButterfly(t);
     drawBubbles();
 
     requestAnimationFrame(tick);

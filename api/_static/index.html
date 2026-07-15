@@ -3,35 +3,47 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>픽셀 오피스 챗봇</title>
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-        href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/Galmuri11.woff2" />
+  <title>픽셀 사무소 — 메이커 팀</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="font" type="font/woff2" crossorigin
         href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/Galmuri9.woff2" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>🏢 픽셀 오피스 챗봇</h1>
+    <h1>🍃 픽셀 사무소</h1>
     <span id="mode-badge" class="badge">connecting…</span>
   </header>
 
   <main>
     <section id="office-panel">
       <canvas id="office" width="760" height="480"></canvas>
-      <div id="legend">💤 휴식 · 💭 생각 · ⚙️ 작업 · ✅ 완료 · ❌ 오류</div>
-      <div class="log-title">▸ 팀 대화</div>
+      <div id="legend">💤 휴식 · 💭 생각 · ⚒️ 작업 · ✅ 완료 · ❌ 오류</div>
+      <div class="log-title">🗨 팀 대화</div>
       <div id="activity-log"></div>
     </section>
 
     <section id="chat-panel">
       <div id="messages"></div>
       <form id="chat-form">
-        <input id="chat-input" type="text" placeholder="메시지를 입력하세요…" autocomplete="off" />
+        <input id="chat-input" type="text" placeholder="무엇을 만들까요? 예: 테트리스 게임 만들어줘" autocomplete="off" />
         <button type="submit">전송</button>
       </form>
     </section>
   </main>
+
+  <div id="preview-modal" hidden>
+    <div class="pm-box">
+      <div class="pm-bar">
+        <span id="pm-title">미리보기</span>
+        <span class="pm-sp"></span>
+        <button id="pm-open">새 탭에서 열기</button>
+        <button id="pm-down">다운로드</button>
+        <button id="pm-close">✕ 닫기</button>
+      </div>
+      <iframe id="pm-frame" sandbox="allow-scripts"></iframe>
+    </div>
+  </div>
 
   <script src="office.js"></script>
   <script src="app.js"></script>
