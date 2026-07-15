@@ -60,7 +60,7 @@ uvicorn api.index:app --port 8000
 api/
   index.py    # FastAPI 서버 (Vercel 서버리스 함수 / 로컬 겸용)
   _agents.py  # 5-에이전트 파이프라인 (OpenAI 호환 API, async generator)
-public/
+api/_static/
   index.html  # 레이아웃 (오피스 캔버스 + 채팅 패널) — Vercel CDN이 직접 서빙
   office.js   # 픽셀 오피스 렌더러 (캔버스 픽셀아트, 상태 애니메이션)
   app.js      # 채팅 UI + NDJSON 스트림 파싱 (대화 이력은 클라이언트가 유지)

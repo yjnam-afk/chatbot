@@ -14,9 +14,9 @@ LLM 키(`GROQ_API_KEY` / `GEMINI_API_KEY` / `LLM_API_KEY`+`LLM_BASE_URL`+`LLM_MO
 ## 구조
 
 - `api/_agents.py` — 5-에이전트 파이프라인. `run_pipeline(history, message)`은 **async generator**: `{type:"agent", agent, state, activity}` 이벤트들을 yield하고 마지막에 `{type:"reply", ...}` yield. 상태값: `idle|thinking|working|done|error`.
-- `api/index.py` — FastAPI. `/api/chat`이 파이프라인 출력을 NDJSON으로 스트리밍. Vercel에서는 이 파일 하나가 서버리스 함수(vercel.json rewrites 참고), 로컬에서는 public/도 마운트.
-- `public/office.js` — 캔버스 픽셀 렌더러. 에이전트 id ↔ 책상 위치 매핑(`DESKS`)이 `_agents.py`의 AGENTS id와 일치해야 함.
-- `public/app.js` — 채팅 + NDJSON 스트림 파싱. 대화 이력은 클라이언트가 유지(서버리스라 서버 세션 없음).
+- `api/index.py` — FastAPI. `/api/chat`이 파이프라인 출력을 NDJSON으로 스트리밍. Vercel에서는 이 파일 하나가 서버리스 함수(vercel.json rewrites 참고), 로컬에서는 api/_static/도 마운트.
+- `api/_static/office.js` — 캔버스 픽셀 렌더러. 에이전트 id ↔ 책상 위치 매핑(`DESKS`)이 `_agents.py`의 AGENTS id와 일치해야 함.
+- `api/_static/app.js` — 채팅 + NDJSON 스트림 파싱. 대화 이력은 클라이언트가 유지(서버리스라 서버 세션 없음).
 
 ## 주의
 
