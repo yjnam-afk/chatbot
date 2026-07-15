@@ -1,6 +1,6 @@
 # 픽셀 사무소 — 메이커 팀
 
-멀티 에이전트 메이커 팀(harness-100 패턴): "~만들어줘" 의뢰를 받으면 기획→디자인→개발→QA를 거쳐 실제 동작하는 단일 HTML 작업물을 만들어준다. 과정은 동물의 숲 컨셉 픽셀 광장으로 시각화. Vercel 서버리스 배포 대상.
+멀티 에이전트 메이커 팀(harness-100 패턴): "~만들어줘" 의뢰를 받으면 기획→디자인→개발→QA를 거쳐 실제 동작하는 단일 HTML 작업물을 만들어준다. 과정은 팀 보드 UI(카드/상태 칩/말풍선/진행선)로 실시간 시각화. Vercel 서버리스 배포 대상.
 
 ## 자율 개발 팀으로 쓰기 (Claude Code)
 
@@ -28,12 +28,11 @@ LLM 키(`GROQ_API_KEY` / `GEMINI_API_KEY` / `LLM_API_KEY`+`LLM_BASE_URL`+`LLM_MO
 
 - `api/_agents.py` — 5-에이전트 파이프라인. `run_pipeline(history, message)`은 **async generator**: `{type:"agent", agent, state, activity}` 이벤트들을 yield하고 마지막에 `{type:"reply", ...}` yield. 상태값: `idle|thinking|working|done|error`.
 - `api/index.py` — FastAPI. `/api/chat`이 파이프라인 출력을 NDJSON으로 스트리밍. Vercel에서는 이 파일 하나가 서버리스 함수(vercel.json rewrites 참고), 로컬에서는 api/_static/도 마운트.
-- `api/_static/office.js` — 캔버스 픽셀 렌더러. 에이전트 id ↔ 책상 위치 매핑(`DESKS`)이 `_agents.py`의 AGENTS id와 일치해야 함.
+- `api/_static/office.js` — 팀 보드 렌더러(DOM). EMOJI/FLOW의 에이전트 id가 `_agents.py`의 AGENTS id와 일치해야 함.
 - `api/_static/app.js` — 채팅 + NDJSON 스트림 파싱. 대화 이력은 클라이언트가 유지(서버리스라 서버 세션 없음).
 
 ## 주의
 
 - **서버 측 인메모리 상태 금지** — Vercel 함수는 호출 간 메모리를 공유하지 않는다. 이벤트는 응답 스트림에, 이력은 클라이언트에.
-- 픽셀아트는 전부 코드로 렌더링 — 외부 이미지 에셋을 추가하지 말 것 (Star-Office-UI 에셋은 비상업 라이선스).
 - 에이전트를 추가/변경할 때 `AGENTS`(_agents.py)와 `DESKS`(office.js) 양쪽을 함께 수정.
 - `api/` 안에서 라우트로 노출되면 안 되는 모듈은 `_` 접두사 유지.
