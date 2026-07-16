@@ -72,17 +72,6 @@ function closeDock() {
 document.getElementById("dock-open").onclick = openDock;
 document.getElementById("dock-close").onclick = closeDock;
 
-function notifyDock() {
-  if (dockEl.classList.contains("open")) return;
-  unread += 1;
-  dockBadge.textContent = unread;
-  dockBadge.hidden = false;
-  const pill = document.getElementById("dock-open");
-  pill.classList.remove("bounce");
-  void pill.offsetWidth;
-  pill.classList.add("bounce");
-}
-
 function addDockMsg(role, text) {
   const div = document.createElement("div");
   div.className = `msg ${role}`;
@@ -108,7 +97,8 @@ function buildMeta(ev, secs) {
     const names = ev.matched.map((id) => Drawer.name(id)).join(", ");
     parts.push(`라이브러리 적중 ${ev.matched.length}건 (${names})`);
   } else if (ev.library === false) {
-    parts.push(ev.demo ? "미적중 · 데모 답안" : "미적중 · 라이브 작성");
+    if (!ev.artifact) parts.push("라이브러리 미적중 · 안내");
+    else parts.push(ev.demo ? "고정 데모 답안" : "미적중 · 라이브 작성");
   }
   if (ev.review && typeof ev.review.score === "number") {
     let s = `채점 ${ev.review.score}점`;
@@ -139,18 +129,22 @@ function handleEvent(ev) {
   if (typingEl) { typingEl.remove(); typingEl = null; }
 
   if (ev.artifact && ev.artifact.html) {
+    // 답안지 흐름은 도크를 건드리지 않는다 — 무대·게이지·메타 라인이 전담
+    // (발주자 피드백 2026-07: 시험 문제 흐름에서 도크 존재감이 혼란 유발)
     Progress.finishAll();
     Stage.hideOverlay();
     Stage.render(ev.artifact);
     Stage.gauge(ev.sheet);
     resultLine.textContent = buildMeta(ev, secs);
-    const kindLabel = ev.exam ? ` (${ev.exam.kind} ${ev.exam.points}점)` : "";
-    addDockMsg("sys", `📄 답안지 작성됨 — ${ev.artifact.title || "답안지"}${kindLabel}`);
-    notifyDock();
     showProgressTab();
   } else {
-    // 일반 답변 → 도크
-    Progress.reset();
+    // 일반 답변/미적중 안내 → 도크
+    if (ev.library === false) {
+      // 라이브러리 미적중 안내: 진행 레일은 검색 단계 '미적중' 상태를 유지한다
+      resultLine.textContent = buildMeta(ev, secs);
+    } else {
+      Progress.reset();
+    }
     Stage.hideOverlay();
     addDockMsg("bot", ev.reply || "");
     if (!dockEl.classList.contains("open")) openDock();

@@ -51,10 +51,12 @@ const Stage = (() => {
     const lines = 22 * (sheet.pages - 1) + (sheet.lines || 0);
     const ratio = Math.min(1, lines / (22 * (sheet.target_pages || 3.5)));
     gaugeFill.style.width = Math.round(ratio * 100) + "%";
+    // 목표 대비 크게 미달(뼈대 요약본 등)이면 앰버로 강조
+    gaugeFill.classList.toggle("low", ratio < 0.7);
     gaugeText.innerHTML = "";
     const b = document.createElement("b");
     b.textContent = `${sheet.pages}쪽 ${sheet.lines}줄`;
-    gaugeText.append(b, ` / 목표 ${sheet.target_pages}매`);
+    gaugeText.append(b, ` / 목표 ${sheet.target_pages}매${ratio < 0.7 ? " · 목표 미달" : ""}`);
   }
 
   function showOverlay(caption) {

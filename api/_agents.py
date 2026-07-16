@@ -244,6 +244,50 @@ def _talk(agent: str, text: str) -> dict:
 
 EXAM_WORDS = ("하시오", "설명하", "기술하", "논하", "서술하", "점)")
 
+# 답안지 우선 라우팅 (발주자 피드백 2026-07: "정규화 답안지 적어줘"가 채팅으로 빠짐)
+_ANSWER_WORD_RE = re.compile(r"답안지|모범답안")
+_REQ_VERB_RE = re.compile(r"적어|작성|만들|뽑아|써\s?줘|줘")
+_KIND_HINT_RE = re.compile(r"[12]\s*교시|\d{1,3}\s*점")
+_CHAT_Q_RE = re.compile(r"\?|뭐야|뭔가요|뭔지|무엇|알려\s?줘|어떻게|어때|왜\s|인가요|일까")
+_REQ_TAIL_RE = re.compile(
+    r"\s*(?:에 대하여|에 대해)?\s*(?:모범답안|답안지|답안)?\s*(?:을|를)?"
+    r"\s*(?:적어|작성해|만들어|뽑아|써)?\s*줘?[?!. ]*$")
+
+
+def is_exam_request(message: str, kind_hint: str | None = None) -> bool:
+    """답안지 우선 라우팅 — 이 앱의 존재 이유는 답안지이므로 애매하면 시험 경로.
+
+    1) 교시형 칩 수동 선택 → 무조건 시험 경로
+    2) 시험 말투(EXAM_WORDS) / "답안지·모범답안" / "답안"+요청동사 / 교시·배점 언급 → 시험
+    3) 대화형 의문문(뭐야/무엇/알려줘/물음표 등) → 채팅
+    4) 짧은 입력(30자 이하)이 라이브러리에 확정 적중 → 시험 (예: "BIA" 단독)
+    """
+    msg = (message or "").strip()
+    if kind_hint:
+        return True
+    if any(w in msg for w in EXAM_WORDS):
+        return True
+    if _ANSWER_WORD_RE.search(msg):
+        return True
+    if "답안" in msg and _REQ_VERB_RE.search(msg):
+        return True
+    if _KIND_HINT_RE.search(msg):
+        return True
+    if _CHAT_Q_RE.search(msg):
+        return False
+    if len(msg) <= 30 and _library.match(msg)["status"] == "hit":
+        return True
+    return False
+
+
+def _subject_hint(message: str) -> str:
+    """문제/요청문에서 주제어 힌트 추출 — 꼬리의 답안 요청 어구를 벗겨낸다."""
+    s = re.sub(r"[?!.]+$", "", (message or "").strip())
+    stripped = _REQ_TAIL_RE.sub("", s).strip()
+    base = stripped or s
+    subjects = split_subjects(base)
+    return (subjects[0] if subjects else base)[:30]
+
 
 # ---------------------------------------------------------------- 답안지 템플릿
 
@@ -567,7 +611,7 @@ _DEMO_MNEMONIC = (
 _DEMO_WEAK = ["구성도 아래 간글 누락", "개조식 문체 미준수 문장 존재", "Ⅳ단락(결론) 차별화 요소 미흡"]
 
 
-async def _demo_chat() -> AsyncIterator[dict]:
+async def _demo_chat(suggestion: str = "") -> AsyncIterator[dict]:
     """일반 질문 데모 (키 없음)."""
     yield _ev("writer", "working", "답변 작성 중…")
     await asyncio.sleep(0.6)
@@ -578,14 +622,18 @@ async def _demo_chat() -> AsyncIterator[dict]:
         "type": "reply",
         "reply": "지금은 데모 모드예요! 🖋️ GEMINI_API_KEY(무료)를 설정하면 실제 LLM이 답변합니다.\n"
                  "시험 문제를 입력하면 라이브러리 적중 시 키 없이도 실제 답안지가 조립돼요 — "
-                 "\"SLA에 대하여 설명하시오 (25점)\"처럼 입력해 보세요.",
+                 "\"SLA에 대하여 설명하시오 (25점)\"처럼 입력해 보세요." + suggestion,
         "demo": True,
         "llm_calls": 0,
     }
 
 
 async def _demo_exam() -> AsyncIterator[dict]:
-    """라이브러리 미적중 + 키 없음 데모 — 보완 루프 포함 고정 시나리오 (다인부터 이어짐)."""
+    """라이브 파이프라인 고정 데모 — 보완 루프 포함 (다인부터 이어짐).
+
+    명시적 "데모" 입력 전용. 미적중 자동 폴백으로는 절대 나오지 않는다 —
+    사용자 질문과 무관한 답안지가 자동 납품되는 일 금지 (발주자 피드백 2026-07).
+    """
     yield _ev("designer", "thinking", "답안 구조 설계 중…")
     await asyncio.sleep(0.8)
     yield _ev("designer", "done", "ITPE 4단락")
@@ -625,8 +673,8 @@ async def _demo_exam() -> AsyncIterator[dict]:
     vol = _volume(_DEMO_BODY, "2교시형(서술)")  # 데모도 실측 분량 노출
     yield {
         "type": "reply",
-        "reply": "라이브러리에 없는 토픽이라 라이브 파이프라인 데모로 안내드려요. 📄\n"
-                 "『제로 트러스트 보안 모델』 2교시형(서술) 25점 고정 답안지입니다. "
+        "reply": "라이브 파이프라인 고정 데모입니다 (요청하신 '데모' 시연 — 실제 질문과 무관한 예시 답안). 📄\n"
+                 "『제로 트러스트 보안 모델』 2교시형(서술) 25점 고정 답안지예요. "
                  f"세아 채점: 1차 72점 → 보완 1회 → 재채점 91점. "
                  f"분량 {vol['pages']}쪽 {vol['line_in_page']}줄 (환산 {vol['pages_frac']}매).\n"
                  "GEMINI_API_KEY(무료)를 설정하면 입력하신 문제로 진짜 답안을 작성해 드립니다.",
@@ -688,7 +736,19 @@ async def run_pipeline(history: list[dict], message: str,
        - 미적중 → 라이브 파이프라인 폴백 (최대 5콜) / 키 없으면 데모
     """
     try:
-        if not any(w in message for w in EXAM_WORDS):
+        # 고정 데모 시나리오는 명시적 요청 전용 (자동 폴백으로 나오지 않는다)
+        if provider() is None and (message or "").strip().lower() in ("데모", "demo", "데모 보여줘"):
+            yield _ev("orchestrator", "working", "접수 중…")
+            yield _talk("orchestrator", "데모 시연 요청이네요! 라이브 파이프라인 고정 시나리오로 보여드릴게요 🎬")
+            yield _ev("nlu", "working", "토픽 검색 중…")
+            await asyncio.sleep(0.1)
+            yield _ev("nlu", "done", "데모 시나리오")
+            yield _talk("nlu", "작성→채점→보완 과정을 고정 답안(제로 트러스트)으로 시연할게요!")
+            async for e in _demo_exam():
+                yield e
+            return
+
+        if not is_exam_request(message, kind_hint):
             async for e in _chat_path(history, message):
                 yield e
             return
@@ -727,9 +787,29 @@ async def run_pipeline(history: list[dict], message: str,
         # ---- 미적중 폴백
         yield _ev("nlu", "done", "미적중")
         if provider() is None:
-            yield _talk("nlu", "라이브러리에 없는 토픽이에요. 데모 시나리오로 안내할게요!")
-            async for e in _demo_exam():
-                yield e
+            # 가짜 답안 금지 (발주자 피드백 2026-07): 키 없는 미적중은 질문과 무관한 고정
+            # 답안지를 내지 않고 정직한 안내로 종료. 고정 데모는 명시적 "데모" 입력 전용.
+            yield _talk("nlu", "라이브러리에 없는 토픽이에요. 지어내는 대신 안내드릴게요!")
+            yield _ev("orchestrator", "done", "안내 완료")
+            s = _library.stats()
+            topic_txt = _subject_hint(message)
+            cand_names = [c["name"] for c in (res.get("candidates") or [])[:3]]
+            lines = [f"'{topic_txt}' 토픽은 아직 라이브러리에 없어요 — 사실과 다른 답안을 "
+                     "지어내는 대신 안내를 드려요."]
+            if cand_names:
+                lines.append(f"혹시 {', '.join(cand_names)} 말씀이세요? 해당 이름으로 다시 질문해 주세요.")
+            lines.append(f"현재 즉시 작성 가능한 토픽 {s['full_parts']}개(뼈대 포함 {s['topics']}개)는 "
+                         "좌측 '토픽 서랍'에서 확인할 수 있어요.")
+            lines.append("LLM 키(GEMINI_API_KEY)를 설정하면 라이브러리에 없는 토픽도 "
+                         "라이브 파이프라인으로 작성해 드립니다.")
+            yield {
+                "type": "reply",
+                "reply": "\n".join(lines),
+                "demo": True,
+                "library": False,
+                "exam": {"kind": kind, "points": points, "topic": topic_txt},
+                "llm_calls": llm_calls,
+            }
         else:
             yield _talk("nlu", "라이브러리에 없는 토픽이에요. 라이브 파이프라인으로 작성할게요!")
             async for e in _live_exam(message, kind, points, llm_calls):
@@ -752,11 +832,21 @@ async def run_pipeline(history: list[dict], message: str,
 
 
 async def _chat_path(history: list[dict], message: str) -> AsyncIterator[dict]:
-    """일반 질문 — 매칭 시도 없이 로운(수험 멘토)이 바로 답변 (라이브 1콜)."""
+    """일반 질문 — 로운(수험 멘토)이 바로 답변 (라이브 1콜).
+
+    회복 경로: 질문이 라이브러리 토픽에 적중하면 답안지 유도 문구를 덧붙인다.
+    """
     yield _ev("orchestrator", "working", "접수 중…")
     yield _talk("orchestrator", "일반 질문이네요. 로운님이 멘토로 바로 답할게요!")
+    suggestion = ""
+    hit = _library.match(message)
+    if hit["status"] == "hit" and hit["matched"]:
+        meta = (_library.load_index().get("topics") or {}).get(hit["matched"][0]) or {}
+        t_name = meta.get("name") or hit["matched"][0]
+        suggestion = (f"\n\n💡 이 토픽은 라이브러리에 있어요 — 답안지가 필요하시면 "
+                      f"\"{t_name} 답안지 적어줘\"라고 입력해 보세요.")
     if provider() is None:
-        async for e in _demo_chat():
+        async for e in _demo_chat(suggestion):
             yield e
         return
     yield _ev("writer", "working", "답변 작성 중…")
@@ -772,7 +862,7 @@ async def _chat_path(history: list[dict], message: str) -> AsyncIterator[dict]:
     yield _ev("writer", "done", "답변 완료")
     yield _talk("writer", "답변 보냈어요!")
     yield _ev("orchestrator", "done", "턴 완료")
-    yield {"type": "reply", "reply": reply, "llm_calls": 1}
+    yield {"type": "reply", "reply": reply + suggestion, "llm_calls": 1}
 
 
 async def _assembly_path(message: str, kind: str, points: int,
@@ -903,9 +993,15 @@ async def _assembly_path(message: str, kind: str, points: int,
     yield _talk("orchestrator", "답안지 납품 완료! 라이브러리 덕에 즉답이었어요 ⚡")
 
     vol = _volume(result["body"], kind)
+    # 뼈대 토픽이 보강 없이 조립됐으면(무키 등) 반쪽 답안임을 먼저 알린다 (발주자 피드백 2026-07)
+    stub_names = [short_name(t) for t in topics
+                  if not (t.get("components") or t.get("diagram_html")) and t.get("id") not in core]
     reply = (f"『{result['title']}』 {kind} {points}점 답안지 조립 완료 — "
              f"라이브러리 {len(topics)}건 적중({', '.join(names)}), LLM {llm_calls}콜. "
              f"분량 {vol['pages']}쪽 {vol['line_in_page']}줄 (환산 {vol['pages_frac']}매).")
+    if stub_names:
+        reply = (f"⚠️ 이 토픽은 아직 요약본이에요({', '.join(stub_names)} — 핵심 섹션 준비 중, "
+                 "LLM 키 설정 시 자동 보강)\n") + reply
     if warnings:
         reply += "\n검증 경고: " + " / ".join(warnings[:4])
     yield {
@@ -925,8 +1021,7 @@ async def _assembly_path(message: str, kind: str, points: int,
 async def _live_exam(message: str, kind: str, points: int,
                      llm_calls: int) -> AsyncIterator[dict]:
     """미적중 폴백 — 라이브 파이프라인 (설계1 + 초안1 + 채점1 + 보완1 + 재채점1 = 최대 5콜)."""
-    subjects = split_subjects(message)
-    topic = (subjects[0] if subjects else message)[:30]
+    topic = _subject_hint(message)
     is_terms = "1교시" in kind
 
     # ---- 다인: 답안 구조 설계

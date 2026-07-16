@@ -169,6 +169,7 @@ main.workbench { flex: 1; display: flex; min-height: 0; }
   border-radius: 999px;
   transition: width 0.6s ease;
 }
+.gbar i.low { background: linear-gradient(90deg, var(--amber), #f6d189); }
 .gauge .gv { font-size: 12.5px; }
 .gauge .gv b { color: var(--accent-dark); }
 

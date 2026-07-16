@@ -51,6 +51,64 @@ def test_multi_hit_still_works():
     assert sorted(evs[-1]["matched"]) == ["MG-004", "MG-005"]
 
 
+def test_routing_answer_first():
+    """답안지 우선 라우팅 — 구어체 답안 요청·토픽명 단독은 시험 경로, 의문문만 채팅."""
+    import _agents
+    assert _agents.is_exam_request("정규화 답안지 적어줘")
+    assert _agents.is_exam_request("BIA 답안 만들어줘")
+    assert _agents.is_exam_request("SLA")  # 짧은 입력 + 라이브러리 확정 적중
+    assert _agents.is_exam_request("7S 모범답안")
+    assert _agents.is_exam_request("2교시 문제 하나")
+    assert _agents.is_exam_request("아무 주제나", kind_hint="2교시형")  # 칩 수동 선택 강제
+    assert not _agents.is_exam_request("RTO랑 RPO 차이가 뭐야?")
+    assert not _agents.is_exam_request("기술사 공부 어떻게 시작해?")
+
+
+def test_routing_pipeline_e2e():
+    r = _run_pipeline("BIA 답안 만들어줘")[-1]
+    assert r["matched"] == ["MG-019"] and r["artifact"], r.get("matched")
+    r = _run_pipeline("SLA")[-1]
+    assert r["matched"] == ["MG-004"] and r["artifact"], r.get("matched")
+    r = _run_pipeline("7S 모범답안")[-1]
+    assert r["matched"] == ["MG-023"] and r["artifact"], r.get("matched")
+    # 대화형 의문문 → 채팅 + 적중 토픽 답안지 유도(회복 경로)
+    r = _run_pipeline("RTO랑 RPO 차이가 뭐야?")[-1]
+    assert "artifact" not in r and "exam" not in r
+    assert "답안지 적어줘" in r["reply"]
+
+
+def test_miss_no_fake_sheet():
+    """무키 미적중 → 질문과 무관한 고정 답안지 대신 정직한 안내 (발주자 피드백)."""
+    r = _run_pipeline("양자내성암호에 대하여 설명하시오 (25점)")[-1]
+    assert "artifact" not in r, "미적중에서 가짜 답안지가 나옴"
+    assert r["library"] is False and r.get("demo") is True
+    assert "라이브러리에 없어요" in r["reply"] and "토픽 서랍" in r["reply"]
+    assert "GEMINI_API_KEY" in r["reply"]
+
+
+def test_miss_suggests_candidates():
+    """모호 점수(3~7) 후보가 있으면 '혹시 OO 말씀이세요?' 제안."""
+    r = _run_pipeline("협약이란 무엇인지 서술하시오")[-1]
+    assert "artifact" not in r
+    assert "혹시" in r["reply"] and "SLA" in r["reply"], r["reply"]
+
+
+def test_explicit_demo_only():
+    """고정 데모 시나리오는 명시적 '데모' 입력 전용."""
+    r = _run_pipeline("데모")[-1]
+    assert r.get("demo") is True and r.get("artifact"), r.get("reply", "")[:60]
+    art = r["artifact"]["html"]
+    assert "정의" in art and "암기" in art
+    assert r["review"]["score"] == 91 and r["review"]["rounds"] == 1
+
+
+def test_stub_sheet_notice_first():
+    """뼈대 적중+무키 반쪽 답안은 reply 첫 줄에 요약본 경고."""
+    r = _run_pipeline("PDCA에 대하여 설명하시오 (25점)")[-1]
+    assert r["reply"].startswith("⚠️"), r["reply"][:60]
+    assert "요약본" in r["reply"].splitlines()[0]
+
+
 _MOCK_CORE = (
     "<h2>PDCA의 구성도 및 구성요소</h2>"
     "<h3>PDCA의 구성도</h3>"
