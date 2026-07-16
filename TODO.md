@@ -25,7 +25,7 @@
   - [x] 에이전트 역할 재정의: 접수/토픽 검색/답안 편집/집필/검증 — office.js 삭제, AGENTS↔progress.js AGENT2STEP 동기화, role 하드코딩 제거
   - [x] `GET /api/library` 통계+서랍 목록 라우트, 결과 메타 라인 "라이브러리 적중 N건 · LLM n콜 · n초"
   - [x] 프론트 재작성: 헤더 입력줄+교시형 칩 / 레일(진행 3단계·분량 게이지·내보내기·토픽 서랍) / 무대(iframe 답안지) / 대화 도크
-  - [ ] 풀부품 15건 추가 (누적 20) — 후속 배치 작업 (발주자 확정 마일스톤 범위 외)
+  - [x] 풀부품 15건 추가 (누적 20) — kpc/ITPE 기출 빈도 기준 (CSF/KPI는 토픽 부재로 IT Governance 대체)
 - [x] **M6 — QA·문서화**
   - [x] `docs/library-spec.md` 3장 완료 기준 curl 전항목 검증 — 단일 적중 0.72초 실측, 키 필요 항목(모호 llm<=1) 제외 전부 통과
   - [x] CLAUDE.md·README.md 갱신 (라이브러리 우선 아키텍처, office.js→progress.js 동기화 규칙, build_index 필수 규칙)

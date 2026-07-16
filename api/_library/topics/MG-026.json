@@ -3,7 +3,10 @@
   "name": "MECE(Mutually Exclusive Collectively Exhaustive)",
   "aliases": [
     "MECE",
-    "Mutually Exclusive Collectively Exhaustive"
+    "Mutually Exclusive Collectively Exhaustive",
+    "미시",
+    "상호배제 전체포괄",
+    "미씨 분석"
   ],
   "category": "전략 기획 · 분석도구 > 전략수립도구 > MECE",
   "keywords": [
@@ -12,8 +15,101 @@
   "mnemonic": {
     "word": "상중전누",
     "expansion": [
-      "Mutually Exclusive: 요소들끼리 중복이 없는지 Collectively Exhaustive: 부분요소를 모두 합하면 전체가 되는지(누락이 없게)"
+      "상호(Mutually)",
+      "중복 없이(Exclusive)",
+      "전체(Collectively)",
+      "누락 없이(Exhaustive)"
     ]
   },
-  "definition": "중복 없이 누락 없이 문제 전체를 파악해 분류하는 전략적 사고방식"
+  "definition": "중복 없이 누락 없이 문제 전체를 파악해 분류하는 전략적 사고방식",
+  "definition_long": "문제를 중복 없이(ME)·누락 없이(CE) 분해해 전체를 구조적으로 파악하는 논리적 사고·분류 원칙",
+  "background": "중복·누락된 문제 분해는 잘못된 결론 유발 — 완전 분할의 검증 기준 필요",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">문제 전체<small>이슈 정의</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">MECE 분해<small>중복 X · 누락 X</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">부분 A · B · C<small>상호 배타</small></div><div class=\"d-box soft\">합집합 = 전체<small>Logic Tree 전개</small></div></div></div>",
+  "diagram_gloss": "– 전체를 배타적 부분으로 나눠 로직트리로 전개하는 원칙",
+  "features": [
+    {
+      "item": "ME",
+      "desc": "부분 간 중복 없음 — 이중 계산 방지"
+    },
+    {
+      "item": "CE",
+      "desc": "부분의 합 = 전체 — 누락 방지"
+    },
+    {
+      "item": "구조화",
+      "desc": "로직트리·이슈트리 전개의 기반 원칙"
+    }
+  ],
+  "components": [
+    {
+      "role": "분해 축",
+      "name": "기준 선정",
+      "detail": "연령·단계·유형 등 단일 기준으로 분할"
+    },
+    {
+      "role": "검증",
+      "name": "중복 검사",
+      "detail": "부분 간 교집합 존재 여부 확인"
+    },
+    {
+      "role": "검증",
+      "name": "누락 검사",
+      "detail": "부분 합집합의 전체 포괄 여부 확인"
+    },
+    {
+      "role": "전개",
+      "name": "Logic Tree",
+      "detail": "MECE 분해의 계층적 반복 적용"
+    }
+  ],
+  "components_gloss": "– 프레임워크(4P·5Force 등)는 검증된 MECE 분해 틀",
+  "comparisons": [
+    {
+      "vs": "MG-027",
+      "vs_name": "LISS",
+      "axes": [
+        {
+          "axis": "목표",
+          "a": "전체의 완전 분할",
+          "b": "중요 과제의 명확화"
+        },
+        {
+          "axis": "기준",
+          "a": "중복·누락 없음",
+          "b": "부분집합의 의미 명확"
+        },
+        {
+          "axis": "활용",
+          "a": "문제 구조화·분류",
+          "b": "우선 과제 선별"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "문제 해결",
+      "desc": "이슈트리 기반 원인 분해·가설 수립"
+    },
+    {
+      "item": "보고 구조화",
+      "desc": "목차·분류 체계의 중복·누락 검증"
+    },
+    {
+      "item": "시장 세분화",
+      "desc": "STP의 세그먼트 완전 분할 검증"
+    }
+  ],
+  "conclusion": "MECE는 사고의 품질 기준 — 완벽 분할보다 목적에 맞는 분해 축 선택이 실무 요체",
+  "exam_points": [
+    "ME·CE 정의와 위반 사례",
+    "Logic Tree 전개 방법",
+    "LISS와의 비교"
+  ],
+  "related": [
+    "MG-027",
+    "MG-030",
+    "MG-032",
+    "MG-160"
+  ]
 }

@@ -5,7 +5,9 @@
     "ITIL / ITIL 3.0",
     "IT Infrastructure Library",
     "ITIL",
-    "ITIL 3.0"
+    "ITIL 3.0",
+    "아이틸",
+    "ITIL V3"
   ],
   "category": "ITSM · 아웃소싱 > ITIL 3.0 > ITIL / ITIL 3.0",
   "keywords": [
@@ -20,13 +22,103 @@
   "mnemonic": {
     "word": "전설전운지",
     "expansion": [
-      "절차 5개(서비스 전략",
-      "설계",
-      "이행",
-      "운영",
-      "개선)",
-      "Service Support"
+      "서비스 전략",
+      "서비스 설계",
+      "서비스 전환",
+      "서비스 운영",
+      "지속적 개선"
     ]
   },
-  "definition": "안정적 서비스지원·이행·운영·인프라 관리의 베스트 프랙티스 모음집"
+  "definition": "안정적 서비스지원·이행·운영·인프라 관리의 베스트 프랙티스 모음집",
+  "definition_long": "IT 서비스의 전략-설계-전환-운영-개선 생명주기 전반의 모범 사례(Best Practice)를 집대성한 IT 서비스 관리 지침서",
+  "background": "조직마다 상이한 IT 운영 방식과 품질 편차 — 검증된 표준 프로세스 참조 모델 필요",
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">운영 방식<br>비표준</div><div class=\"d-circle\">서비스 품질<br>편차</div><div class=\"d-circle\">비용<br>비효율</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">ITIL 도입</div><div class=\"d-box soft\">생명주기 5단계 (Ⅱ)</div><div class=\"d-box soft\">도입 방안 · 효과 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">표준 프로세스<small>ITSM 구현</small></div></div>",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">서비스 전략<small>포트폴리오 · 재무</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">설계<small>SLM · 가용성</small></div><div class=\"d-box\">전환<small>변경 · 배포</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">운영<small>인시던트 · 문제</small></div><span class=\"d-arrow\">→</span><div class=\"d-box soft\">지속적 개선<small>CSI</small></div></div>",
+  "diagram_gloss": "– \"전설전운지\" — 전략을 중심으로 순환하는 서비스 생명주기",
+  "features": [
+    {
+      "item": "Best Practice",
+      "desc": "강제 표준이 아닌 검증 사례 모음"
+    },
+    {
+      "item": "생명주기",
+      "desc": "전략~개선의 5권 체계(V3 기준)"
+    },
+    {
+      "item": "프로세스 지향",
+      "desc": "26개 프로세스·4개 기능으로 구성"
+    }
+  ],
+  "components": [
+    {
+      "role": "전략",
+      "name": "Service Strategy",
+      "detail": "서비스 포트폴리오·수요·재무 관리"
+    },
+    {
+      "role": "설계·전환",
+      "name": "Design·Transition",
+      "detail": "SLM·가용성 설계와 변경·릴리즈 관리"
+    },
+    {
+      "role": "운영",
+      "name": "Service Operation",
+      "detail": "인시던트·문제·이벤트 관리와 서비스데스크"
+    },
+    {
+      "role": "개선",
+      "name": "CSI",
+      "detail": "7단계 개선 프로세스의 상시 수행"
+    }
+  ],
+  "components_gloss": "– V3 구버전의 Service Support/Delivery를 생명주기로 재편",
+  "comparisons": [
+    {
+      "vs": "MG-001",
+      "vs_name": "ITSM",
+      "axes": [
+        {
+          "axis": "성격",
+          "a": "모범 사례 라이브러리(How)",
+          "b": "서비스 관리 체계(What)"
+        },
+        {
+          "axis": "범위",
+          "a": "프로세스 절차·지침",
+          "b": "조직 전체 서비스 관리"
+        },
+        {
+          "axis": "관계",
+          "a": "ITSM 구축의 참조 모델",
+          "b": "ITIL을 구현 수단으로 채택"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "프로세스 표준화",
+      "desc": "운영 업무의 표준 절차 정착"
+    },
+    {
+      "item": "인증 연계",
+      "desc": "ISO 20000 인증의 구현 기반"
+    },
+    {
+      "item": "품질 향상",
+      "desc": "인시던트 감소·SLA 준수율 제고"
+    }
+  ],
+  "conclusion": "ITIL은 통째 도입이 아닌 취사선택(Adopt & Adapt) — ITIL 4는 SVS·가치사슬로 애자일 환경 대응",
+  "exam_points": [
+    "V3 생명주기 5단계와 주요 프로세스",
+    "ITSM·ISO 20000과의 관계",
+    "ITIL 4(SVS) 변화점"
+  ],
+  "related": [
+    "MG-001",
+    "MG-036",
+    "MG-078",
+    "MG-079"
+  ]
 }

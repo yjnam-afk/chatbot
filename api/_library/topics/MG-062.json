@@ -3,7 +3,10 @@
   "name": "BSC(Balanced Score Card)",
   "aliases": [
     "BSC",
-    "Balanced Score Card"
+    "Balanced Score Card",
+    "균형성과표",
+    "Balanced Scorecard",
+    "비에스씨"
   ],
   "category": "프로세스 · 품질 · 성과 > SEM > BSC",
   "keywords": [
@@ -20,13 +23,102 @@
   "mnemonic": {
     "word": "재고내학, 기사운미",
     "expansion": [
-      "재무적관점",
-      "고객관점",
+      "재무 관점",
+      "고객 관점",
       "내부 프로세스 관점",
-      "학습과 성장 관점",
-      "비재무적 관점",
-      "핵심성과 지표(KPI)(재고내학) 기업공헌도"
+      "학습과 성장 관점"
     ]
   },
-  "definition": "재무·고객·내부프로세스·학습 4관점 KPI로 균형 있게 성과를 관리하는 기법"
+  "definition": "재무·고객·내부프로세스·학습 4관점 KPI로 균형 있게 성과를 관리하는 기법",
+  "definition_long": "재무·고객·내부프로세스·학습성장의 4관점 KPI로 전략을 실행 지표로 번역해 균형 있게 성과를 관리하는 전략 성과관리 기법",
+  "background": "재무 지표 편중 성과관리의 한계 — 미래 역량·비재무 가치의 균형 측정 필요",
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">재무지표<br>편중</div><div class=\"d-circle\">전략-실행<br>단절</div><div class=\"d-circle\">무형자산<br>미측정</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">BSC 도입</div><div class=\"d-box soft\">4관점 · KPI (Ⅱ)</div><div class=\"d-box soft\">구축 절차 · 고려사항 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">전략의 실행 관리<small>균형 성과 측정</small></div></div>",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">재무<small>수익성 · 성장</small></div><div class=\"d-box\">고객<small>만족 · 유지율</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">비전 · 전략<small>전략맵 · CSF · KPI</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">내부 프로세스<small>품질 · 리드타임</small></div><div class=\"d-box\">학습·성장<small>역량 · 정보시스템</small></div></div></div>",
+  "diagram_gloss": "– 비전·전략을 중심으로 4관점이 인과관계(전략맵)로 연결",
+  "features": [
+    {
+      "item": "균형",
+      "desc": "재무/비재무·선행/후행 지표의 균형"
+    },
+    {
+      "item": "인과관계",
+      "desc": "학습→프로세스→고객→재무의 전략맵"
+    },
+    {
+      "item": "정렬",
+      "desc": "전사 전략의 부서·개인 KPI 연계(Cascading)"
+    }
+  ],
+  "components": [
+    {
+      "role": "재무",
+      "name": "수익·성장 KPI",
+      "detail": "매출·ROI 등 주주 관점 후행 지표"
+    },
+    {
+      "role": "고객",
+      "name": "만족·점유 KPI",
+      "detail": "고객 만족도·유지율 등 시장 지표"
+    },
+    {
+      "role": "프로세스",
+      "name": "품질·효율 KPI",
+      "detail": "내부 운영의 품질·시간·원가 지표"
+    },
+    {
+      "role": "학습·성장",
+      "name": "역량 KPI",
+      "detail": "인적 역량·정보시스템 등 선행 지표"
+    }
+  ],
+  "components_gloss": "– \"재고내학\" — 4관점의 두문자 (공공 변형: 기사운미)",
+  "comparisons": [
+    {
+      "vs": "MG-061",
+      "vs_name": "VBM",
+      "axes": [
+        {
+          "axis": "초점",
+          "a": "전략 실행의 균형 측정",
+          "b": "기업가치(EVA) 극대화"
+        },
+        {
+          "axis": "지표",
+          "a": "4관점 KPI 체계",
+          "b": "가치 동인·재무 가치 지표"
+        },
+        {
+          "axis": "활용",
+          "a": "성과관리·소통 도구",
+          "b": "투자·자원배분 의사결정"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "전략 실행",
+      "desc": "추상적 전략의 측정 가능한 지표화"
+    },
+    {
+      "item": "성과 보상",
+      "desc": "KPI 기반 평가·보상 체계 연계"
+    },
+    {
+      "item": "IT 성과",
+      "desc": "정보화 투자 성과의 다면 측정(IT-BSC)"
+    }
+  ],
+  "conclusion": "BSC 성공은 지표 수가 아닌 인과 전략맵의 품질 — KPI 20개 내외로 압축과 정기 재검토가 관건",
+  "exam_points": [
+    "4관점과 KPI 예시",
+    "전략맵·CSF·KPI 도출 절차",
+    "SEM·VBM과의 관계"
+  ],
+  "related": [
+    "MG-060",
+    "MG-061",
+    "MG-152",
+    "MG-166"
+  ]
 }

@@ -3,7 +3,10 @@
   "name": "SoW (Statement of Work)",
   "aliases": [
     "SoW",
-    "Statement of Work"
+    "Statement of Work",
+    "작업명세서",
+    "Statement of Works",
+    "에스오더블유"
   ],
   "category": "ITSM · 아웃소싱 > ITSM > SLM > SLA > SoW",
   "keywords": [
@@ -20,13 +23,100 @@
   "mnemonic": {
     "word": "프업책",
     "expansion": [
-      "SoW",
-      "SLA",
-      "SLM",
-      "제품",
-      "서비스",
-      "결과"
+      "프로젝트 산출물(제품)",
+      "업무 범위(서비스)",
+      "책임·결과 구분"
     ]
   },
-  "definition": "SLA의 세부 범위·작업내용을 규정하는 작업명세서로 서비스 수준관리 문서"
+  "definition": "SLA의 세부 범위·작업내용을 규정하는 작업명세서로 서비스 수준관리 문서",
+  "definition_long": "SLA의 세부 범위와 작업 내용·산출물·책임을 규정하는 작업명세서로 서비스 수준관리의 기초 문서",
+  "background": "SLA만으로는 작업 범위·책임 경계가 모호 — 분쟁 예방을 위한 세부 명세 필요",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">RFP<small>요구 정의</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">SoW<small>범위 · 산출물 · 책임</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">SLA<small>수준 합의</small></div><div class=\"d-box soft\">SLM<small>측정 · 개선</small></div></div></div>",
+  "diagram_gloss": "– RFP의 요구를 SoW로 상세화하고 SLA·SLM으로 수준 관리",
+  "features": [
+    {
+      "item": "범위 명세",
+      "desc": "제품·서비스·결과물 단위의 작업 범위 정의"
+    },
+    {
+      "item": "책임 구분",
+      "desc": "발주·수탁 간 역할과 책임 경계 명문화"
+    },
+    {
+      "item": "검수 기준",
+      "desc": "산출물별 완료·검수 조건의 사전 합의"
+    }
+  ],
+  "components": [
+    {
+      "role": "범위",
+      "name": "업무 기술",
+      "detail": "수행 업무·제외 업무의 명시적 정의"
+    },
+    {
+      "role": "산출물",
+      "name": "Deliverables",
+      "detail": "제품·서비스·결과물 목록과 납기"
+    },
+    {
+      "role": "책임",
+      "name": "R&R",
+      "detail": "발주·수탁·제3자 역할과 책임 구분"
+    },
+    {
+      "role": "기준",
+      "name": "검수·변경",
+      "detail": "완료 판정 기준과 변경 관리 절차"
+    }
+  ],
+  "components_gloss": "– Business Case·RFP와 정합해야 계약 분쟁 예방 가능",
+  "comparisons": [
+    {
+      "vs": "MG-004",
+      "vs_name": "SLA",
+      "axes": [
+        {
+          "axis": "목적",
+          "a": "작업 범위·책임 명세",
+          "b": "서비스 수준 합의"
+        },
+        {
+          "axis": "내용",
+          "a": "무엇을 하는가(What)",
+          "b": "얼마나 잘 하는가(How well)"
+        },
+        {
+          "axis": "위치",
+          "a": "SLA의 하위 세부 문서",
+          "b": "기본계약의 부속 합의"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "분쟁 예방",
+      "desc": "범위·책임의 사전 명문화로 갈등 차단"
+    },
+    {
+      "item": "검수 근거",
+      "desc": "산출물 완료 판정의 객관 기준 제공"
+    },
+    {
+      "item": "변경 통제",
+      "desc": "범위 변경 시 영향·비용 산정 기준"
+    }
+  ],
+  "conclusion": "SoW는 기본계약-SLA-SLM으로 이어지는 아웃소싱 문서 체계의 실행 단위 명세",
+  "exam_points": [
+    "기본계약-SLA-SoW 문서 체계",
+    "RFP·Business Case와의 관계",
+    "검수·변경 관리 조항"
+  ],
+  "related": [
+    "MG-002",
+    "MG-004",
+    "MG-005",
+    "MG-077"
+  ]
 }

@@ -3,7 +3,9 @@
   "name": "CRISP-DM (Cross Industry Standard Process For Data Mining)",
   "aliases": [
     "CRISP-DM",
-    "Cross Industry Standard Process For Data Mining"
+    "Cross Industry Standard Process For Data Mining",
+    "크리스프디엠",
+    "크리스프 디엠"
   ],
   "category": "데이터 · 인텔리전스 > Mining 총론 > CRISP-DM",
   "keywords": [
@@ -22,13 +24,101 @@
   "mnemonic": {
     "word": "비디투엠이디",
     "expansion": [
-      "CRISP-DM은 비즈니스 이해와 고객 요구사항 분석에 집중(Biz. Understanding",
-      "Data Understanding",
-      "Data Preparation",
+      "Biz 이해",
+      "Data 이해",
+      "(데이터) 준비",
       "Modeling",
       "Evaluation",
-      "Deployment)"
+      "Deployment"
     ]
   },
-  "definition": "비즈니스 이해 중심의 6단계로 구성된 데이터 마이닝 표준 프로세스 방법론"
+  "definition": "비즈니스 이해 중심의 6단계로 구성된 데이터 마이닝 표준 프로세스 방법론",
+  "definition_long": "비즈니스 이해에서 배포까지 6단계로 구성된 산업 표준 데이터 마이닝 프로세스 방법론",
+  "background": "분석 프로젝트의 시행착오 반복 — 재현 가능한 표준 절차 필요",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">Biz 이해</div><div class=\"d-box\">Data 이해</div></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">데이터 준비</div><div class=\"d-box d-hub\">Modeling</div></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">Evaluation</div><div class=\"d-box soft\">Deployment</div></div></div>",
+  "diagram_gloss": "– 단계 간 반복(iterative) 순환 — 평가 결과에 따라 앞 단계로 회귀",
+  "features": [
+    {
+      "item": "비즈니스 중심",
+      "desc": "고객 요구·업무 목표 정의에서 출발"
+    },
+    {
+      "item": "반복 순환",
+      "desc": "단계 간 피드백 루프로 모델 정제"
+    },
+    {
+      "item": "도구 중립",
+      "desc": "특정 벤더·도구에 독립적인 표준"
+    }
+  ],
+  "components": [
+    {
+      "role": "이해",
+      "name": "Biz/Data Understanding",
+      "detail": "목표 정의와 데이터 탐색·품질 검증"
+    },
+    {
+      "role": "준비",
+      "name": "Data Preparation",
+      "detail": "정제·통합·변수 생성 — 공수 최대 단계"
+    },
+    {
+      "role": "모델링",
+      "name": "Modeling·Evaluation",
+      "detail": "기법 적용과 비즈니스 관점 평가"
+    },
+    {
+      "role": "전개",
+      "name": "Deployment",
+      "detail": "운영 배포·모니터링·유지 계획"
+    }
+  ],
+  "components_gloss": "– \"비디투엠이디\" — 6단계의 두문자",
+  "comparisons": [
+    {
+      "vs": "MG-006",
+      "vs_name": "Data Mining",
+      "axes": [
+        {
+          "axis": "성격",
+          "a": "수행 절차(How, 프로세스)",
+          "b": "분석 기법(What)"
+        },
+        {
+          "axis": "관점",
+          "a": "비즈니스 이해 중심",
+          "b": "패턴 도출 중심"
+        },
+        {
+          "axis": "산출",
+          "a": "단계별 산출물·계획",
+          "b": "규칙·모델"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "프로젝트 관리",
+      "desc": "분석 과제의 일정·산출물 표준화"
+    },
+    {
+      "item": "품질 확보",
+      "desc": "평가 단계 의무화로 과적합 방지"
+    },
+    {
+      "item": "협업 언어",
+      "desc": "현업-분석가 간 공통 절차 소통"
+    }
+  ],
+  "conclusion": "SEMMA가 분석가 관점 절차라면 CRISP-DM은 비즈니스 관점 표준 — 과제 기획 단계부터 적용이 바람직",
+  "exam_points": [
+    "6단계 절차와 산출물",
+    "SEMMA와의 비교",
+    "데이터 준비 단계의 중요성"
+  ],
+  "related": [
+    "MG-006",
+    "MG-159"
+  ]
 }

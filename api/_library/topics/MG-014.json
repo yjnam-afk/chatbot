@@ -3,7 +3,10 @@
   "name": "BCM (Business Continuity Management)",
   "aliases": [
     "BCM",
-    "Business Continuity Management"
+    "Business Continuity Management",
+    "비즈니스 연속성 경영",
+    "업무 연속성 관리",
+    "BCP"
   ],
   "category": "BCP · 재해복구 > BCP > BCM",
   "keywords": [
@@ -15,11 +18,102 @@
   "mnemonic": {
     "word": "비디아이(BCP, DRS, ISO22301)",
     "expansion": [
-      "비즈니스 연속성 경영",
-      "BCP",
-      "DRS",
-      "ISO 22301"
+      "BCP(연속성 계획)",
+      "DRS(재해복구시스템)",
+      "ISO 22301(국제표준)"
     ]
   },
-  "definition": "위기 상황에도 핵심 업무를 지속하기 위한 전사적 정책·절차 관리 시스템"
+  "definition": "위기 상황에도 핵심 업무를 지속하기 위한 전사적 정책·절차 관리 시스템",
+  "definition_long": "위기 상황에도 핵심 업무를 지속하기 위해 계획(BCP)·시스템(DRS)·표준(ISO 22301)을 아우르는 전사적 연속성 경영체계",
+  "background": "재해·사이버 공격 시 업무 중단이 기업 생존 직결 — 복구를 넘어 '중단 없는 경영' 요구",
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">재해<br>재난</div><div class=\"d-circle\">사이버<br>공격</div><div class=\"d-circle\">규제<br>강화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">BCM 체계 수립</div><div class=\"d-box soft\">구성요소 (Ⅱ)</div><div class=\"d-box soft\">수립 절차 · 고려사항 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">핵심 업무 무중단<small>기업 생존성 확보</small></div></div>",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">BIA<small>영향 분석</small></div><div class=\"d-box\">RA<small>위험 평가</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">BCP 수립<small>전략 · 절차 · 조직</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">DRS · DRP<small>복구 체계</small></div><div class=\"d-box soft\">훈련 · 개선<small>PDCA</small></div></div></div>",
+  "diagram_gloss": "– BIA·위험평가로 우선순위를 정하고 계획-복구-훈련의 PDCA 순환",
+  "features": [
+    {
+      "item": "전사성",
+      "desc": "IT를 넘어 조직·프로세스·인력 포괄"
+    },
+    {
+      "item": "예방 지향",
+      "desc": "사후 복구가 아닌 사전 연속성 설계"
+    },
+    {
+      "item": "순환 개선",
+      "desc": "훈련·심사 기반 지속 개선(PDCA)"
+    }
+  ],
+  "components": [
+    {
+      "role": "분석",
+      "name": "BIA, 위험평가",
+      "detail": "핵심 업무 식별과 복구 우선순위 설정"
+    },
+    {
+      "role": "계획",
+      "name": "BCP, DRP",
+      "detail": "업무 연속성·재해복구 절차 문서화"
+    },
+    {
+      "role": "체계",
+      "name": "DRS",
+      "detail": "복구센터·이중화 등 기술 인프라"
+    },
+    {
+      "role": "관리",
+      "name": "ISO 22301, 훈련",
+      "detail": "표준 기반 심사·모의훈련·개선"
+    }
+  ],
+  "components_gloss": "– \"비디아이\" — 계획·시스템·표준의 3축 체계",
+  "comparisons": [
+    {
+      "vs": "MG-016",
+      "vs_name": "DRS",
+      "axes": [
+        {
+          "axis": "성격",
+          "a": "연속성 경영(관리 체계)",
+          "b": "복구 시스템(기술 체계)"
+        },
+        {
+          "axis": "범위",
+          "a": "전사 업무·조직·프로세스",
+          "b": "정보시스템·데이터 복구"
+        },
+        {
+          "axis": "산출물",
+          "a": "BCP 정책·절차·훈련",
+          "b": "DR센터·복제 인프라"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "생존성 확보",
+      "desc": "중단 시에도 핵심 업무 지속 제공"
+    },
+    {
+      "item": "규제 대응",
+      "desc": "금융·공공 연속성 의무 규제 충족"
+    },
+    {
+      "item": "신뢰 제고",
+      "desc": "이해관계자에 연속성 역량 입증"
+    }
+  ],
+  "conclusion": "BCM은 1회성 프로젝트가 아닌 경영체계 — BIA 기반 우선순위와 정기 훈련이 실효성의 관건",
+  "exam_points": [
+    "BCP-DRS-BIA-DRP 체계 관계",
+    "수립 절차(분석→전략→구현→훈련)",
+    "ISO 22301 요구사항"
+  ],
+  "related": [
+    "MG-015",
+    "MG-016",
+    "MG-017",
+    "MG-018",
+    "MG-019"
+  ]
 }

@@ -3,7 +3,10 @@
   "name": "BIA (Business Impact Analysis)",
   "aliases": [
     "BIA",
-    "Business Impact Analysis"
+    "Business Impact Analysis",
+    "비즈니스 영향 분석",
+    "업무 영향 분석",
+    "비아"
   ],
   "category": "BCP · 재해복구 > BCP > BIA",
   "keywords": [
@@ -15,11 +18,102 @@
   "mnemonic": {
     "word": "분평도분(분석, 평가, 도출, 분석)",
     "expansion": [
-      "비즈니스 분석",
-      "평가",
-      "우선순위 및 복구대상 설정",
-      "복구시간 설정"
+      "분석(업무 프로세스)",
+      "평가(재해 영향도)",
+      "도출(우선순위)",
+      "분석(복구 목표)"
     ]
   },
-  "definition": "비즈니스 업무의 재해영향도를 평가해 복구우선순위·목표를 정의하는 활동"
+  "definition": "비즈니스 업무의 재해영향도를 평가해 복구우선순위·목표를 정의하는 활동",
+  "definition_long": "핵심 업무의 중단 영향도를 정량·정성 평가해 복구 우선순위와 복구 목표(RTO/RPO)를 정의하는 연속성 계획의 출발 활동",
+  "background": "모든 업무의 동시 복구는 불가능 — 한정 자원의 투입 우선순위 근거 필요",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">업무 식별<small>프로세스 · 자원</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">영향 평가<small>재무 · 운영 · 법규</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">우선순위<small>핵심 업무 선정</small></div><div class=\"d-box soft\">복구 목표<small>RTO · RPO 설정</small></div></div></div>",
+  "diagram_gloss": "– 업무 식별→영향 평가→우선순위·복구 목표 도출의 순차 수행",
+  "features": [
+    {
+      "item": "정량 평가",
+      "desc": "중단 시간별 재무 손실의 화폐 환산"
+    },
+    {
+      "item": "정성 평가",
+      "desc": "신뢰도·법규 위반 등 비재무 영향 반영"
+    },
+    {
+      "item": "의사결정 근거",
+      "desc": "복구 투자·전략 선택의 객관 기준"
+    }
+  ],
+  "components": [
+    {
+      "role": "식별",
+      "name": "업무·자원 목록",
+      "detail": "핵심 프로세스와 의존 자원 조사"
+    },
+    {
+      "role": "평가",
+      "name": "영향도 분석",
+      "detail": "중단 기간별 손실의 정량·정성 산정"
+    },
+    {
+      "role": "도출",
+      "name": "우선순위",
+      "detail": "영향도 기반 복구 대상·순서 결정"
+    },
+    {
+      "role": "목표",
+      "name": "RTO/RPO",
+      "detail": "업무별 허용 중단·손실 목표 설정"
+    }
+  ],
+  "components_gloss": "– BIA 산출물이 BCP 전략과 DRS 설계의 입력이 됨",
+  "comparisons": [
+    {
+      "vs": "MG-018",
+      "vs_name": "DRP",
+      "axes": [
+        {
+          "axis": "단계",
+          "a": "분석(계획 수립의 입력)",
+          "b": "실행 계획(분석의 산출 활용)"
+        },
+        {
+          "axis": "산출",
+          "a": "우선순위·RTO/RPO",
+          "b": "복구 절차서·훈련 계획"
+        },
+        {
+          "axis": "주기",
+          "a": "업무 변경 시 재수행",
+          "b": "훈련 결과로 상시 개정"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "투자 최적화",
+      "desc": "핵심 업무 집중으로 복구 예산 효율화"
+    },
+    {
+      "item": "전략 선정",
+      "desc": "업무별 DRS 유형(Mirror~Cold) 결정"
+    },
+    {
+      "item": "규제 충족",
+      "desc": "ISO 22301 등 표준의 필수 요구 활동"
+    }
+  ],
+  "conclusion": "BIA 없는 BCP는 근거 없는 계획 — 현업 인터뷰 기반의 주기적 재수행이 필수",
+  "exam_points": [
+    "BIA 수행 절차 4단계",
+    "정량·정성 평가 기준",
+    "RTO/RPO 도출 관계"
+  ],
+  "related": [
+    "MG-014",
+    "MG-015",
+    "MG-016",
+    "MG-017",
+    "MG-018"
+  ]
 }

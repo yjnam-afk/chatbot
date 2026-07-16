@@ -1,7 +1,11 @@
 {
   "id": "MG-015",
   "name": "ISO 22301",
-  "aliases": [],
+  "aliases": [
+    "ISO22301",
+    "비즈니스 연속성 국제표준",
+    "BCMS 표준"
+  ],
   "category": "BCP · 재해복구 > BCM > ISO22301",
   "keywords": [
     "BCM 표준",
@@ -10,9 +14,101 @@
   "mnemonic": {
     "word": "피디씨에이",
     "expansion": [
-      "BCM 표준",
-      "PDCA 사이클 적용"
+      "Plan(수립)",
+      "Do(운영)",
+      "Check(검토)",
+      "Act(개선)"
     ]
   },
-  "definition": "BCP 수립·운영·검토·개선 요구사항을 규정한 비즈니스 연속성 국제표준"
+  "definition": "BCP 수립·운영·검토·개선 요구사항을 규정한 비즈니스 연속성 국제표준",
+  "definition_long": "BCP의 수립·운영·검토·개선 요구사항을 PDCA 사이클로 규정한 비즈니스 연속성 경영시스템(BCMS) 국제표준",
+  "background": "조직별 상이한 연속성 체계 — 객관적 심사·인증 가능한 공통 요구사항 필요",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">Plan<small>정책 · BIA · 전략</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">Do<small>절차 구현 · 훈련</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">Check<small>모니터링 · 심사</small></div><span class=\"d-arrow\">→</span><div class=\"d-box soft\">Act<small>시정 · 개선</small></div></div>",
+  "diagram_gloss": "– BCMS를 PDCA 사이클로 수립·운영·검토·개선",
+  "features": [
+    {
+      "item": "인증 가능",
+      "desc": "제3자 심사로 연속성 역량 객관 입증"
+    },
+    {
+      "item": "PDCA 기반",
+      "desc": "타 ISO 경영시스템과 통합 운영 용이"
+    },
+    {
+      "item": "리더십 요구",
+      "desc": "최고경영자 책임·자원 보장 명시"
+    }
+  ],
+  "components": [
+    {
+      "role": "조직 상황",
+      "name": "이해관계자·범위",
+      "detail": "내·외부 이슈와 BCMS 적용 범위 정의"
+    },
+    {
+      "role": "기획",
+      "name": "BIA·리스크 평가",
+      "detail": "중단 영향 분석과 연속성 전략 수립"
+    },
+    {
+      "role": "운영",
+      "name": "절차·훈련",
+      "detail": "대응 구조·연속성 절차 구현과 연습"
+    },
+    {
+      "role": "평가·개선",
+      "name": "심사·시정조치",
+      "detail": "성과 평가·내부심사·지속 개선"
+    }
+  ],
+  "components_gloss": "– 요구사항 조항(4~10장)이 PDCA에 대응",
+  "comparisons": [
+    {
+      "vs": "MG-014",
+      "vs_name": "BCM",
+      "axes": [
+        {
+          "axis": "성격",
+          "a": "요구사항 표준(인증 기준)",
+          "b": "경영 활동 체계"
+        },
+        {
+          "axis": "산출",
+          "a": "인증서·심사 결과",
+          "b": "BCP·DRS·훈련"
+        },
+        {
+          "axis": "관계",
+          "a": "BCM을 심사 가능하게 규격화",
+          "b": "표준의 구현 대상"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "인증 취득",
+      "desc": "고객·규제기관에 연속성 역량 입증"
+    },
+    {
+      "item": "체계 정비",
+      "desc": "요구사항 기반 연속성 체계 자가 진단"
+    },
+    {
+      "item": "공급망 요구",
+      "desc": "협력사 선정 시 연속성 요건 평가"
+    }
+  ],
+  "conclusion": "인증 자체보다 PDCA 정착이 목적 — BIA·훈련 기록 등 증적 관리가 심사 대비 핵심",
+  "exam_points": [
+    "PDCA 구조와 요구사항 조항",
+    "BCM/BCP와의 관계",
+    "인증 심사 절차"
+  ],
+  "related": [
+    "MG-014",
+    "MG-016",
+    "MG-019",
+    "MG-122"
+  ]
 }

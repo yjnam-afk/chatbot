@@ -1,7 +1,11 @@
 {
   "id": "MG-002",
   "name": "IT Outsourcing",
-  "aliases": [],
+  "aliases": [
+    "IT 아웃소싱",
+    "정보기술 위탁서비스",
+    "아이티 아웃소싱"
+  ],
   "category": "ITSM · 아웃소싱 > ITSM > IT Outsourcing",
   "keywords": [
     "Total/Selective/자회사/Co-Sourcing",
@@ -14,13 +18,103 @@
   "mnemonic": {
     "word": "토셀자코",
     "expansion": [
-      "Total/Selective/자회사/Co-Sourcing",
-      "ITIL",
-      "SLA",
-      "SLM",
-      "SoW",
-      "취약점 및 개선방안"
+      "Total(전체 위탁)",
+      "Selective(선택 위탁)",
+      "자회사(Spin-off)",
+      "Co-Sourcing(협력)"
     ]
   },
-  "definition": "Value Chain 비전략적 부분을 외부 전문가에게 위탁하는 정보기술 위탁서비스"
+  "definition": "Value Chain 비전략적 부분을 외부 전문가에게 위탁하는 정보기술 위탁서비스",
+  "definition_long": "기업 Value Chain의 비전략적 IT 부분을 외부 전문기업에 위탁해 핵심역량에 집중하는 정보기술 위탁서비스",
+  "background": "IT 운영 비용 증가와 전문성 부족 — 핵심역량 집중과 비용 최적화 필요",
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 비용<br>증가</div><div class=\"d-circle\">전문성<br>부족</div><div class=\"d-circle\">핵심역량<br>집중</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">IT Outsourcing</div><div class=\"d-box soft\">유형 · 구성요소 (Ⅱ)</div><div class=\"d-box soft\">취약점 · 개선방안 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">비용 절감<small>SLA 기반 품질 확보</small></div></div>",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">발주사<small>핵심역량 집중</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">아웃소싱 계약<small>SoW · SLA · SLM</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">수탁사<small>운영 · 유지보수</small></div><div class=\"d-box soft\">평가 · 보상<small>ITIL · eSCM</small></div></div></div>",
+  "diagram_gloss": "– SoW로 범위, SLA로 수준을 합의하고 SLM으로 상시 관리하는 구조",
+  "features": [
+    {
+      "item": "핵심역량 집중",
+      "desc": "비전략 업무 위탁으로 내부 자원을 핵심에 배분"
+    },
+    {
+      "item": "비용 변동화",
+      "desc": "고정 IT 비용을 서비스 사용량 기반으로 전환"
+    },
+    {
+      "item": "전문성 활용",
+      "desc": "수탁사의 검증된 인력·프로세스·기술 활용"
+    }
+  ],
+  "components": [
+    {
+      "role": "전체 위탁",
+      "name": "Total Outsourcing",
+      "detail": "IT 전 기능을 단일 사업자에 위탁함"
+    },
+    {
+      "role": "선택 위탁",
+      "name": "Selective",
+      "detail": "업무 영역별로 복수 사업자에 분할 위탁함"
+    },
+    {
+      "role": "자회사",
+      "name": "Spin-off",
+      "detail": "IT 조직을 자회사화해 내부 거래로 운영함"
+    },
+    {
+      "role": "협력",
+      "name": "Co-Sourcing",
+      "detail": "발주·수탁사가 인력·위험을 공동 부담함"
+    }
+  ],
+  "components_gloss": "– \"토셀자코\" — 위탁 범위와 지배구조에 따른 4유형",
+  "comparisons": [
+    {
+      "vs": "MG-068",
+      "vs_name": "Crowd Sourcing",
+      "axes": [
+        {
+          "axis": "수행 주체",
+          "a": "계약된 외부 전문기업",
+          "b": "불특정 다수 대중"
+        },
+        {
+          "axis": "관리 수단",
+          "a": "SLA·SoW 계약 기반",
+          "b": "플랫폼·보상 기반"
+        },
+        {
+          "axis": "적합 업무",
+          "a": "운영·유지보수 등 정형 업무",
+          "b": "아이디어·콘텐츠 등 창의 업무"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "비용 절감",
+      "desc": "규모의 경제와 표준화로 운영비 절감"
+    },
+    {
+      "item": "품질 확보",
+      "desc": "SLA 기반 정량 관리로 서비스 수준 보장"
+    },
+    {
+      "item": "유연성",
+      "desc": "수요 변동에 따른 자원 탄력 운용"
+    }
+  ],
+  "conclusion": "아웃소싱 성공의 관건은 계약(SoW·SLA)과 상시 관리(SLM) — 종속 심화·내부역량 공동화 방지책 병행 필요",
+  "exam_points": [
+    "유형(Total/Selective/자회사/Co-Sourcing) 비교",
+    "취약점과 개선방안",
+    "SLA·SLM 연계 관리"
+  ],
+  "related": [
+    "MG-001",
+    "MG-003",
+    "MG-004",
+    "MG-078",
+    "MG-081"
+  ]
 }
