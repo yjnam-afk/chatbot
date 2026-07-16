@@ -98,11 +98,19 @@ def _slot_intro_p2(t: dict, parts: list, warnings: list) -> None:
         warnings.append("필요성(background) 부품 없음 — 서론 축약")
 
 
-def _slot_structure(t: dict, parts: list, warnings: list, r2: bool) -> bool:
-    """Ⅱ. 구성도+구성요소. 슬롯을 하나라도 채우면 True."""
+def _slot_structure(t: dict, parts: list, warnings: list, r2: bool,
+                    core: str | None = None) -> bool:
+    """Ⅱ. 구성도+구성요소. 슬롯을 하나라도 채우면 True.
+
+    core: 뼈대 토픽(부품 없음)일 때 LLM 1콜로 보강한 Ⅱ단락 프래그먼트 (스펙 2-1 —
+    "부품 부재 시 핵심 섹션은 LLM 1콜 보강"). 키 없으면 None → 슬롯 생략 + 경고.
+    """
     s = short_name(t)
     has = bool(t.get("diagram_html") or t.get("components"))
     if not has:
+        if core:
+            parts.append(core)
+            return True
         warnings.append(f"{s}: 구성도/구성요소 부품 없음 — Ⅱ단락 생략")
         return False
     parts.append(f"<h2>{_esc(s)}의 구성도 및 구성요소</h2>")
@@ -130,16 +138,19 @@ def _missing_placeholder(name: str) -> list[str]:
 
 def assemble(question: str, kind: str, points: int, topics: list[dict],
              missing_names: list[str] | None = None,
-             extra_sections: dict[str, str] | None = None) -> dict:
+             extra_sections: dict[str, str] | None = None,
+             core_sections: dict[str, str] | None = None) -> dict:
     """적중 토픽들로 답안 본문을 조립한다.
 
     - topics: 적중 토픽 JSON (1~3건)
     - missing_names: 복합 문제 중 미적중 주제명
     - extra_sections: 미적중 주제명 → LLM이 집필한 소단락 프래그먼트 (부분 적중 1콜 결과)
+    - core_sections: 뼈대 토픽 id → LLM이 보강한 Ⅱ단락 프래그먼트 (단일 토픽 경로에서 사용)
     반환: {body, title, mnemonic_html, slots, warnings}
     """
     missing_names = missing_names or []
     extra_sections = extra_sections or {}
+    core_sections = core_sections or {}
     warnings: list[str] = []
     is_terms = "1교시" in str(kind)
     parts: list[str] = ['<p class="ans">답)</p>']
@@ -162,7 +173,8 @@ def assemble(question: str, kind: str, points: int, topics: list[dict],
                              + _esc(" · ".join(f.get("item", "") for f in feats[:4]) + " 특성 보유 — "
                                     + (feats[0].get("desc") or "")) + "</p>")
                 slots += 1
-            if _slot_structure(t, parts, warnings, r2=False):
+            if _slot_structure(t, parts, warnings, r2=False,
+                               core=core_sections.get(t.get("id"))):
                 slots += 1
             parts.append("<h2>활용방안 및 결론</h2>")
             if t.get("usage"):
@@ -174,7 +186,8 @@ def assemble(question: str, kind: str, points: int, topics: list[dict],
             # ---- 2교시형 4단락 (스펙 §5)
             _slot_intro_p2(t, parts, warnings)
             slots += 1
-            if _slot_structure(t, parts, warnings, r2=True):
+            if _slot_structure(t, parts, warnings, r2=True,
+                               core=core_sections.get(t.get("id"))):
                 slots += 1
             # Ⅲ. 특징·비교 (+ 미등록 소단락)
             third: list[str] = []

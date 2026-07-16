@@ -807,8 +807,37 @@ async def _assembly_path(message: str, kind: str, points: int,
     yield _talk("designer", f"{'1교시형' if is_terms else '2교시형'} 슬롯 {result['slots']}개에 부품 배치했어요")
     await asyncio.sleep(0.12)
 
-    # 로운 — 접합부/미등록 소단락 (기본 0콜, 부분 적중+키 있으면 1콜)
+    # 로운 — 접합부/미등록 소단락/뼈대 보강 (기본 0콜, 필요 시 콜당 예산 llm_calls<=2)
     yield _ev("writer", "working", "집필 중…")
+    # 뼈대 적중(핵심 부품 없음) + 키 있으면 Ⅱ단락(구성도·구성요소) LLM 1콜 보강 (스펙 2-1)
+    core: dict[str, str] = {}
+    skeleton = [t for t in topics if not (t.get("components") or t.get("diagram_html"))]
+    if skeleton and provider() is not None and llm_calls < 2:
+        llm_calls += 1
+        try:
+            sk = skeleton[0]
+            frag = _extract_body(await _chat(
+                "당신은 기술사 답안 팀의 집필 담당 '로운'입니다. 라이브러리에 뼈대만 있는 토픽의 "
+                "'구성도 및 구성요소' 단락을 아래 계약(docs/answer-template-spec.md §7)대로 "
+                "HTML 프래그먼트로만 출력하세요.\n"
+                "구조(순서 고정): <h2>토픽명의 구성도 및 구성요소</h2> → <h3>토픽명의 구성도</h3> → "
+                "<div class=\"diagram\">개념도(내부: div.d-row/d-col/d-box(+.soft 점선/.d-hub 중심)/"
+                "span.d-arrow(→ ← ↓), 박스 3~6개)</div> → <p class=\"gloss\">– 간글 1줄(40자 이내)</p> → "
+                "<h3>토픽명의 구성요소</h3> → <table class=\"t3\"><thead><tr><th>구분</th><th>구성요소</th>"
+                "<th>설명</th></tr></thead><tbody><tr class=\"r2\">…</tr> 4행</tbody></table>\n"
+                "문체는 개조식(~임/~함), 표 셀 34자 이내. 다른 태그·설명·코드 펜스 금지.",
+                [{"role": "user", "content":
+                    f"문제: {message}\n토픽명: {short_name(sk)}\n"
+                    f"정의: {sk.get('definition') or ''}\n"
+                    f"키워드(소재): {json.dumps(sk.get('keywords') or [], ensure_ascii=False)}"}],
+                max_tokens=1200,
+            ))
+            low = frag.lower()
+            if ('class="diagram' in frag and 'class="t3' in frag
+                    and "<script" not in low and "http" not in low):
+                core[sk["id"]] = frag
+        except RateLimitError:
+            pass  # 보강 실패 시 현행(슬롯 생략 + 경고) 유지
     extra: dict[str, str] = {}
     if missing and provider() is not None:
         llm_calls += 1
@@ -825,7 +854,8 @@ async def _assembly_path(message: str, kind: str, points: int,
                 extra[missing[0]] = frag
         except RateLimitError:
             pass  # 플레이스홀더로 대체
-        result = assemble(message, kind, points, topics, missing, extra)
+    if extra or core:
+        result = assemble(message, kind, points, topics, missing, extra, core)
     # 접합부 다듬기(선택): LIBRARY_POLISH=1 + 키 있을 때만 1콜
     if os.environ.get("LIBRARY_POLISH") == "1" and provider() is not None:
         llm_calls += 1
@@ -846,10 +876,14 @@ async def _assembly_path(message: str, kind: str, points: int,
         except RateLimitError:
             pass
     yield _ev("writer", "done", "집필 완료")
+    notes = []
     if missing:
-        yield _talk("writer", f"미등록 토픽 {len(missing)}건 " + ("집필했어요" if extra else "은 플레이스홀더 처리했어요"))
-    else:
-        yield _talk("writer", "부품이 완전해서 연결부만 다듬었어요")
+        notes.append(f"미등록 토픽 {len(missing)}건 " + ("집필했어요" if extra else "플레이스홀더 처리했어요"))
+    if core:
+        notes.append("뼈대 토픽이라 핵심 섹션(구성도·구성요소)을 집필했어요")
+    elif skeleton:
+        notes.append("뼈대 토픽이에요 — 키 설정 시 핵심 섹션을 자동 보강해요")
+    yield _talk("writer", " · ".join(notes) if notes else "부품이 완전해서 연결부만 다듬었어요")
     await asyncio.sleep(0.12)
 
     # 세아 — 규칙 검증 (0콜)
