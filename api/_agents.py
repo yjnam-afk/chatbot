@@ -121,34 +121,68 @@ def _parse_json(text: str, fallback: dict) -> dict:
 
 
 def _extract_body(text: str) -> str:
-    """LLM 출력에서 답안 본문 HTML 프래그먼트를 추출한다 (```펜스/문서 꼬리 제거)."""
+    """LLM 출력에서 답안 본문 HTML 프래그먼트를 추출한다 (```펜스/서두 잡담/문서 꼬리 제거)."""
     m = re.search(r"```(?:html)?\s*(.*?)```", text or "", re.S)
     if m:
         text = m.group(1)
     text = (text or "").strip()
-    i = text.find("<h2")
-    if i > 0:
-        text = text[i:]
+    starts = [i for i in (text.find('<p class="ans"'), text.find("<h2")) if i >= 0]
+    if starts and min(starts) > 0:
+        text = text[min(starts):]
     text = re.sub(r"</(?:main|body|html)\s*>.*$", "", text, flags=re.S | re.I)
     return text.strip()
 
 
-_PAGE_CHARS = 400  # 수기 답안지 1매 ≈ 22줄 × 18자 ≈ 400자 근사
+# ---- 줄 그리드 분량 모델 (docs/answer-template-spec.md §1)
+_TAIL_LINES = 5    # 템플릿이 body 뒤에 붙이는 꼬리: "끝" 1 + 여백 1 + 두문자 박스 3
+_PAGE1_BODY = 17   # 1쪽 본문 줄 수 (머리행 1 + 문제 스트립 4 제외)
+_PAGEN_BODY = 21   # 2쪽부터 본문 줄 수 (머리행 1 제외)
+_PAGE_LINES = 22   # 답안지 1매 환산 기준 (머리행 포함)
 
 
-def _volume(body_html: str) -> dict:
-    """답안 본문 분량 측정 — 태그 제거 후 글자수, 매수 환산 = 글자수/400 (반올림 1자리)."""
-    text = re.sub(r"<[^>]+>", " ", body_html or "")
-    text = html_mod.unescape(text)
-    text = re.sub(r"\s+", " ", text).strip()
-    chars = len(text)
-    return {"chars": chars, "pages": round(chars / _PAGE_CHARS, 1)}
+def _count_lines(body_html: str, p2: bool) -> int:
+    """본문 프래그먼트의 점유 줄 수를 요소별 규칙(스펙 §2)으로 합산한다."""
+    b = body_html or ""
+    lines = 0
+    lines += 7 * len(re.findall(r'class="diagram d7"', b))
+    lines += 6 * len(re.findall(r'class="diagram"', b))
+    lines += len(re.findall(r"<tr[\s>]", b, re.I))            # 표 행 1줄
+    lines += len(re.findall(r'<tr\s+class="r2"', b, re.I))    # r2 행은 +1줄
+    n_h2 = len(re.findall(r"<h2[\s>]", b, re.I))
+    lines += n_h2 + len(re.findall(r"<h3[\s>]", b, re.I))
+    n_def = len(re.findall(r'<p\s+class="def"', b, re.I))
+    n_p = len(re.findall(r"<p[\s>]", b, re.I))
+    lines += n_def * 2 + max(0, n_p - n_def)                  # def 2줄, 그 외 p 1줄
+    lines += len(re.findall(r'<div\s+class="gap"', b, re.I))
+    if p2 and n_h2 > 1:
+        lines += n_h2 - 1   # 2교시형 단락 사이 자동 1줄 (.p2 h2 margin-top)
+    return lines
+
+
+def _volume(body_html: str, kind: str) -> dict:
+    """답안 분량 — 줄 그리드 기반. 쪽/마지막 쪽 줄/매 환산(총줄÷22)을 산출한다."""
+    is_terms = "1교시" in str(kind)
+    total = _count_lines(body_html, p2=not is_terms) + _TAIL_LINES
+    if total <= _PAGE1_BODY:
+        pages, line_in_page = 1, total
+    else:
+        extra = -(-(total - _PAGE1_BODY) // _PAGEN_BODY)  # ceil
+        pages = 1 + extra
+        line_in_page = (total - _PAGE1_BODY) - _PAGEN_BODY * (extra - 1)
+    return {
+        "lines": total,
+        "pages": pages,
+        "line_in_page": line_in_page,
+        "pages_frac": round(total / _PAGE_LINES, 1),
+        "target_pages": 1.4 if is_terms else 3.5,
+    }
 
 
 def _lint_format(body_html: str, kind: str) -> list[str]:
     """서버 측 형식 린터 — LLM이 프롬프트 규칙을 무시해도 코드로 강제 검사한다.
 
     위반 지적 문자열 목록을 반환 (빈 목록 = 통과). LLM 호출 없음.
+    검사 기준: 줄 그리드 계약(docs/answer-template-spec.md §7).
     """
     issues: list[str] = []
     body = body_html or ""
@@ -159,25 +193,26 @@ def _lint_format(body_html: str, kind: str) -> list[str]:
     if n_h2 != need_h2:
         issues.append(f"단락 수 {n_h2}개(기준 {need_h2}개) — "
                       f"{'Ⅰ~Ⅲ' if is_terms else 'Ⅰ~Ⅳ'} 구조로 재편 필요")
-    # 2) 개념도
+    # 2) "답)" 표기
+    if 'class="ans"' not in body:
+        issues.append("\"답)\" 표기 누락 — 첫 줄 <p class=\"ans\">답)</p>")
+    # 3) 개념도
     if not re.search(r"<div[^>]*class=\"[^\"]*diagram", body, re.I):
         issues.append("개념도 누락 — div.diagram 1개 이상 필요")
-    # 3) 표 개수
-    need_table = 2 if is_terms else 3
+    # 4) 표 개수 (구성요소 상세표 + 결론/비교표)
     n_table = len(re.findall(r"<table[\s>]", body, re.I))
-    if n_table < need_table:
-        issues.append(f"표 부족(현재 {n_table}개, 기준 {need_table}개 이상) — "
-                      "정의·구성요소 등을 표로 작성")
-    # 4) 간글 제외 자유 <p> (+ 목록)
+    if n_table < 2:
+        issues.append(f"표 부족(현재 {n_table}개, 기준 2개 이상) — "
+                      "구성요소 3단표·기대효과/비교표 필요")
+    # 5) 허용 밖 <p>: class가 ans/def/gloss 가 아닌 문단 금지
     free_p = sum(1 for m in re.finditer(r"<p(\s[^>]*)?>", body, re.I)
-                 if "gangul" not in (m.group(1) or ""))
+                 if not re.search(r'class="(?:ans|def|gloss)"', m.group(1) or ""))
     if free_p:
-        issues.append(f"자유 문단 {free_p}개 — 표로 전환 필요"
-                      "(허용 p는 간글 class=\"gangul\" 뿐)")
+        issues.append(f"허용 밖 문단 {free_p}개 — p는 class ans/def/gloss만 허용")
     n_list = len(re.findall(r"<[uo]l[\s>]", body, re.I))
     if n_list:
         issues.append(f"목록(ul/ol) {n_list}개 — 표로 전환 필요")
-    # 5) 개조식 약식 검사: "합니다/입니다" 종결 빈도
+    # 6) 개조식 약식 검사: "합니다/입니다" 종결 빈도
     text = re.sub(r"<[^>]+>", " ", body)
     long_style = len(re.findall(r"(?:합니다|입니다)", text))
     if long_style >= 3:
@@ -213,91 +248,142 @@ _ANSWER_TEMPLATE = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} — 기술사 답안지</title>
 <style>
+/* 기술사 답안지 — 실물 줄 그리드 템플릿 (docs/answer-template-spec.md, v1 연속 본문 방식)
+   모든 요소가 1줄(--lh)의 정수배로 괘선에 스냅된다. */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --ink: #1d232a; --sub: #6a7076; --rule: #cfc9bb; --rule-soft: #e5e1d6;
-  --paper: #fffefb; --tint: #f5f3ec; --navy: #2c4a6e;
+  --lh: 32px;
+  --ink: #1c2f4a; --chrome: #3d4148;
+  --rule: #c5cedd; --rule2: #9db0c8; --paper: #fdfdfa;
+}
+@counter-style ganada {
+  system: fixed; symbols: "가" "나" "다" "라" "마" "바" "사" "아" "자" "차";
+  suffix: ". ";
 }
 html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-@counter-style ganada { system: fixed; symbols: "가" "나" "다" "라" "마" "바" "사"; suffix: ". "; }
 body {
-  background: #e8e7e2; color: var(--ink);
+  background: #e6e5e0; color: var(--ink);
   font-family: "Noto Serif KR", "Noto Serif CJK KR", "Nanum Myeongjo", "Source Han Serif K", Batang, AppleMyungjo, serif;
-  font-size: 14px; line-height: 1.75; padding: 32px 16px; word-break: keep-all;
+  font-size: 15px; padding: 36px 12px 48px; word-break: keep-all;
 }
-.sheet {
-  max-width: 794px; margin: 0 auto; background: var(--paper);
-  border: 1px solid #d8d4c8; box-shadow: 0 2px 24px rgba(40,40,30,0.10);
-  padding: 44px 52px 40px;
+.page {
+  width: min(794px, 100%); margin: 0 auto;
+  background: var(--paper); border: 1px solid #c9c5ba;
+  box-shadow: 0 2px 18px rgba(40, 40, 30, 0.12);
 }
-.sheet-head { border-top: 3px double var(--ink); padding-top: 14px; }
-.head-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-.doc-label { font-size: 12px; letter-spacing: 0.35em; color: var(--sub); }
-.points { font-size: 12.5px; font-weight: 700; color: var(--navy); border: 1px solid var(--navy); border-radius: 3px; padding: 2px 10px; white-space: nowrap; }
-h1 { font-size: 21px; font-weight: 700; line-height: 1.45; margin: 10px 0 16px; }
-.q-box { display: flex; gap: 14px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--tint); padding: 12px 10px; }
-.q-label { flex: none; font-weight: 700; font-size: 13px; color: var(--navy); }
-.q-text { font-size: 14px; white-space: pre-wrap; }
-.answer { counter-reset: sec; padding: 26px 2px 8px; min-height: 280px; }
-.answer h2 { counter-increment: sec; counter-reset: sub; font-size: 16px; font-weight: 700; margin: 26px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
-.answer h2::before { content: counter(sec, upper-roman) ". "; color: var(--navy); }
-.answer h2:first-child { margin-top: 0; }
-.answer h3 { counter-increment: sub; font-size: 14.5px; font-weight: 700; margin: 16px 0 6px; }
-.answer h3::before { content: counter(sub, ganada) ". "; color: var(--navy); }
-.answer p { margin: 6px 0 10px; }
-.answer ul, .answer ol { margin: 4px 0 12px 22px; }
-.answer li { margin: 3px 0; }
-.answer .keyword { font-weight: 700; border-bottom: 2px solid var(--navy); }
-.answer .gangul { font-size: 12.5px; color: var(--sub); margin: -8px 0 14px; }
-.answer table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 13px; }
-.answer th, .answer td { border: 1px solid var(--rule); padding: 7px 10px; text-align: left; vertical-align: top; line-height: 1.6; }
-.answer th { background: var(--tint); font-weight: 700; white-space: nowrap; }
-.diagram { margin: 12px 0 18px; padding: 18px 14px; border: 1px solid var(--rule-soft); background: #fbfaf6; }
-.d-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
-.d-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.d-box { border: 1.5px solid var(--ink); background: #fff; padding: 8px 16px; min-width: 92px; font-size: 12.5px; font-weight: 700; text-align: center; line-height: 1.5; }
-.d-box.soft { border: 1px dashed var(--sub); background: var(--tint); font-weight: 400; }
-.d-box.wide { width: 72%; min-width: 200px; }
-.d-box small { display: block; font-size: 11px; font-weight: 400; color: var(--sub); }
-.d-arrow { flex: none; color: var(--navy); font-weight: 700; font-size: 15px; }
-.d-title { margin-top: 12px; text-align: center; font-size: 12px; color: var(--sub); letter-spacing: 0.06em; }
-.end-mark { text-align: right; font-size: 13px; color: var(--sub); margin-top: 24px; }
-.mnemonic { margin-top: 18px; border: 1.5px dashed var(--navy); background: #f2f5f9; padding: 14px 18px 12px; }
-.mn-label { font-size: 12px; font-weight: 700; color: var(--navy); letter-spacing: 0.25em; margin-bottom: 6px; }
-.mnemonic p { font-size: 13.5px; margin: 3px 0; }
-.mnemonic b { color: var(--navy); }
-.sheet-foot { margin-top: 26px; padding-top: 8px; border-top: 3px double var(--ink); text-align: right; font-size: 11px; color: var(--sub); letter-spacing: 0.2em; }
-@page { size: A4 portrait; margin: 16mm 15mm; }
+.page-head {
+  height: var(--lh); display: flex; align-items: center;
+  font-family: system-ui, sans-serif; font-size: 11.5px; color: var(--chrome);
+  border-bottom: 2px solid var(--rule2);
+}
+.ph-box { width: 88px; height: 100%; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--rule2); letter-spacing: 0.3em; }
+.ph-title { flex: 1; text-align: center; letter-spacing: 0.2em; }
+.ph-num { width: 88px; text-align: center; border-left: 1px solid var(--rule2); }
+.q-strip {
+  height: calc(4 * var(--lh)); padding: 8px 20px 0;
+  border-bottom: 2px solid var(--rule2);
+  font-family: system-ui, sans-serif; color: var(--chrome); overflow: hidden;
+}
+.qs-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.qs-no { font-weight: 700; font-size: 14px; }
+.qs-kind { font-size: 11.5px; font-weight: 700; border: 1px solid var(--chrome); padding: 1px 10px; border-radius: 2px; white-space: nowrap; }
+.qs-text { margin-top: 6px; font-size: 14px; line-height: 1.65; }
+.body {
+  position: relative;
+  min-height: calc(var(--body, 17) * var(--lh));
+  background: repeating-linear-gradient(to bottom,
+    transparent 0 calc(var(--lh) - 1px),
+    var(--rule) calc(var(--lh) - 1px) var(--lh));
+}
+.body::before { content: ""; position: absolute; left: 44px; top: 0; bottom: 0; width: 1px; background: var(--rule2); }
+.content { margin: 0 20px 0 58px; }
+.content h2, .content h3, .content p { line-height: var(--lh); font-size: 15px; font-weight: 400; }
+.content h2 { font-weight: 700; counter-increment: sec; counter-reset: sub; }
+.content h2::before { content: counter(sec, upper-roman) ". "; }
+.content h3 { font-weight: 700; counter-increment: sub; padding-left: 18px; }
+.content h3::before { content: counter(sub, ganada) ". "; }
+/* 2교시형: 단락(h2) 사이 1줄 띄움 — 1교시형(.p1)은 띄우지 않는다 */
+.content.p2 h2:not(:first-of-type) { margin-top: var(--lh); }
+.ans { font-weight: 700; }
+.def { min-height: calc(2 * var(--lh)); padding-left: 18px; }
+.gloss { padding-left: 18px; }
+.end { text-align: right; padding-right: 12px; font-weight: 700; }
+.gap { height: var(--lh); }
+.content u, .content .keyword {
+  text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px;
+  font-weight: inherit; border: none;
+}
+.content table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13.5px; }
+.content th, .content td { border: 1px solid var(--ink); padding: 2px 8px; vertical-align: middle; line-height: 1.5; overflow: hidden; }
+.content th { font-weight: 700; text-align: center; background: rgba(28, 47, 74, 0.04); }
+.content tr { height: var(--lh); }
+.content tr.r2 { height: calc(2 * var(--lh)); }
+.t3 th:nth-child(1) { width: 20%; }
+.t3 th:nth-child(2) { width: 20%; }
+.t2 th:nth-child(1), .t2 td:first-child { width: 20%; }
+.tcmp th:nth-child(1) { width: 20%; }
+.tcmp th:nth-child(2) { width: 40%; }
+.texp th:nth-child(1) { width: 20%; }
+.texp th:nth-child(2) { width: 19%; }
+.diagram {
+  height: calc(6 * var(--lh)); border: 1.5px solid var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  gap: 22px; padding: 0 12px; overflow: hidden;
+}
+.diagram.d7 { height: calc(7 * var(--lh)); }
+.d-circle {
+  width: 60px; height: 60px; border-radius: 50%;
+  border: 1.5px solid var(--ink); background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; font-size: 10.5px; font-weight: 400; line-height: 1.25; padding: 4px;
+}
+.d-sep { align-self: stretch; border-left: 1px dashed var(--ink); margin: 10px 0; }
+.d-col { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.d-row { display: flex; align-items: center; gap: 14px; }
+.d-box { border: 1.5px solid var(--ink); background: #fff; padding: 4px 14px; text-align: center; font-size: 13px; font-weight: 700; line-height: 1.4; }
+.d-box small { display: block; font-size: 11px; font-weight: 400; }
+.d-box.soft { border-style: dashed; border-width: 1px; font-weight: 400; }
+.d-box.d-hub { border-width: 2.5px; padding: 12px 20px; font-size: 15px; }
+.d-arrow { font-weight: 700; font-size: 17px; flex: none; }
+.mnemonic { height: calc(3 * var(--lh)); border: 1.5px dashed var(--ink); padding: 0 14px; overflow: hidden; }
+.mn-label { line-height: var(--lh); font-size: 12px; font-weight: 700; letter-spacing: 0.25em; }
+.mnemonic p { line-height: var(--lh); font-size: 14px; }
+.mnemonic b { border-bottom: 1px solid var(--ink); }
+@page { size: A4 portrait; margin: 12mm 14mm; }
 @media print {
-  body { background: #fff; padding: 0; font-size: 10.5pt; }
-  .sheet { max-width: none; border: none; box-shadow: none; padding: 0; }
-  .answer h2, .answer h3 { break-after: avoid; page-break-after: avoid; }
-  .diagram, .mnemonic, .q-box, tr { break-inside: avoid; page-break-inside: avoid; }
+  :root { --lh: 10.5mm; }
+  body { background: #fff; padding: 0; }
+  .page { width: auto; margin: 0; border: none; box-shadow: none; }
+  .content h2, .content h3 { break-after: avoid; page-break-after: avoid; }
+  .diagram, .mnemonic, tr { break-inside: avoid; page-break-inside: avoid; }
 }
 </style>
 </head>
 <body>
-<div class="sheet">
-  <header class="sheet-head">
-    <div class="head-row">
-      <span class="doc-label">기 술 사 답 안 지</span>
-      <span class="points">{kind} · {points}점</span>
+<div class="page">
+  <div class="page-head">
+    <span class="ph-box">번 호</span>
+    <span class="ph-title">기 술 사 답 안 지 ({ptitle})</span>
+    <span class="ph-num">1 쪽</span>
+  </div>
+  <div class="q-strip">
+    <div class="qs-top">
+      <span class="qs-no">문) {title}</span>
+      <span class="qs-kind">{kind} · {points}점</span>
     </div>
-    <h1>{title}</h1>
-    <div class="q-box">
-      <span class="q-label">문제</span>
-      <p class="q-text">{question}</p>
-    </div>
-  </header>
-  <main class="answer">
+    <p class="qs-text">{question}</p>
+  </div>
+  <div class="body" style="--body:{lines}">
+    <div class="content {pcls}">
 {body}
-  </main>
-  <p class="end-mark">끝</p>
-  <footer class="mnemonic">
-    <div class="mn-label">두문자 암기 포인트</div>
-    {mnemonic_html}
-  </footer>
-  <div class="sheet-foot">기술사 답안 사무소</div>
+      <p class="end">"끝"</p>
+      <div class="gap"></div>
+      <div class="mnemonic">
+        <div class="mn-label">두문자 암기 포인트</div>
+        {mnemonic_html}
+      </div>
+    </div>
+  </div>
 </div>
 </body>
 </html>"""
@@ -310,7 +396,15 @@ def render_answer(question: str, title: str, kind: str, points: int | str,
     CSS 중괄호 때문에 str.format() 금지. 입력값에 "{body}" 같은 리터럴
     플레이스홀더가 있어도 재치환되지 않도록 단일 패스 re.sub로 치환한다.
     question/title/kind/points는 escape, body/mnemonic_html은 이미 HTML.
+    kind에 따라 content 래퍼(p1|p2)와 머리행 표기를 정하고, 본문 줄 수를
+    페이지 경계(1쪽 17줄 + n×21줄)로 올림해 마지막 쪽 끝까지 괘선을 채운다.
     """
+    is_terms = "1교시" in str(kind)
+    total = _count_lines(body, p2=not is_terms) + _TAIL_LINES
+    if total <= _PAGE1_BODY:
+        padded = _PAGE1_BODY
+    else:
+        padded = _PAGE1_BODY + _PAGEN_BODY * (-(-(total - _PAGE1_BODY) // _PAGEN_BODY))
     parts = {
         "title": html_mod.escape(str(title)),
         "kind": html_mod.escape(str(kind)),
@@ -318,8 +412,11 @@ def render_answer(question: str, title: str, kind: str, points: int | str,
         "question": html_mod.escape(str(question)),
         "body": body,
         "mnemonic_html": mnemonic_html,
+        "pcls": "p1" if is_terms else "p2",
+        "ptitle": "제 1 교 시 형" if is_terms else "제 2 교 시 형",
+        "lines": str(padded),
     }
-    return re.sub(r"\{(title|kind|points|question|body|mnemonic_html)\}",
+    return re.sub(r"\{(title|kind|points|question|body|mnemonic_html|pcls|ptitle|lines)\}",
                   lambda m: parts[m.group(1)], _ANSWER_TEMPLATE)
 
 
@@ -337,38 +434,41 @@ def _mnemonic_html(mn: dict | None) -> str:
 
 # ---------------------------------------------------------------- 프롬프트
 
-_BODY_RULES = """[답안 본문 HTML 규칙 — ITPE 기술사 답안 문법]
-- HTML 프래그먼트만 출력. <html>/<head>/<body>/<style>/<script>/외부 리소스/인라인 style 금지.
-- 허용 태그: h2, h3, b, strong, table, thead, tbody, tr, th, td, span class="keyword", p class="gangul"(간글 전용), div class="diagram"(내부: d-row, d-col, d-box, d-arrow, d-title).
-- 개념도(div.diagram)를 제외한 모든 내용은 <table>로 작성. 자유 문단 <p>와 ul/ol/li 금지.
-  유일한 예외: 표·개념도 바로 아래에 붙이는 간글 <p class="gangul"> 1줄.
-- 표 형태 가이드: 정의 = 1행 전체폭 표(셀 1개, 정의 문장 2줄) / 필요성·특징·등장배경 = 2단 표(항목|설명) /
-  구성요소 = 3단 표(구분|구성요소|설명) / 비교·활용·고려사항·기대효과도 전부 표로 작성.
-- 첫 요소는 <h2>. h2/h3에 번호를 직접 붙이지 말 것 — h2는 로마 숫자(Ⅰ. Ⅱ. Ⅲ. Ⅳ.), h3는 가나다(가. 나. 다.)가 자동으로 매겨짐.
-- 서술 문체는 개조식: 모든 문장을 "~임", "~함", "~됨"으로 종결. 만연체 금지.
-- 표는 th 첫 행(정의 1행 표 제외) + 3~5행. 개념도(div.diagram)는 1~2개 포함.
-- 개념도·표 바로 아래에는 간글 1줄을 붙임: <p class="gangul">상기 구성도는 ○○의 ~를 도식화한 것임</p>
-- 핵심 용어는 섹션당 1~3개를 <span class="keyword">용어</span>로 강조.
-- 정의 표 예시(1행 전체폭, th 없이 셀 1개):
-<table><tbody><tr><td><span class="keyword">○○</span>란 ~을 ~하는 기술로, ~ 원리에 기반하여 ~을 제공하는 체계임</td></tr></tbody></table>
+_BODY_RULES = """[답안 본문 HTML 규칙 — 실물 답안지 줄 그리드 계약 (docs/answer-template-spec.md §7)]
+- 1쪽 괘선 안 내용만 HTML 프래그먼트로 출력. 문제 스트립·머리행·"끝"·두문자 박스는 서버가 붙임(직접 쓰지 말 것).
+- 허용 태그·클래스 (이 목록 밖 금지):
+  h2                  단락 제목 — 로마 숫자 자동, "I." 직접 쓰지 말 것
+  h3                  하부 제목 — 가나다 자동, "가." 직접 쓰지 말 것
+  p class="ans"       첫 줄 "답)" 1회
+  p class="def"       2줄 문단(정의·특징·마무리 설명), 공백 포함 70자 이내
+  p class="gloss"     간글 1줄, "– "로 시작, 40자 이내
+  u                   키워드 밑줄(섹션당 1~3개), 강조 인용은 "쌍따옴표" 텍스트
+  table class="t3|t2|tcmp|texp" + thead/tbody/tr/th/td — 2줄 행은 <tr class="r2">
+  div class="diagram"     개념도 6줄 컨테이너 (답안 전체 1~2개, 일도일표)
+  div class="diagram d7"  2교시 서론 로드맵 전용 7줄 컨테이너 (서론에 1개만)
+    내부 전용: div.d-row / div.d-col / div.d-box(+.soft 점선 보조, +.d-hub 중심 강조) /
+               div.d-circle(등장배경 원형) / span.d-sep(구분 점선) / span.d-arrow(→ ← ↓ ↔ 텍스트)
+- 표 종류: t3 = 3단표(구분 20/구성요소 20/설명 60) / t2 = 2단표(구분 20/설명 80) /
+  tcmp = 비교표(구분 20/40/40) / texp = 2가지 설명표(20/19/61)
+- 문체: 개조식("~임/~함/~됨" 종결). 정의·설명은 키워드 나열형 — 문장을 만들지 말 것.
+- 표 셀은 1줄 15자, 2줄 행(r2) 셀은 34자 이내. h2 사이에 빈 줄·gap을 직접 넣지 말 것(2교시형은 CSS 자동).
 
-[2교시형(서술, 25점) 목차 — 4단락 고정]  ※ 3·4교시 문제도 2교시형과 동일 취급
-1) <h2>○○의 개요</h2> (서론) — <h3>정의</h3> 1행 전체폭 표(정의 문장 2줄) → <h3>필요성</h3>(또는 등장배경) 2단 표(항목|설명)
-2) <h2>○○의 구성도 및 구성요소</h2> (본론) — <h3>구성도</h3> div.diagram + 바로 아래 간글 1줄 → <h3>구성요소</h3> 3단표(구분/구성요소/설명)
-3) <h2>문제가 직접 요구한 사항</h2> — h2 제목은 문제의 요구(예: "도입 시 고려사항", "○○와의 비교")로 짓고, 세부 요구별로 h3 분리. 비교 요구 시 비교표 활용
-4) <h2>결론 및 전망</h2> — 2단 표(구분|내용)로 고려사항/전망/제언 등 차별화 포인트, 0.5단락 분량
-- 분량: 각 단락을 충분히 전개(답안지 3~3.5매 감각). 특히 Ⅲ단락은 문제가 물은 항목별로 표/개념도를 적극 활용해 깊이 있게 서술.
+[1교시형(용어, 10점) — 3단락, 26~30줄]
+<p class="ans">답)</p>
+I. 리드문형 제목 "○○를 위한 △△의 개요" (h2) → 가. 정의 (h3 + p.def 키워드 나열형) → 나. 특징/목적 (h3 + p.def)
+II. 개념도·구성요소 (h2) → 가. 개념도 (h3 + div.diagram + p.gloss) → 나. 구성요소 (h3 + table.t3 헤더1+행 4~6)
+III. 활용/비교/결론 (h2 + table 또는 p.def) — 수직 확장·인접 기술 비교로 차별화
 
-[1교시형(용어, 10점) 목차 — 3단락]
-1) <h2>○○의 정의</h2> — 1행 전체폭 표(정의 문장 2줄)
-2) <h2>○○의 개념도 및 구성요소</h2> — <h3>개념도</h3> div.diagram + 간글 → <h3>구성요소</h3> 3단표
-3) <h2>활용방안</h2> 또는 고려사항 — 2단 표(항목|설명)
-- 분량: 압축형(답안지 1~1.5매 감각). 섹션당 3~6줄, 전체를 짧고 밀도 있게.
+[2교시형(서술, 25점) — 4단락, 66~77줄]  ※ 3·4교시 문제도 동일 취급
+I. 서론 0.5쪽: 리드문형 제목(h2) + 로드맵 그림(div.diagram.d7 — 물어본 항목들을 하나의 그림으로,
+   왼쪽 등장배경 d-circle 3개 + d-sep 구분, 가운데 d-hub, 오른쪽 기대효과) + (정의) p.def + (필요성) p.def
+II. 본론1 1쪽: 제목(h2) + 가. 구성도 (h3 + div.diagram + p.gloss) + 나. 구성요소
+   (h3 + table.t3 = 헤더 1행 + <tr class="r2"> 4행, 총 9줄) + 마무리 p.def
+III. 본론2 1쪽: 문제가 물어본 요구사항을 지문 문구 그대로 제목·헤더로 (h2 + h3/표 중심 — 승부처, 깊이 있게)
+IV. 결론·알파 0.5쪽: 제목(h2) + 기대효과 table.t2 3~4행 + 결론 p.def
 
-- 개념도 예시 1 (가로 흐름형):
-<div class="diagram"><div class="d-row"><div class="d-box">클라이언트</div><span class="d-arrow">→</span><div class="d-box">API 게이트웨이<small>인증·라우팅</small></div><span class="d-arrow">→</span><div class="d-box soft">데이터 저장소</div></div><div class="d-title">[그림 1] 요청 처리 흐름</div></div>
-- 개념도 예시 2 (세로 계층형):
-<div class="diagram"><div class="d-col"><div class="d-box wide">정책 계층 <small>거버넌스</small></div><span class="d-arrow">↓</span><div class="d-box wide soft">인프라 계층 <small>네트워크</small></div></div><div class="d-title">[그림 2] 계층 구조</div></div>"""
+- 개념도 예시 (6줄 컨테이너, flex 배치):
+<div class="diagram"><div class="d-col"><div class="d-box">평가·인증<small>eSCM · ISO 20000</small></div><div class="d-box">서비스수준<small>SOW · SLA</small></div></div><span class="d-arrow">→</span><div class="d-box d-hub">ITSM<small>고품질 IT 서비스 관리체계</small></div><span class="d-arrow">←</span><div class="d-col"><div class="d-box">품질인증<small>CMMI</small></div><div class="d-box">Best Practice<small>ITIL</small></div></div></div>"""
 
 
 # ---------------------------------------------------------------- 데모 모드
@@ -376,67 +476,82 @@ _BODY_RULES = """[답안 본문 HTML 규칙 — ITPE 기술사 답안 문법]
 _DEMO_QUESTION = ("제로 트러스트 보안 모델의 개념, 구성요소, "
                   "도입 시 고려사항에 대하여 설명하시오 (25점)")
 
-_DEMO_BODY = """<h2>제로 트러스트 보안 모델의 개요</h2>
-<h3>제로 트러스트의 정의</h3>
-<table>
-  <tbody><tr><td><span class="keyword">제로 트러스트(Zero Trust)</span>란 네트워크 내·외부를 구분하지 않고 "절대 신뢰하지 말고, 항상 검증하라(Never Trust, Always Verify)" 원칙에 따라 모든 접근 요청을 <span class="keyword">지속 검증</span>하는 보안 모델임</td></tr></tbody>
-</table>
-<h3>제로 트러스트의 필요성</h3>
-<table>
-  <thead><tr><th>항목</th><th>설명</th></tr></thead>
-  <tbody>
-    <tr><td>경계 소멸</td><td>클라우드·원격근무 확산으로 전통적 네트워크 경계(Perimeter) 소멸됨</td></tr>
-    <tr><td>위협 변화</td><td>내부자 위협과 측면 이동(Lateral Movement) 공격 증가함</td></tr>
-    <tr><td>모델 한계</td><td>경계 방어 중심(성곽형) 보안 모델의 구조적 한계 노출됨</td></tr>
-  </tbody>
-</table>
-
+_DEMO_BODY = """<p class="ans">답)</p>
+<h2>경계 없는 보안을 위한 제로 트러스트의 개요</h2>
+<div class="diagram d7">
+  <div class="d-col">
+    <div class="d-circle">경계<br>소멸</div>
+    <div class="d-circle">내부자<br>위협</div>
+    <div class="d-circle">클라우드<br>확산</div>
+  </div>
+  <span class="d-sep"></span>
+  <span class="d-arrow">→</span>
+  <div class="d-col">
+    <div class="d-box d-hub">제로 트러스트 도입</div>
+    <div class="d-box soft">구성요소 (Ⅱ)</div>
+    <div class="d-box soft">도입 시 고려사항 (Ⅲ)</div>
+  </div>
+  <span class="d-arrow">→</span>
+  <span class="d-sep"></span>
+  <div class="d-box">전 자원 상시 검증<small>Never Trust, Always Verify</small></div>
+</div>
+<p class="def">(정의) 내·외부 구분 없이 모든 접근을 <u>상시 검증</u>하는 "Never Trust, Always Verify" 기반 보안 모델</p>
+<p class="def">(필요성) 경계 방어 한계 극복, <u>측면 이동 차단</u>, 클라우드·원격근무 환경의 자원 단위 보호</p>
 <h2>제로 트러스트의 구성도 및 구성요소</h2>
-<h3>제로 트러스트 구성도</h3>
-<div class="diagram"><div class="d-col"><div class="d-box wide">정책 결정 지점(PDP) <small>정책 엔진 · 접근 여부 판단</small></div><span class="d-arrow">↓</span><div class="d-row"><div class="d-box">주체<small>사용자·기기</small></div><span class="d-arrow">→</span><div class="d-box">정책 시행 지점(PEP)<small>세션 생성·차단</small></div><span class="d-arrow">→</span><div class="d-box soft">보호 자원<small>데이터·시스템</small></div></div></div><div class="d-title">[그림 1] 제로 트러스트 접근 제어 구성도 (NIST SP 800-207)</div></div>
-<p class="gangul">상기 구성도는 PDP의 동적 접근 판단과 PEP의 세션 통제로 자원을 보호하는 구조를 도식화한 것임</p>
+<h3>제로 트러스트의 구성도</h3>
+<div class="diagram">
+  <div class="d-col">
+    <div class="d-box">주체<small>사용자 · 기기</small></div>
+    <div class="d-box soft">신뢰도 평가<small>ID · 기기상태 · 위협정보</small></div>
+  </div>
+  <span class="d-arrow">→</span>
+  <div class="d-box d-hub">PDP<small>정책 결정 지점</small></div>
+  <span class="d-arrow">→</span>
+  <div class="d-col">
+    <div class="d-box">PEP<small>정책 시행 지점</small></div>
+    <div class="d-box soft">보호 자원<small>데이터 · 시스템</small></div>
+  </div>
+</div>
+<p class="gloss">– PDP의 동적 판단과 PEP의 세션 통제로 자원 단위 보호</p>
 <h3>제로 트러스트의 구성요소</h3>
-<table>
+<table class="t3">
   <thead><tr><th>구분</th><th>구성요소</th><th>설명</th></tr></thead>
   <tbody>
-    <tr><td>제어부</td><td>정책 결정 지점(PDP)</td><td>정책 엔진·정책 관리자가 접근 허용 여부를 동적으로 결정함</td></tr>
-    <tr><td>실행부</td><td>정책 시행 지점(PEP)</td><td>결정된 정책에 따라 세션 생성·유지·차단을 시행함</td></tr>
-    <tr><td>입력부</td><td>신뢰도 평가 입력</td><td>ID·기기 상태·위협 인텔리전스·행위 로그를 지속 평가함</td></tr>
-    <tr><td>격리부</td><td><span class="keyword">마이크로 세그멘테이션</span></td><td>자원 단위로 네트워크를 분할해 측면 이동을 차단함</td></tr>
+    <tr class="r2"><td>제어</td><td>PDP<br>정책 엔진</td><td>가용 신호 기반으로 접근 허용 여부를 동적 결정</td></tr>
+    <tr class="r2"><td>시행</td><td>PEP</td><td>결정된 정책에 따라 세션 생성·유지·차단 시행</td></tr>
+    <tr class="r2"><td>평가</td><td>신뢰도 입력</td><td>ID·기기 상태·위협 인텔리전스 지속 평가</td></tr>
+    <tr class="r2"><td>격리</td><td>마이크로<br>세그멘테이션</td><td>자원 단위 분할로 측면 이동 차단</td></tr>
   </tbody>
 </table>
-<p class="gangul">상기 구성요소는 3대 원칙(명시적 검증·최소 권한·침해 가정)을 구현하는 기능 단위임</p>
-
-<h2>도입 시 고려사항</h2>
-<h3>기존 경계 보안 모델과의 비교</h3>
-<table>
-  <thead><tr><th>구분</th><th>경계 보안 모델</th><th>제로 트러스트 모델</th></tr></thead>
+<p class="def">"명시적 검증 · 최소 권한 · 침해 가정"의 3원칙을 구현하는 접근 제어 체계임</p>
+<h2>제로 트러스트 도입 시 고려사항</h2>
+<h3>기존 경계 모델과의 비교</h3>
+<table class="tcmp">
+  <thead><tr><th>구분</th><th>경계 보안</th><th>제로 트러스트</th></tr></thead>
   <tbody>
-    <tr><td>신뢰 기준</td><td>내부 네트워크 암묵적 신뢰</td><td>위치 무관, 모든 요청 검증</td></tr>
-    <tr><td>방어 지점</td><td>네트워크 경계(방화벽 중심)</td><td>자원 단위(ID·기기·데이터)</td></tr>
-    <tr><td>검증 시점</td><td>최초 접속 시 1회</td><td>세션 전체 <span class="keyword">지속 인증</span></td></tr>
-    <tr><td>권한 부여</td><td>광범위한 내부 접근 허용</td><td>최소 권한·마이크로 세그멘테이션</td></tr>
+    <tr><td>신뢰 기준</td><td>내부망 암묵 신뢰</td><td>위치 무관 상시 검증</td></tr>
+    <tr><td>방어 지점</td><td>네트워크 경계</td><td>자원 단위(ID·데이터)</td></tr>
+    <tr><td>검증 시점</td><td>최초 접속 1회</td><td>세션 전체 지속 인증</td></tr>
   </tbody>
 </table>
-<h3>도입 시 고려사항</h3>
-<table>
+<h3>단계적 도입 고려사항</h3>
+<table class="t2">
   <thead><tr><th>구분</th><th>고려사항</th></tr></thead>
   <tbody>
-    <tr><td>전략</td><td>자산·데이터 흐름 식별 등 현황 분석 선행, 중요 자원부터 단계적 적용 필요함</td></tr>
-    <tr><td>기술</td><td><span class="keyword">IAM</span>·MFA 등 식별·인증 체계 고도화가 전제 조건임</td></tr>
-    <tr><td>운영</td><td>레거시 시스템 호환성과 사용자 경험(UX) 저하 간 균형 고려해야 함</td></tr>
-    <tr><td>조직</td><td>지속 모니터링·자동화(SOAR) 운영 체계와 조직 문화 변화 병행 필요함</td></tr>
+    <tr><td>전략</td><td>자산·데이터 흐름 식별 후 중요 자원부터 단계 적용</td></tr>
+    <tr><td>기술</td><td><u>IAM</u>·MFA 등 식별·인증 체계 고도화 선행</td></tr>
+    <tr><td>운영</td><td>레거시 호환·UX 저하 균형, 상시 모니터링 병행</td></tr>
   </tbody>
 </table>
-
-<h2>결론 및 전망</h2>
-<table>
-  <thead><tr><th>구분</th><th>내용</th></tr></thead>
+<h2>도입 기대효과 및 결론</h2>
+<table class="t2">
+  <thead><tr><th>기대효과</th><th>설명</th></tr></thead>
   <tbody>
-    <tr><td>결론</td><td>제로 트러스트는 일회성 솔루션 도입이 아닌 <span class="keyword">보안 아키텍처 전환 여정</span>임</td></tr>
-    <tr><td>전망</td><td>공공·금융 분야 도입 지침 확산에 따라 성숙도 모델 기반 단계적 전환 전략 수립이 요구됨</td></tr>
+    <tr><td>피해 최소화</td><td>침해 가정 설계로 확산 범위 국소화</td></tr>
+    <tr><td>가시성 확보</td><td>전 접근 로깅으로 위협 탐지력 향상</td></tr>
   </tbody>
-</table>"""
+</table>
+<p class="def">제로 트러스트는 일회성 도입이 아닌 <u>보안 아키텍처 전환 여정</u>으로, 성숙도 기반 단계 전환이 요구됨</p>"""
 
 _DEMO_MNEMONIC = (
     '<p><b>명·최·침</b> — <b>명</b>시적 검증 · <b>최</b>소 권한 · <b>침</b>해 가정 (제로 트러스트 3원칙)</p>\n'
@@ -513,17 +628,20 @@ async def _demo(message: str) -> AsyncIterator[dict]:
         body=_DEMO_BODY,
         mnemonic_html=_DEMO_MNEMONIC,
     )
-    vol = _volume(_DEMO_BODY)  # 데모도 실측 분량 노출
+    vol = _volume(_DEMO_BODY, "2교시형(서술)")  # 데모도 실측 분량 노출
     yield {
         "type": "reply",
         "reply": "『제로 트러스트 보안 모델』 2교시형(서술) 25점 데모 답안지가 완성됐어요! 📄\n"
-                 f"세아 채점: 1차 72점 → 보완 1회 → 재채점 91점 (합격권). 분량 환산 약 {vol['pages']}매.\n"
+                 f"세아 채점: 1차 72점 → 보완 1회 → 재채점 91점 (합격권). "
+                 f"분량 {vol['pages']}쪽 {vol['line_in_page']}줄 (환산 {vol['pages_frac']}매).\n"
                  "지금은 데모 모드라 고정 답안이에요. GEMINI_API_KEY(무료)를 설정하면 "
                  "입력하신 문제로 진짜 답안을 작성해 드립니다.",
         "demo": True,
         "exam": {"kind": "2교시형(서술)", "points": 25, "topic": "제로 트러스트 보안 모델"},
         "review": {"score": 91, "rounds": 1, "weak_points": _DEMO_WEAK,
-                   "volume": {"chars": vol["chars"], "pages": vol["pages"]}},
+                   "volume": {"lines": vol["lines"], "pages": vol["pages_frac"]}},
+        "sheet": {"kind": "2교시형(서술)", "points": 25, "pages": vol["pages"],
+                  "lines": vol["line_in_page"], "target_pages": vol["target_pages"]},
         "artifact": {"title": "제로 트러스트 보안 모델", "html": sheet},
         "llm_calls": 0,
     }
@@ -653,8 +771,8 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
         # ---- 4. 채점 (세아) — LLM 채점 + 서버 측 정량 검증(분량·형식 린트)
         # 분량 기준: 1교시형 최소 1.0매(400자)/권장 2매 이내, 2교시형 최소 2.5매(1000자)/권장 4매 이내.
         # 권장 상한 초과는 보완 사유 아님(표기만). 최소 미달·린트 위반은 점수와 무관하게 보완 강제.
-        min_pages, rec_pages = (1.0, 2.0) if is_terms else (2.5, 4.0)
-        vol = _volume(body)
+        min_pages, rec_pages = (1.0, 1.4) if is_terms else (2.5, 3.5)
+        vol = _volume(body, kind)
         lint = _lint_format(body, kind)
         reviewer_system = (
             "당신은 기술사 시험 채점위원 '세아'입니다. 답안 본문 HTML을 검토해 JSON만 출력하세요.\n"
@@ -672,8 +790,8 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
         )
 
         def _metrics() -> str:
-            s = (f"측정 분량: {vol['pages']}매({vol['chars']}자) — "
-                 f"기준: 최소 {min_pages}매, 권장 {rec_pages}매 이내(초과는 감점 아님)\n")
+            s = (f"측정 분량: {vol['pages']}쪽 {vol['line_in_page']}줄, 환산 {vol['pages_frac']}매 — "
+                 f"기준: 최소 {min_pages}매, 목표 {rec_pages}매 이내\n")
             s += ("서버 형식 린트 위반: " + " / ".join(lint) + "\n") if lint else "서버 형식 린트: 통과\n"
             return s
 
@@ -690,7 +808,7 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
         score = _score_of(review.get("score"))
         weak = [str(w) for w in (review.get("weak_points") or []) if str(w).strip()]
         rounds = 0
-        under = vol["pages"] < min_pages
+        under = vol["pages_frac"] < min_pages
 
         # ---- 5. 보완 1회 (로운) + 재채점 (세아)
         # 점수 미달 / 분량 최소 미달 / 형식 린트 위반 → 보완 강제. 사유가 겹쳐도 최대 1회.
@@ -702,7 +820,7 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
             if lint:
                 picks.append(lint[0] if len(lint) == 1 else f"형식 위반 {len(lint)}건({lint[0]} 등)")
             if under:
-                picks.append(f"분량 환산 {vol['pages']}매로 최소 {min_pages}매 미달")
+                picks.append(f"분량 환산 {vol['pages_frac']}매로 최소 {min_pages}매 미달")
             if picks:
                 say1 += " " + " · ".join(picks) + " — 로운님, 보완해주세요!"
             yield _ev("reviewer", "working", f"{score}점 · 보완 요청")
@@ -713,7 +831,7 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
             if lint:
                 fix_notes += "서버 형식 린트 위반(반드시 전부 해소할 것): " + " / ".join(lint) + "\n"
             if under:
-                fix_notes += (f"현재 환산 {vol['pages']}매, 최소 {min_pages}매 — "
+                fix_notes += (f"현재 환산 {vol['pages_frac']}매, 최소 {min_pages}매 — "
                               "Ⅲ단락 표를 확장해 분량을 확보하세요.\n")
             fix_notes += ("위 사항을 반영해 답안 본문 전체를 다시 출력하세요. "
                           "잘 쓴 부분은 유지하고 지적된 부분을 보강합니다.")
@@ -730,9 +848,9 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
             if revised:
                 body = revised
             rounds = 1
-            vol = _volume(body)
+            vol = _volume(body, kind)
             lint = _lint_format(body, kind)
-            under = vol["pages"] < min_pages
+            under = vol["pages_frac"] < min_pages
             yield _ev("writer", "done", "보완 완료")
             yield _talk("writer", "지적사항 반영해서 보완했어요. 재채점 부탁해요!")
 
@@ -764,7 +882,7 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
         if lint:
             weak += [w for w in lint if w not in weak]
         if under:
-            note = f"분량 미달 — 환산 {vol['pages']}매 (최소 {min_pages}매)"
+            note = f"분량 미달 — 환산 {vol['pages_frac']}매 (최소 {min_pages}매)"
             if note not in weak:
                 weak.append(note)
 
@@ -779,7 +897,7 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
         summary = f"『{topic}』 {kind} {points}점 답안지 완성! 세아 채점 {score}점"
         if rounds:
             summary += f" (보완 {rounds}회 후 재채점)"
-        summary += f". 분량 환산 약 {vol['pages']}매."
+        summary += f". 분량 {vol['pages']}쪽 {vol['line_in_page']}줄 (환산 {vol['pages_frac']}매)."
         if score < PASS_SCORE:
             summary += f"\n기준({PASS_SCORE}점) 미달이라 참고용으로 확인해 주세요."
         if lint or under:
@@ -791,7 +909,9 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
             "reply": summary,
             "exam": {"kind": kind, "points": points, "topic": topic},
             "review": {"score": score, "rounds": rounds, "weak_points": weak,
-                       "volume": {"chars": vol["chars"], "pages": vol["pages"]}},
+                       "volume": {"lines": vol["lines"], "pages": vol["pages_frac"]}},
+            "sheet": {"kind": kind, "points": points, "pages": vol["pages"],
+                      "lines": vol["line_in_page"], "target_pages": vol["target_pages"]},
             "artifact": {"title": topic, "html": sheet},
             "llm_calls": llm_calls,
         }

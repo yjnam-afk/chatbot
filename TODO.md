@@ -5,9 +5,10 @@
 
 ## 마일스톤
 
-- [ ] **M1 — 답안지 템플릿 재설계** (다인, 진행 중)
-  - [ ] `docs/answer-template-spec.md`: 1교시형/2교시형 섹션 슬롯 정의 (강정배 방법론 기반)
-  - [ ] 슬롯 인터페이스 확정: (슬롯명, 요구 부품 필드, 필수 여부) — 조립기와의 계약
+- [x] **M1 — 답안지 템플릿 재설계** (다인 스펙 확정 → 로운 구현 완료)
+  - [x] `docs/answer-template-spec.md`: 1교시형/2교시형 섹션 슬롯 정의 (강정배 방법론 기반)
+  - [x] 슬롯 인터페이스 확정: §7 프래그먼트 계약 (ans/def/gloss/diagram(.d7)/t3·t2·tcmp·texp/r2)
+  - [x] `_ANSWER_TEMPLATE`·`render_answer` 줄 그리드(v1 연속 본문)로 교체, `_volume` 쪽·줄 기반 갱신, 데모 답안 새 계약 적용
 - [ ] **M2 — 라이브러리 데이터 모델·씨앗** (스펙 2-1, 2-2)
   - [ ] `api/_library/schema.md` + 토픽 JSON 스키마 확정
   - [ ] `scripts/seed_from_xlsx.py`: 경영전략_토픽 166건 → 뼈대 JSON (부품 보존 머지)
