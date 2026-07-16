@@ -16,6 +16,10 @@ const Progress = (() => {
   });
   const started = {}; // step -> 시작 ts
   const rework = {};  // step -> 보완 횟수 (폴백 경로 보완 루프)
+  const frozen = {};  // step -> 캡션 동결 (spec §3: 완료·오류 스텝 캡션 고정)
+  // 서버는 결과 요약 talk을 done 직후에 보내므로(예: nlu done → "라이브러리 N건 적중"),
+  // 완료 즉시 동결하면 그 요약까지 버려진다. 따라서 "다음 스텝이 시작되는 순간" 동결한다 —
+  // 코디의 마무리 인사("답안지 납품 완료!")는 스텝1이 이미 동결된 뒤라 폐기된다.
 
   function capParts(n) {
     const cap = els[n].cap;
@@ -48,22 +52,26 @@ const Progress = (() => {
       s.cap.innerHTML = '&nbsp;<span class="t"></span>';
       delete started[n];
       delete rework[n];
+      delete frozen[n];
     }
   }
 
   function run(n, activity) {
     const s = els[n];
     if (!s) return;
-    // 앞 스텝이 아직 진행 중이면 완료 처리 (done 이벤트 유실 대비)
+    // 앞 스텝: 진행 중이면 완료 처리(done 유실 대비) + 캡션 동결 (spec §3)
     for (let i = 1; i < Number(n); i++) {
-      if (els[i] && els[i].el.classList.contains("run")) finish(String(i));
+      if (!els[i]) continue;
+      if (els[i].el.classList.contains("run")) finish(String(i));
+      frozen[String(i)] = true;
     }
     if (s.el.classList.contains("done")) {
-      // 이미 완료된 스텝의 재작업 = 보완 루프
+      // 이미 완료된 스텝의 재작업 = 보완 루프 — 캡션 갱신도 다시 허용
       rework[n] = (rework[n] || 0) + 1;
       s.el.classList.remove("done");
       caption(n, `보완 ${rework[n]}회 진행 중`);
     }
+    frozen[n] = false;
     if (!s.el.classList.contains("run")) {
       s.el.classList.add("run");
       if (!started[n]) started[n] = performance.now();
@@ -91,10 +99,14 @@ const Progress = (() => {
     s.el.classList.add("error");
     s.st.textContent = "오류";
     if (activity) caption(n, activity);
+    frozen[n] = true; // 오류 캡션 고정
   }
 
   function finishAll() {
-    for (const n of ["1", "2", "3"]) finish(n);
+    for (const n of ["1", "2", "3"]) {
+      finish(n);
+      frozen[n] = true; // reply 도착 — 전 스텝 캡션 고정
+    }
   }
 
   function failActive() {
@@ -107,7 +119,9 @@ const Progress = (() => {
     const n = String(AGENT2STEP[ev.agent] || "");
     if (!n) return;
     if (ev.type === "talk") {
-      caption(n, ev.text);
+      // 동결된 스텝(다음 스텝 시작·오류·reply 이후)의 캡션은 고정 — 덮으려는 talk 폐기.
+      // 결과 요약(완료 직후 talk)은 아직 동결 전이라 유지된다. (spec §3, QA 2026-07)
+      if (!frozen[n]) caption(n, ev.text);
       return;
     }
     if (ev.state === "thinking" || ev.state === "working") run(n, ev.activity);
