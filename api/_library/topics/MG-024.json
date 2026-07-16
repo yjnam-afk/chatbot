@@ -113,5 +113,6 @@
     "MG-023",
     "MG-033",
     "MG-047"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">내부 역량<br>미파악</div><div class=\"d-circle\">외부 환경<br>변화</div><div class=\"d-circle\">전략 근거<br>부재</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">SWOT 분석</div><div class=\"d-box soft\">4대 요인 (Ⅱ)</div><div class=\"d-box soft\">교차 전략 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">전략 대안 도출<small>SO · ST · WO · WT</small></div></div>"
 }

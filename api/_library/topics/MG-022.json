@@ -116,5 +116,6 @@
     "MG-033",
     "MG-047",
     "MG-050"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">진입 판단<br>감 의존</div><div class=\"d-circle\">수익 구조<br>미파악</div><div class=\"d-circle\">경쟁<br>심화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">5Force 분석</div><div class=\"d-box soft\">5대 요인 (Ⅱ)</div><div class=\"d-box soft\">전략 도출 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">산업 매력도 평가<small>경쟁 전략 방향</small></div></div>"
 }

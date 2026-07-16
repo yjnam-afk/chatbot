@@ -121,5 +121,6 @@
     "MG-016",
     "MG-018",
     "MG-019"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">복구 기준<br>부재</div><div class=\"d-circle\">과잉·과소<br>투자</div><div class=\"d-circle\">업무별<br>차등 필요</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">복구 목표 정의</div><div class=\"d-box soft\">지표 체계 (Ⅱ)</div><div class=\"d-box soft\">DRS 설계 반영 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">복구 투자 최적화<small>BIA 기반 차등 설정</small></div></div>"
 }

@@ -111,5 +111,6 @@
     "MG-030",
     "MG-032",
     "MG-160"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">분석<br>중복</div><div class=\"d-circle\">요소<br>누락</div><div class=\"d-circle\">구조화<br>부재</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">MECE 분해</div><div class=\"d-box soft\">원칙 · 검증 (Ⅱ)</div><div class=\"d-box soft\">로직트리 활용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">완전한 문제 파악<small>중복 X · 누락 X</small></div></div>"
 }

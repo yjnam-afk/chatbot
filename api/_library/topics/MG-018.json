@@ -111,5 +111,6 @@
     "MG-016",
     "MG-017",
     "MG-019"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">절차 부재<br>혼란</div><div class=\"d-circle\">역할<br>불명확</div><div class=\"d-circle\">훈련<br>미흡</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">DRP 수립</div><div class=\"d-box soft\">구성요소 (Ⅱ)</div><div class=\"d-box soft\">훈련 · 개정 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">신속한 업무 복구<small>RTO 달성</small></div></div>"
 }

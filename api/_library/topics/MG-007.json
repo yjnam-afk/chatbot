@@ -120,5 +120,6 @@
   "related": [
     "MG-006",
     "MG-159"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">분석<br>시행착오</div><div class=\"d-circle\">표준 절차<br>부재</div><div class=\"d-circle\">재현<br>불가</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">CRISP-DM 적용</div><div class=\"d-box soft\">6단계 절차 (Ⅱ)</div><div class=\"d-box soft\">비교 · 활용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">표준 분석 절차<small>재현 가능한 마이닝</small></div></div>"
 }

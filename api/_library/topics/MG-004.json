@@ -122,5 +122,6 @@
     "MG-001",
     "MG-003",
     "MG-005"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">품질<br>분쟁</div><div class=\"d-circle\">평가 기준<br>부재</div><div class=\"d-circle\">아웃소싱<br>확대</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">SLA 체결</div><div class=\"d-box soft\">구성요소 (Ⅱ)</div><div class=\"d-box soft\">특징 · 비교 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">정량 품질 관리<small>평가 · 보상 연계</small></div></div>"
 }

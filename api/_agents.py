@@ -139,48 +139,124 @@ def _extract_body(text: str) -> str:
     return text.strip()
 
 
-# ---- 줄 그리드 분량 모델 (docs/answer-template-spec.md §1)
-_TAIL_LINES = 5    # 템플릿이 body 뒤에 붙이는 꼬리: "끝" 1 + 여백 1 + 두문자 박스 3
+# ---- 줄 그리드 분량 모델 · 페이지 레이아웃 v2 (docs/answer-template-spec.md §1·§8)
+# 서버가 본문 블록의 줄 수를 계측해 22줄 페이지(머리행 1 + 본문 17/21)로 직접 분할한다.
+# 화면 쪽수 = 인쇄 쪽수 = sheet.pages 가 항상 일치 (발주자 3차 반려 대응).
 _PAGE1_BODY = 17   # 1쪽 본문 줄 수 (머리행 1 + 문제 스트립 4 제외)
 _PAGEN_BODY = 21   # 2쪽부터 본문 줄 수 (머리행 1 제외)
 _PAGE_LINES = 22   # 답안지 1매 환산 기준 (머리행 포함)
 
+_BLOCK_OPEN_RE = re.compile(r"<(h2|h3|p|table|div)\b", re.I)
 
-def _count_lines(body_html: str, p2: bool) -> int:
-    """본문 프래그먼트의 점유 줄 수를 요소별 규칙(스펙 §2)으로 합산한다."""
-    b = body_html or ""
-    lines = 0
-    lines += 7 * len(re.findall(r'class="diagram d7"', b))
-    lines += 6 * len(re.findall(r'class="diagram"', b))
-    lines += len(re.findall(r"<tr[\s>]", b, re.I))            # 표 행 1줄
-    lines += len(re.findall(r'<tr\s+class="r2"', b, re.I))    # r2 행은 +1줄
-    n_h2 = len(re.findall(r"<h2[\s>]", b, re.I))
-    lines += n_h2 + len(re.findall(r"<h3[\s>]", b, re.I))
-    n_def = len(re.findall(r'<p\s+class="def"', b, re.I))
-    n_p = len(re.findall(r"<p[\s>]", b, re.I))
-    lines += n_def * 2 + max(0, n_p - n_def)                  # def 2줄, 그 외 p 1줄
-    lines += len(re.findall(r'<div\s+class="gap"', b, re.I))
-    if p2 and n_h2 > 1:
-        lines += n_h2 - 1   # 2교시형 단락 사이 자동 1줄 (.p2 h2 margin-top)
-    return lines
+
+def _split_blocks(html: str) -> list[str]:
+    """본문 프래그먼트를 최상위 블록 요소 단위로 분해한다 (div/table 중첩 안전)."""
+    blocks: list[str] = []
+    i = 0
+    while True:
+        m = _BLOCK_OPEN_RE.search(html, i)
+        if not m:
+            break
+        tag = m.group(1).lower()
+        pat = re.compile(rf"<{tag}\b|</{tag}\s*>", re.I)
+        depth, j = 0, m.start()
+        while True:
+            m2 = pat.search(html, j)
+            if not m2:
+                j = len(html)
+                break
+            j = m2.end()
+            if m2.group(0)[1] == "/":
+                depth -= 1
+                if depth == 0:
+                    break
+            else:
+                depth += 1
+        blocks.append(html[m.start():j].strip())
+        i = j
+    return blocks
+
+
+def _block_lines(block: str) -> int:
+    """블록 1개의 점유 줄 수 — 요소별 규칙 (스펙 §2)."""
+    b = block.lstrip().lower()
+    if b.startswith("<h2") or b.startswith("<h3"):
+        return 1
+    if b.startswith("<p"):
+        return 2 if 'class="def"' in b[:40] else 1
+    if b.startswith("<table"):
+        return (len(re.findall(r"<tr[\s>]", b))
+                + len(re.findall(r'<tr\s+class="r2"', b)))  # r2 행은 +1줄
+    if b.startswith("<div"):
+        head = b[:60]
+        if 'class="diagram d7"' in head:
+            return 7
+        if 'class="diagram"' in head:
+            return 6
+        if 'class="mnemonic"' in head:
+            return 3
+        return 1  # gap 등
+    return 1
+
+
+def _layout(body_html: str, kind: str,
+            mnemonic_html: str = "<p><b>—</b></p>") -> list[dict]:
+    """본문+꼬리("끝"·여백·두문자 박스)를 페이지(17/21줄)로 배치한다.
+
+    반환: [{"blocks": [html...], "cap": 줄수, "used": 점유 줄수, "seed": (sec, sub)}]
+    - 2교시형 단락(h2) 사이 1줄 여백은 명시적 .gap 블록으로 물질화 (페이지 첫 줄이면 생략)
+    - seed는 페이지별 h2/h3 카운터 이어달리기용 (content inline counter-reset)
+    """
+    p2 = "1교시" not in str(kind)
+    seq: list[tuple[str, int]] = []
+    h2_seen = False
+    for blk in _split_blocks(body_html or ""):
+        low = blk.lstrip().lower()
+        if p2 and low.startswith("<h2"):
+            if h2_seen:
+                seq.append(("__GAP__", 1))
+            h2_seen = True
+        seq.append((blk, _block_lines(blk)))
+    seq.append(('<p class="end">"끝"</p>', 1))
+    seq.append(("__GAP__", 1))
+    seq.append(('<div class="mnemonic">\n<div class="mn-label">두문자 암기 포인트</div>\n'
+                f"{mnemonic_html}\n</div>", 3))
+
+    pages: list[dict] = []
+    cur: list[str] = []
+    used, cap = 0, _PAGE1_BODY
+    sec = sub = 0
+    seed = (0, 0)
+    for blk, ln in seq:
+        if cur and used + ln > cap:
+            pages.append({"blocks": cur, "cap": cap, "used": used, "seed": seed})
+            cur, used, cap = [], 0, _PAGEN_BODY
+            seed = (sec, sub)
+            if blk == "__GAP__":
+                continue  # 페이지 첫 줄의 단락 여백은 생략
+        html = '<div class="gap"></div>' if blk == "__GAP__" else blk
+        cur.append(html)
+        used += ln
+        low = html.lstrip().lower()
+        if low.startswith("<h2"):
+            sec += 1
+            sub = 0
+        elif low.startswith("<h3"):
+            sub += 1
+    pages.append({"blocks": cur, "cap": cap, "used": used, "seed": seed})
+    return pages
 
 
 def _volume(body_html: str, kind: str) -> dict:
-    """답안 분량 — 줄 그리드 기반. 쪽/마지막 쪽 줄/매 환산(총줄÷22)을 산출한다."""
-    is_terms = "1교시" in str(kind)
-    total = _count_lines(body_html, p2=not is_terms) + _TAIL_LINES
-    if total <= _PAGE1_BODY:
-        pages, line_in_page = 1, total
-    else:
-        extra = -(-(total - _PAGE1_BODY) // _PAGEN_BODY)  # ceil
-        pages = 1 + extra
-        line_in_page = (total - _PAGE1_BODY) - _PAGEN_BODY * (extra - 1)
+    """답안 분량 — 페이지 레이아웃 실측 기반. 화면/인쇄 쪽수와 항상 일치한다."""
+    pages = _layout(body_html, kind)
+    total = sum(p["used"] for p in pages)
     return {
         "lines": total,
-        "pages": pages,
-        "line_in_page": line_in_page,
+        "pages": len(pages),
+        "line_in_page": pages[-1]["used"],
         "pages_frac": round(total / _PAGE_LINES, 1),
-        "target_pages": 1.4 if is_terms else 3.5,
+        "target_pages": 1.4 if "1교시" in str(kind) else 3.5,
     }
 
 
@@ -205,6 +281,9 @@ def _lint_format(body_html: str, kind: str) -> list[str]:
     # 3) 개념도
     if not re.search(r"<div[^>]*class=\"[^\"]*diagram", body, re.I):
         issues.append("개념도 누락 — div.diagram 1개 이상 필요")
+    # 3-1) 2교시형 서론 로드맵(Type IV) — d7 부재는 발주자 반려 형태(텍스트 약식 서론)
+    if not is_terms and 'class="diagram d7"' not in body:
+        issues.append("서론 로드맵(diagram d7) 부재 — 2교시형은 Type IV 서론 필수")
     # 4) 표 개수 (구성요소 상세표 + 결론/비교표)
     n_table = len(re.findall(r"<table[\s>]", body, re.I))
     if n_table < 2:
@@ -298,8 +377,8 @@ _ANSWER_TEMPLATE = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} — 기술사 답안지</title>
 <style>
-/* 기술사 답안지 — 실물 줄 그리드 템플릿 (docs/answer-template-spec.md, v1 연속 본문 방식)
-   모든 요소가 1줄(--lh)의 정수배로 괘선에 스냅된다. */
+/* 기술사 답안지 — 실물 줄 그리드 템플릿 (docs/answer-template-spec.md, v2 서버 페이지 분할)
+   모든 요소가 1줄(--lh)의 정수배로 괘선에 스냅되고, 서버가 22줄 페이지로 직접 분할한다. */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --lh: 32px;
@@ -317,7 +396,7 @@ body {
   font-size: 15px; padding: 36px 12px 48px; word-break: keep-all;
 }
 .page {
-  width: min(794px, 100%); margin: 0 auto;
+  width: min(794px, 100%); margin: 0 auto 26px;
   background: var(--paper); border: 1px solid #c9c5ba;
   box-shadow: 0 2px 18px rgba(40, 40, 30, 0.12);
 }
@@ -340,7 +419,8 @@ body {
 .qs-text { margin-top: 6px; font-size: 14px; line-height: 1.65; }
 .body {
   position: relative;
-  min-height: calc(var(--body, 17) * var(--lh));
+  height: calc(var(--body, 21) * var(--lh));
+  overflow: hidden;
   background: repeating-linear-gradient(to bottom,
     transparent 0 calc(var(--lh) - 1px),
     var(--rule) calc(var(--lh) - 1px) var(--lh));
@@ -352,8 +432,7 @@ body {
 .content h2::before { content: counter(sec, upper-roman) ". "; }
 .content h3 { font-weight: 700; counter-increment: sub; padding-left: 18px; }
 .content h3::before { content: counter(sub, ganada) ". "; }
-/* 2교시형: 단락(h2) 사이 1줄 띄움 — 1교시형(.p1)은 띄우지 않는다 */
-.content.p2 h2:not(:first-of-type) { margin-top: var(--lh); }
+/* 2교시형 단락(h2) 사이 1줄 여백은 서버가 .gap 블록으로 물질화한다 (페이지 분할 정합) */
 .ans { font-weight: 700; }
 .def { min-height: calc(2 * var(--lh)); padding-left: 18px; }
 .gloss { padding-left: 18px; }
@@ -403,71 +482,63 @@ body {
 @media print {
   :root { --lh: 10.5mm; }
   body { background: #fff; padding: 0; }
-  .page { width: auto; margin: 0; border: none; box-shadow: none; }
-  .content h2, .content h3 { break-after: avoid; page-break-after: avoid; }
-  .diagram, .mnemonic, tr { break-inside: avoid; page-break-inside: avoid; }
+  .page { width: auto; margin: 0; border: none; box-shadow: none; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
 }
 </style>
 </head>
 <body>
-<div class="page">
-  <div class="page-head">
-    <span class="ph-box">번 호</span>
-    <span class="ph-title">기 술 사 답 안 지 ({ptitle})</span>
-    <span class="ph-num">1 쪽</span>
-  </div>
-  <div class="q-strip">
-    <div class="qs-top">
-      <span class="qs-no">문) {title}</span>
-      <span class="qs-kind">{kind} · {points}점</span>
-    </div>
-    <p class="qs-text">{question}</p>
-  </div>
-  <div class="body" style="--body:{lines}">
-    <div class="content {pcls}">
-{body}
-      <p class="end">"끝"</p>
-      <div class="gap"></div>
-      <div class="mnemonic">
-        <div class="mn-label">두문자 암기 포인트</div>
-        {mnemonic_html}
-      </div>
-    </div>
-  </div>
-</div>
+{pages}
 </body>
 </html>"""
 
 
 def render_answer(question: str, title: str, kind: str, points: int | str,
                   body: str, mnemonic_html: str) -> str:
-    """답안지 템플릿에 내용을 채워 완성 HTML을 만든다.
+    """답안지 템플릿에 내용을 채워 완성 HTML을 만든다 (v2 서버 페이지 분할).
 
-    CSS 중괄호 때문에 str.format() 금지. 입력값에 "{body}" 같은 리터럴
-    플레이스홀더가 있어도 재치환되지 않도록 단일 패스 re.sub로 치환한다.
+    본문+꼬리를 _layout으로 22줄 페이지에 배치하고, 쪽마다 머리행("N 쪽")을
+    붙인다(1쪽만 문제 스트립 포함). h2/h3 카운터는 페이지별 inline counter-reset
+    시드로 이어달린다. CSS 중괄호 때문에 str.format() 금지 — 입력값에 "{pages}"
+    같은 리터럴이 있어도 재치환되지 않도록 단일 패스 re.sub로 치환한다.
     question/title/kind/points는 escape, body/mnemonic_html은 이미 HTML.
-    kind에 따라 content 래퍼(p1|p2)와 머리행 표기를 정하고, 본문 줄 수를
-    페이지 경계(1쪽 17줄 + n×21줄)로 올림해 마지막 쪽 끝까지 괘선을 채운다.
     """
     is_terms = "1교시" in str(kind)
-    total = _count_lines(body, p2=not is_terms) + _TAIL_LINES
-    if total <= _PAGE1_BODY:
-        padded = _PAGE1_BODY
-    else:
-        padded = _PAGE1_BODY + _PAGEN_BODY * (-(-(total - _PAGE1_BODY) // _PAGEN_BODY))
-    parts = {
-        "title": html_mod.escape(str(title)),
-        "kind": html_mod.escape(str(kind)),
-        "points": html_mod.escape(str(points)),
-        "question": html_mod.escape(str(question)),
-        "body": body,
-        "mnemonic_html": mnemonic_html,
-        "pcls": "p1" if is_terms else "p2",
-        "ptitle": "제 1 교 시 형" if is_terms else "제 2 교 시 형",
-        "lines": str(padded),
-    }
-    return re.sub(r"\{(title|kind|points|question|body|mnemonic_html|pcls|ptitle|lines)\}",
-                  lambda m: parts[m.group(1)], _ANSWER_TEMPLATE)
+    pcls = "p1" if is_terms else "p2"
+    ptitle = "제 1 교 시 형" if is_terms else "제 2 교 시 형"
+    esc = html_mod.escape
+    pages = _layout(body, kind, mnemonic_html)
+    page_parts = []
+    for i, pg in enumerate(pages):
+        head = (
+            '  <div class="page-head">\n'
+            '    <span class="ph-box">번 호</span>\n'
+            f'    <span class="ph-title">기 술 사 답 안 지 ({ptitle})</span>\n'
+            f'    <span class="ph-num">{i + 1} 쪽</span>\n'
+            "  </div>\n"
+        )
+        strip = ""
+        if i == 0:
+            strip = (
+                '  <div class="q-strip">\n'
+                '    <div class="qs-top">\n'
+                f'      <span class="qs-no">문) {esc(str(title))}</span>\n'
+                f'      <span class="qs-kind">{esc(str(kind))} · {esc(str(points))}점</span>\n'
+                "    </div>\n"
+                f'    <p class="qs-text">{esc(str(question))}</p>\n'
+                "  </div>\n"
+            )
+        sec, sub = pg["seed"]
+        content = "\n".join(pg["blocks"])
+        page_parts.append(
+            f'<div class="page">\n{head}{strip}'
+            f'  <div class="body" style="--body:{pg["cap"]}">\n'
+            f'    <div class="content {pcls}" style="counter-reset: sec {sec} sub {sub};">\n'
+            f"{content}\n"
+            "    </div>\n  </div>\n</div>"
+        )
+    parts = {"title": esc(str(title)), "pages": "\n".join(page_parts)}
+    return re.sub(r"\{(title|pages)\}", lambda m: parts[m.group(1)], _ANSWER_TEMPLATE)
 
 
 def _mnemonic_html(mn: dict | None) -> str:
@@ -501,7 +572,7 @@ _BODY_RULES = """[답안 본문 HTML 규칙 — 실물 답안지 줄 그리드 �
 - 표 종류: t3 = 3단표(구분 20/구성요소 20/설명 60) / t2 = 2단표(구분 20/설명 80) /
   tcmp = 비교표(구분 20/40/40) / texp = 2가지 설명표(20/19/61)
 - 문체: 개조식("~임/~함/~됨" 종결). 정의·설명은 키워드 나열형 — 문장을 만들지 말 것.
-- 표 셀은 1줄 15자, 2줄 행(r2) 셀은 34자 이내. h2 사이에 빈 줄·gap을 직접 넣지 말 것(2교시형은 CSS 자동).
+- 표 셀은 1줄 15자, 2줄 행(r2) 셀은 34자 이내. h2 사이에 빈 줄·gap을 직접 넣지 말 것(서버가 페이지 배치 시 자동 삽입).
 
 [1교시형(용어, 10점) — 3단락, 26~30줄]
 <p class="ans">답)</p>

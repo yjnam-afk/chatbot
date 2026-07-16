@@ -121,5 +121,6 @@
     "MG-024",
     "MG-050",
     "MG-064"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">전략-조직<br>부정합</div><div class=\"d-circle\">변화<br>실패</div><div class=\"d-circle\">무형 요소<br>간과</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">7S 진단</div><div class=\"d-box soft\">7대 요소 (Ⅱ)</div><div class=\"d-box soft\">정렬 · 활용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">조직 정합성 확보<small>변화 대처 역량</small></div></div>"
 }

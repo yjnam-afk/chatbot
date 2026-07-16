@@ -110,5 +110,6 @@
     "MG-016",
     "MG-019",
     "MG-122"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">체계<br>비일관</div><div class=\"d-circle\">객관 심사<br>요구</div><div class=\"d-circle\">규제<br>강화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">ISO 22301 도입</div><div class=\"d-box soft\">요구사항 구조 (Ⅱ)</div><div class=\"d-box soft\">인증 · 활용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">BCMS 인증<small>연속성 역량 입증</small></div></div>"
 }

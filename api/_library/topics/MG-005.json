@@ -112,5 +112,6 @@
     "MG-001",
     "MG-003",
     "MG-004"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">SLA<br>미이행</div><div class=\"d-circle\">측정<br>부재</div><div class=\"d-circle\">개선<br>단절</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">SLM 체계</div><div class=\"d-box soft\">구성요소 (Ⅱ)</div><div class=\"d-box soft\">특징 · 비교 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">수준 지속 개선<small>측정 · 평가 · 개선</small></div></div>"
 }

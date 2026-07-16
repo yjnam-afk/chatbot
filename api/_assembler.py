@@ -136,6 +136,18 @@ def _missing_placeholder(name: str) -> list[str]:
     ]
 
 
+def _composite_intro(topics: list[dict], joined: str) -> str:
+    """복합 문제용 서론 로드맵(Type IV) 합성 — 각 토픽을 등장배경 원형으로, 본론을 로드맵으로."""
+    circles = "".join(f'<div class="d-circle">{_esc(short_name(t)[:10])}</div>' for t in topics[:3])
+    return (f'<div class="diagram d7"><div class="d-col">{circles}</div>'
+            f'<span class="d-sep"></span><span class="d-arrow">→</span>'
+            f'<div class="d-col"><div class="d-box d-hub">{_esc(joined[:24])}</div>'
+            f'<div class="d-box soft">구성 (Ⅱ)</div>'
+            f'<div class="d-box soft">비교 (Ⅲ)</div></div>'
+            f'<span class="d-arrow">→</span><span class="d-sep"></span>'
+            f'<div class="d-box">상호 관계 이해<small>활용 · 전망 (Ⅳ)</small></div></div>')
+
+
 def assemble(question: str, kind: str, points: int, topics: list[dict],
              missing_names: list[str] | None = None,
              extra_sections: dict[str, str] | None = None,
@@ -221,6 +233,8 @@ def assemble(question: str, kind: str, points: int, topics: list[dict],
         title = " · ".join(names)
         joined = "와 ".join(names[:2]) if len(names) == 2 else " · ".join(names)
         parts.append(f"<h2>{_esc(joined)}의 개요</h2>")
+        if not is_terms:
+            parts.append(_composite_intro(topics, joined))  # Type IV 서론 로드맵 합성
         for t in topics:
             parts.append(f"<h3>{_esc(short_name(t))}의 정의</h3>")
             parts.append(f'<p class="def">{_esc(t.get("definition") or t.get("definition_long"))}</p>')

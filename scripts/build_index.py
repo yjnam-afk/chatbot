@@ -74,6 +74,10 @@ def main() -> int:
         # comparisons.vs 상호참조 검사(존재하는 id인지)는 전체 로드 후
         tid = t["id"]
         full = sum(1 for k in FULL_FIELDS if t.get(k)) >= 2
+        # 풀부품은 2교시 서론 로드맵(Type IV) 부품 필수 — 없으면 발주자가 반려한
+        # 텍스트 약식 서론(Type I 유사)으로 조립되므로 게이트에서 차단 (2026-07 3차 반려)
+        if full and not t.get("intro_diagram_html"):
+            fail(f"{f.name}: 풀부품인데 intro_diagram_html(서론 로드맵 d7) 없음 — Type IV 필수")
         topics_meta[tid] = {
             "name": re.sub(r"\s+", " ", re.sub(r"\([^)]*\)", " ", t["name"])).strip() or t["name"],
             "category": t["category"],

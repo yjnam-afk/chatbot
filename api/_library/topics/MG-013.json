@@ -114,5 +114,6 @@
     "MG-006",
     "MG-030",
     "MG-142"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">선형 분석<br>한계</div><div class=\"d-circle\">순환<br>구조</div><div class=\"d-circle\">동태적<br>변화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">시스템 다이내믹스</div><div class=\"d-box soft\">구성요소 (Ⅱ)</div><div class=\"d-box soft\">인과루프 도출 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">동태 거동 예측<small>CLD · SFD 시뮬레이션</small></div></div>"
 }

@@ -115,5 +115,6 @@
     "MG-016",
     "MG-017",
     "MG-018"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">동시 복구<br>불가</div><div class=\"d-circle\">자원<br>한정</div><div class=\"d-circle\">영향도<br>미파악</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">BIA 수행</div><div class=\"d-box soft\">수행 절차 (Ⅱ)</div><div class=\"d-box soft\">RTO · RPO 도출 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">복구 우선순위<small>연속성 계획의 기초</small></div></div>"
 }

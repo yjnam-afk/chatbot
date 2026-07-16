@@ -118,5 +118,6 @@
     "MG-004",
     "MG-005",
     "MG-077"
-  ]
+  ],
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">범위<br>모호</div><div class=\"d-circle\">책임<br>분쟁</div><div class=\"d-circle\">SLA<br>구체화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">SoW 작성</div><div class=\"d-box soft\">구성요소 (Ⅱ)</div><div class=\"d-box soft\">SLA 연계 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">분쟁 없는 계약<small>명확한 범위 · R&R</small></div></div>"
 }
