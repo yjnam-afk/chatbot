@@ -10,6 +10,8 @@ from __future__ import annotations
 import html as html_mod
 import re
 
+from _topic_library import _STOP_TOKENS, norm as _norm
+
 
 def _esc(s) -> str:
     return html_mod.escape(str(s or ""))
@@ -276,7 +278,15 @@ def split_subjects(question: str) -> list[str]:
     """복합 문제의 주제어 후보 분리 — 부분 적중 감지용 휴리스틱.
 
     요구 어미(에 대하/을·를/의) 앞 서두를 나열 구분자(와/과/및/,/·)로 쪼갠다.
+    한글 연결어 "와/과"는 단어 내부("성과 관리")에서도 걸리므로, 분리 잔여물 중
+    범용어(_STOP_TOKENS: 관리/성과/체계 등)는 주제어에서 제외한다 — 이런 조각이
+    매칭 미스로 흘러가면 "라이브러리 미등록 토픽" 쓰레기 소단락이 생긴다.
     """
     head = re.split(r"의 |에 대하|을 |를 |이란|비교", question)[0]
     parts = re.split(r"\s*(?:와|과|및|,|·)\s+|\s*[,·]\s*", head)
-    return [p.strip() for p in parts if p.strip() and len(p.strip()) >= 2]
+    out = []
+    for p in parts:
+        p = p.strip()
+        if len(p) >= 2 and _norm(p) not in _STOP_TOKENS:
+            out.append(p)
+    return out
