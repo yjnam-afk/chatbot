@@ -14,9 +14,9 @@
   - [x] `scripts/seed_from_xlsx.py`: 경영전략_토픽 166건 → 뼈대 JSON (부품 보존 머지, 별칭 충돌 해소)
   - [x] `scripts/build_index.py`: 스키마 검증(+HTML 금칙어, 총량 5MB, comparisons 참조 무결성) → `index.json` 생성
   - [x] 대표 5토픽 풀부품 수작업: ITSM(MG-001)/SLA(MG-004)/SLM(MG-005)/DRS(MG-016)/SWOT(MG-024), SLA↔SLM 비교 상호참조
-- [ ] **M3 — 매칭 엔진** (스펙 2-3)
-  - [ ] `api/_topic_library.py`: norm(초성/약어), 점수화, 확정 임계값, 복수 매칭(최대 3)
-  - [ ] 모호 구간 LLM 1콜 (후보 목록 내 선택만 허용), 단위 테스트
+- [x] **M3 — 매칭 엔진** (스펙 2-3)
+  - [x] `api/_topic_library.py`: norm(초성/약어), 점수화(10/6/5/1), 확정 임계값 8, 복수 매칭(최대 3), 긴 term 흡수, 초성 완전어 확정 보강
+  - [x] 모호 구간 후보 반환 + `pick_from_candidates`(후보 밖 id 차단 — LLM 1콜 선택은 M4 파이프라인에서 연결), 단위 테스트 12건
 - [ ] **M4 — 조립 파이프라인** (스펙 2-4, 2-6)
   - [ ] 단일/복합/부분적중 조립, 자동 대비표, 암기 박스
   - [ ] run_pipeline 분기 통합: 적중→조립(0~1콜) / 미적중→기존 폴백 / 일반 질문→chat
