@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>기술사 답안지 샘플 — 2교시형 (ITSM)</title>
+<style>
+/* ================================================================
+   기술사 답안지 — ITPE 실전 템플릿 재현 샘플 (2교시형 4단락)
+   근거: docs/answer-template-spec.md
+   핵심: 모든 요소가 줄 단위(--lh)의 정수배로 괘선 그리드에 스냅된다.
+   ================================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --lh: 32px;                 /* 답안지 1줄 (인쇄 시 10.5mm) */
+  --ink: #1c2f4a;             /* 볼펜 잉크(청흑) — 답안 본문/표/그림 */
+  --chrome: #3d4148;          /* 인쇄체(머리행·문제 스트립) */
+  --rule: #c5cedd;            /* 괘선 */
+  --rule2: #9db0c8;           /* 굵은 괘선(거터·머리행) */
+  --paper: #fdfdfa;
+}
+
+@counter-style ganada {
+  system: fixed; symbols: "가" "나" "다" "라" "마" "바" "사" "아" "자" "차";
+  suffix: ". ";
+}
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  background: #e6e5e0;
+  color: var(--ink);
+  font-family: "Noto Serif KR", "Noto Serif CJK KR", "Nanum Myeongjo",
+    "Source Han Serif K", Batang, AppleMyungjo, serif;
+  font-size: 15px;
+  padding: 36px 12px 48px;
+  word-break: keep-all;
+  counter-reset: sec;
+}
+
+/* ---------- 화면 전용 안내(인쇄 제외) ---------- */
+.ruler-note {
+  max-width: 794px; margin: 0 auto 20px;
+  font-family: system-ui, sans-serif; font-size: 12.5px; color: #666;
+  line-height: 1.6; padding: 12px 16px; background: #fff;
+  border: 1px solid #d8d5cc; border-radius: 8px;
+}
+.ruler-note b { color: #333; }
+
+/* ---------- 페이지 ---------- */
+.page {
+  width: min(794px, 100%);
+  margin: 0 auto 26px;
+  background: var(--paper);
+  border: 1px solid #c9c5ba;
+  box-shadow: 0 2px 18px rgba(40, 40, 30, 0.12);
+}
+
+/* 머리행(1줄): 번호칸 · 표제 · 쪽수 */
+.page-head {
+  height: var(--lh);
+  display: flex; align-items: center;
+  font-family: system-ui, sans-serif;
+  font-size: 11.5px; color: var(--chrome);
+  border-bottom: 2px solid var(--rule2);
+}
+.ph-box {
+  width: 88px; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  border-right: 1px solid var(--rule2);
+  letter-spacing: 0.3em;
+}
+.ph-title { flex: 1; text-align: center; letter-spacing: 0.2em; }
+.ph-num { width: 88px; text-align: center; border-left: 1px solid var(--rule2); }
+
+/* 문제 스트립(1쪽 전용, 4줄) — 템플릿 {kind}{points}{title}{question} 영역 */
+.q-strip {
+  height: calc(4 * var(--lh));
+  padding: 8px 20px 0 20px;
+  border-bottom: 2px solid var(--rule2);
+  font-family: system-ui, sans-serif;
+  color: var(--chrome);
+  overflow: hidden;
+}
+.qs-top { display: flex; justify-content: space-between; align-items: baseline; }
+.qs-no { font-weight: 700; font-size: 14px; }
+.qs-kind {
+  font-size: 11.5px; font-weight: 700;
+  border: 1px solid var(--chrome); padding: 1px 10px; border-radius: 2px;
+}
+.qs-text { margin-top: 6px; font-size: 14px; line-height: 1.65; }
+
+/* 괘선 본문 — 페이지당 21줄(1쪽은 17줄, --body로 지정) */
+.body {
+  position: relative;
+  height: calc(var(--body, 21) * var(--lh));
+  overflow: hidden;
+  background: repeating-linear-gradient(to bottom,
+    transparent 0 calc(var(--lh) - 1px),
+    var(--rule) calc(var(--lh) - 1px) var(--lh));
+}
+/* 좌측 번호 거터 세로선 */
+.body::before {
+  content: ""; position: absolute; left: 44px; top: 0; bottom: 0;
+  width: 1px; background: var(--rule2);
+}
+.content { margin: 0 20px 0 58px; }
+
+/* ---------- 줄 스냅 요소 ---------- */
+.content h2, .content h3, .content p {
+  line-height: var(--lh); font-size: 15px; font-weight: 400;
+}
+.content h2 {
+  font-weight: 700;
+  counter-increment: sec; counter-reset: sub;
+}
+.content h2::before { content: counter(sec, upper-roman) ". "; }
+.content h3 { font-weight: 700; counter-increment: sub; padding-left: 18px; }
+.content h3::before { content: counter(sub, ganada) ". "; }
+
+/* 2교시형: 단락(h2) 사이 1줄 띄움 — 1교시형(.p1)은 띄우지 않는다 */
+.content.p2 h2:not(:first-of-type) { margin-top: var(--lh); }
+
+.ans { font-weight: 700; }
+.def { min-height: calc(2 * var(--lh)); padding-left: 18px; }
+.gloss { padding-left: 18px; }
+.end { text-align: right; padding-right: 12px; font-weight: 700; }
+.gap { height: var(--lh); }
+.content u { text-underline-offset: 5px; text-decoration-thickness: 1px; }
+
+/* ---------- 표 (템플릿 자 칼럼 규격) ---------- */
+.content table {
+  width: 100%; border-collapse: collapse; table-layout: fixed;
+  font-size: 13.5px;
+}
+.content th, .content td {
+  border: 1px solid var(--ink);
+  padding: 2px 8px;
+  vertical-align: middle;
+  line-height: 1.5;
+  overflow: hidden;
+}
+.content th {
+  font-weight: 700; text-align: center;
+  background: rgba(28, 47, 74, 0.04);
+}
+.content tr { height: var(--lh); }
+.content tr.r2 { height: calc(2 * var(--lh)); }
+/* 3단표 2:2:6 [1교시 43/65] */
+.t3 th:nth-child(1) { width: 20%; }
+.t3 th:nth-child(2) { width: 20%; }
+/* 2단표: 구분(자 20%) / 설명 */
+.t2 th:nth-child(1), .t2 td:first-child { width: 20%; }
+/* 비교표: 구분 20 / 40 / 40 (자 '비'=60%) */
+.tcmp th:nth-child(1) { width: 20%; }
+.tcmp th:nth-child(2) { width: 40%; }
+
+/* ---------- 개념도 (6줄 고정) ---------- */
+.diagram {
+  height: calc(6 * var(--lh));
+  border: 1.5px solid var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  gap: 22px; padding: 0 12px; overflow: hidden;
+}
+.d-col { display: flex; flex-direction: column; gap: 16px; }
+.d-row { display: flex; align-items: center; gap: 14px; }
+.d-box {
+  border: 1.5px solid var(--ink); background: #fff;
+  padding: 4px 14px; text-align: center;
+  font-size: 13px; font-weight: 700; line-height: 1.4;
+}
+.d-box small { display: block; font-size: 11px; font-weight: 400; }
+.d-box.soft { border-style: dashed; border-width: 1px; font-weight: 400; }
+.d-box.d-hub { border-width: 2.5px; padding: 12px 20px; font-size: 15px; }
+.d-arrow { font-weight: 700; font-size: 17px; flex: none; }
+
+/* ---------- 두문자 암기 박스 (3줄) ---------- */
+.mnemonic {
+  height: calc(3 * var(--lh));
+  border: 1.5px dashed var(--ink);
+  padding: 0 14px; overflow: hidden;
+}
+.mn-label {
+  line-height: var(--lh); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.25em;
+}
+.mnemonic p { line-height: var(--lh); font-size: 14px; }
+.mnemonic b { border-bottom: 1px solid var(--ink); }
+
+/* ---------- 인쇄 (A4 세로) ---------- */
+@page { size: A4 portrait; margin: 12mm 14mm; }
+@media print {
+  :root { --lh: 10.5mm; }
+  body { background: #fff; padding: 0; }
+  .ruler-note { display: none; }
+  .page {
+    width: auto; margin: 0; border: 1px solid #aaa; box-shadow: none;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="ruler-note">
+  <b>줄 그리드 샘플</b> — 페이지당 22줄(머리행 1 + 본문 21), 모든 요소가 1줄(--lh)의 정수배로
+  괘선에 스냅됩니다. 표 세로선은 템플릿 자 환산 위치:
+  <b>구분 20%</b> · 2 34% · 여 39% · 개념 45% · <b>비 60%</b> (3단표는 방법론 명시 2:2:6).
+  인쇄(Ctrl+P)하면 A4 3장으로 나옵니다. 근거 명세: docs/answer-template-spec.md
+</div>
+
+<!-- ================================ 1쪽 ================================ -->
+<div class="page">
+  <div class="page-head">
+    <span class="ph-box">번 호</span>
+    <span class="ph-title">기 술 사 답 안 지 (제 2 교 시 형)</span>
+    <span class="ph-num">1 쪽</span>
+  </div>
+  <div class="q-strip">
+    <div class="qs-top">
+      <span class="qs-no">문 2) ITSM 검토 모델, 성공 구축 요건</span>
+      <span class="qs-kind">서술형 · 25점</span>
+    </div>
+    <p class="qs-text">ITSM(IT Service Management)의 검토 모델과 성공적 구축을 위한 요건에 대하여 설명하시오.</p>
+  </div>
+  <div class="body" style="--body:17">
+    <div class="content p2">
+      <p class="ans">답)</p>
+      <h2>성공적인 IT 서비스 제공을 위한 ITSM의 개요</h2>
+      <h3>ITSM(IT Service Management)의 정의</h3>
+      <p class="def">IT 서비스 제공에 있어 고객 요구사항에 맞게 <u>SLA 기반</u>의 "고품질 서비스"를 제공하는 <u>관리 체계</u></p>
+      <h3>ITSM의 필요성</h3>
+      <table class="t2">
+        <tbody>
+          <tr><td>고품질 서비스</td><td>IT의 고품질 서비스를 고객에게 제공</td></tr>
+          <tr><td>고객 만족</td><td>서비스를 통한 고객 요구사항 만족</td></tr>
+        </tbody>
+      </table>
+      <h2>ITSM의 구성도 및 구성요소</h2>
+      <h3>ITSM의 구성도 (검토 모델)</h3>
+      <div class="diagram">
+        <div class="d-col">
+          <div class="d-box">평가·인증<small>eSCM · ISO 20000</small></div>
+          <div class="d-box">서비스수준<small>SOW · SLA</small></div>
+        </div>
+        <span class="d-arrow">→</span>
+        <div class="d-box d-hub">ITSM<small>고품질 IT 서비스 관리체계</small></div>
+        <span class="d-arrow">←</span>
+        <div class="d-col">
+          <div class="d-box">품질인증<small>CMMI</small></div>
+          <div class="d-box">Best Practice<small>ITIL</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================ 2쪽 ================================ -->
+<div class="page">
+  <div class="page-head">
+    <span class="ph-box">번 호</span>
+    <span class="ph-title">기 술 사 답 안 지 (제 2 교 시 형)</span>
+    <span class="ph-num">2 쪽</span>
+  </div>
+  <div class="body">
+    <!-- 페이지 분할 유의: h3 카운터가 앞 쪽에서 이어지므로 시드(sub 1)를 넘긴다 -->
+    <div class="content p2" style="counter-reset: sub 1;">
+      <p class="gloss">– ITIL, SOW, eSCM, CMMI 등 4가지 범위의 구축 모델 검토</p>
+      <h3>ITSM의 구성요소 (검토 모델 특징)</h3>
+      <table class="t3">
+        <thead>
+          <tr><th>구분</th><th>구성요소</th><th>설명</th></tr>
+        </thead>
+        <tbody>
+          <tr class="r2"><td>평가·인증</td><td>eSCM,<br>ISO 20000</td><td>서비스 제공업자의 서비스 능력 평가 및 인증</td></tr>
+          <tr class="r2"><td>품질인증</td><td>CMMI</td><td>서비스 품질 및 품질 성숙도에 대한 인증</td></tr>
+          <tr class="r2"><td>서비스수준</td><td>SOW,<br>SLA·SLM</td><td>고객과 상호 협의하의 업무 정의·수준 관리</td></tr>
+          <tr class="r2"><td>Best Practice</td><td>ITIL</td><td>IT 서비스 도입·운영의 모범 사례 제공</td></tr>
+        </tbody>
+      </table>
+      <p class="def">"평가·인증, 품질, 서비스수준, BP"의 4가지 범위에서 서비스 구축을 위한 <u>검토 모델</u>로 활용</p>
+      <div class="gap"></div><!-- 2교시형 단락 간 1줄 (페이지 첫 h2라 CSS 자동 여백 미적용) -->
+      <h2>성공적인 ITSM 구축을 위한 요건</h2>
+      <table class="t3">
+        <thead>
+          <tr><th>구분</th><th>요건</th><th>설명</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>관리적 측면</td><td>신기술 적용</td><td>원활하고 안정적인 서비스 제공 체계</td></tr>
+          <tr><td>기술적 측면</td><td>기술 호환성</td><td>이전 시스템과의 호환, 오류 최소화</td></tr>
+          <tr><td>서비스 측면</td><td>업무 효율성</td><td>요구사항에 맞는 다양한 서비스·편의성</td></tr>
+          <tr><td>비즈니스 측면</td><td>비용 절감</td><td>업무 적용을 통한 생산성 향상</td></tr>
+          <tr><td>품질·고객 측면</td><td>품질 안정</td><td>일정한 품질 서비스로 고객 요구 만족</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ================================ 3쪽 ================================ -->
+<div class="page">
+  <div class="page-head">
+    <span class="ph-box">번 호</span>
+    <span class="ph-title">기 술 사 답 안 지 (제 2 교 시 형)</span>
+    <span class="ph-num">3 쪽</span>
+  </div>
+  <div class="body">
+    <div class="content p2">
+      <h2>ITSM 도입 시 기대효과 및 결론</h2>
+      <table class="t2">
+        <thead>
+          <tr><th>기대효과</th><th>설명</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>업무 효율성</td><td>업무 프로세스 적용으로 효율적 업무 수행</td></tr>
+          <tr><td>생산성 향상</td><td>사용 편리성과 시스템 접근성 향상</td></tr>
+          <tr><td>비용 절감</td><td>IT 인프라 관리 비용 절감</td></tr>
+        </tbody>
+      </table>
+      <p class="def">ITSM은 <u>ITIL 기반 프로세스 표준화</u>와 SLA 관리를 통한 안정적 IT 서비스 운영의 기반</p>
+      <p class="end">"끝"</p>
+      <div class="gap"></div>
+      <div class="mnemonic">
+        <div class="mn-label">두문자 암기 포인트</div>
+        <p><b>평·품·서·베</b> — 평가인증(eSCM) · 품질인증(CMMI) · 서비스수준(SLA) · 베스트프랙티스(ITIL)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
