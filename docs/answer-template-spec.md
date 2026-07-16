@@ -145,7 +145,10 @@ LLM 계약(§7) 허용 목록에 이 3개 추가.
 
 ## 6. 목차 번호·강조 서식
 
-- 단락: `I. II. III. IV.`(upper-roman), 하부: `가. 나. 다.`(`@counter-style ganada`) — 방법론 전체 사례 서식.
+- 단락: `Ⅰ. Ⅱ. Ⅲ. Ⅳ.`(로마자), 하부: `가. 나. 다.`(h2마다 리셋) — 방법론 전체 사례 서식.
+  구현: 번호는 **서버가 렌더 시 텍스트로 스탬프**(api/_agents.py `_stamp`) — CSS 카운터는
+  페이지 분할(.content 다중화)에서 브라우저 카운터 스코프 결함이 확인되어 폐기(2026-07 검수).
+  LLM·부품은 여전히 번호를 쓰지 않는다(§7 계약 무변경).
   아라비아(1. 1) (1)) 가이드는 "미준수 불이익 없음" [1교시 27/65]이므로 로마+가나다 유지.
 - 키워드 강조는 **밑줄**과 **"쌍따옴표"** [1교시 24/65 "키워드 나열 – 밑줄, 쌍따옴표 1개 표기", 2교시 20/71].
   마크업은 `<u>`(권장). 기존 `.keyword` 클래스는 밑줄 스타일로 별칭 유지.
@@ -202,7 +205,7 @@ div class="diagram d7" 2교시 서론 로드맵 전용 7줄 컨테이너 (서론
 **유지 (그대로)**
 - `render_answer()`의 단일 패스 `re.sub` 치환 + question/title/kind/points escape 처리
 - placeholder 6개 계약 `{title} {kind} {points} {question} {body} {mnemonic_html}`
-- `@counter-style ganada` + h2 로마/h3 가나다 자동 번호
+- h2 로마/h3 가나다 자동 번호 (구현은 CSS 카운터 → 서버 스탬프로 변경, §6)
 - `.diagram / .d-row / .d-col / .d-box(.soft) / .d-arrow` 클래스 계약 (LLM 하위호환)
 - `{mnemonic_html}` 계약(`<p><b>두문자</b> — 풀이</p>`)과 `_mnemonic_html()`
 - serif 스택, `word-break: keep-all`, `print-color-adjust: exact`, A4 `@page`

@@ -193,58 +193,144 @@ def _block_lines(block: str) -> int:
             return 7
         if 'class="diagram"' in head:
             return 6
-        if 'class="mnemonic"' in head:
-            return 3
+        if 'class="mnemonic' in head:
+            return 2 if "mn2" in head else 3
         return 1  # gap 등
     return 1
+
+
+_GAP_HTML = '<div class="gap"></div>'
+_ROMANS = "ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩ"
+_GANADA = "가나다라마바사아자차"
+
+
+def _stamp(blk: str, tag: str, n: int) -> str:
+    """h2/h3 여는 태그 뒤에 목차 번호를 텍스트로 스탬프한다.
+
+    번호는 서버가 결정 — h2마다 가나다가 리셋되고 페이지 경계와 무관하게 정확하다.
+    (CSS 카운터는 페이지 분할 시 브라우저 카운터 스코프 결함으로 폐기, 2026-07 검수)
+    """
+    marks = _ROMANS if tag == "h2" else _GANADA
+    mark = marks[min(n, len(marks)) - 1]
+    return re.sub(rf"(<{tag}[^>]*>)", lambda m: m.group(1) + f"{mark}. ", blk, count=1)
+
+
+def _is_heading(blk: str) -> bool:
+    low = blk.lstrip().lower()
+    return low.startswith("<h2") or low.startswith("<h3")
 
 
 def _layout(body_html: str, kind: str,
             mnemonic_html: str = "<p><b>—</b></p>") -> list[dict]:
     """본문+꼬리("끝"·여백·두문자 박스)를 페이지(17/21줄)로 배치한다.
 
-    반환: [{"blocks": [html...], "cap": 줄수, "used": 점유 줄수, "seed": (sec, sub)}]
+    반환: [{"blocks": [html...], "cap": 줄수, "used": 점유 줄수}]
+    - 목차 번호(h2 로마자·h3 가나다)는 여기서 스탬프 — h2마다 가나다 리셋 (검수 결함 1)
     - 2교시형 단락(h2) 사이 1줄 여백은 명시적 .gap 블록으로 물질화 (페이지 첫 줄이면 생략)
-    - seed는 페이지별 h2/h3 카운터 이어달리기용 (content inline counter-reset)
+    - 고아 제목 방지: 제목(연속 제목 포함)은 뒤따르는 내용 1블록과 같은 페이지에 못
+      들어가면 다음 페이지로 민다 — 밀린 자리는 빈 괘선 (검수 결함 2)
+    - 꼬리 당김: 마지막 페이지가 두문자 박스(±빈 줄)뿐이면 직전 페이지의 단락 여백을
+      제거해 들어가는 경우 당겨 앉힌다 (검수 결함 3)
     """
     p2 = "1교시" not in str(kind)
     seq: list[tuple[str, int]] = []
     h2_seen = False
+    sec = sub = 0
     for blk in _split_blocks(body_html or ""):
         low = blk.lstrip().lower()
-        if p2 and low.startswith("<h2"):
-            if h2_seen:
-                seq.append(("__GAP__", 1))
+        if low.startswith("<h2"):
+            if p2 and h2_seen:
+                seq.append((_GAP_HTML, 1))
             h2_seen = True
+            sec += 1
+            sub = 0
+            blk = _stamp(blk, "h2", sec)
+        elif low.startswith("<h3"):
+            sub += 1
+            blk = _stamp(blk, "h3", sub)
         seq.append((blk, _block_lines(blk)))
     seq.append(('<p class="end">"끝"</p>', 1))
-    seq.append(("__GAP__", 1))
-    seq.append(('<div class="mnemonic">\n<div class="mn-label">두문자 암기 포인트</div>\n'
-                f"{mnemonic_html}\n</div>", 3))
+    seq.append((_GAP_HTML, 1))
+    # 두문자 박스는 라벨 1줄 + 풀이 p 줄수(1~2) — 풀이 1줄이면 2줄 박스(mn2)로 낭비 제거
+    n_mn = 1 + max(1, min(2, mnemonic_html.count("<p")))
+    mn_cls = "mnemonic" if n_mn >= 3 else "mnemonic mn2"
+    seq.append((f'<div class="{mn_cls}">\n<div class="mn-label">두문자 암기 포인트</div>\n'
+                f"{mnemonic_html}\n</div>", n_mn))
 
     pages: list[dict] = []
     cur: list[str] = []
     used, cap = 0, _PAGE1_BODY
-    sec = sub = 0
-    seed = (0, 0)
-    for blk, ln in seq:
+
+    def flush():
+        nonlocal cur, used, cap
+        pages.append({"blocks": cur, "cap": cap, "used": used})
+        cur, used, cap = [], 0, _PAGEN_BODY
+
+    i = 0
+    while i < len(seq):
+        blk, ln = seq[i]
+        if cur and _is_heading(blk):
+            # 고아 방지: 제목 연쇄(h2 바로 뒤 h3 등) + 첫 내용 블록까지 필요한 줄 수
+            need = ln
+            j = i + 1
+            while j < len(seq) and _is_heading(seq[j][0]):
+                need += seq[j][1]
+                j += 1
+            if j < len(seq):
+                need += seq[j][1]
+            if used + need > cap:
+                flush()
         if cur and used + ln > cap:
-            pages.append({"blocks": cur, "cap": cap, "used": used, "seed": seed})
-            cur, used, cap = [], 0, _PAGEN_BODY
-            seed = (sec, sub)
-            if blk == "__GAP__":
+            flush()
+            if blk == _GAP_HTML:
+                i += 1
                 continue  # 페이지 첫 줄의 단락 여백은 생략
-        html = '<div class="gap"></div>' if blk == "__GAP__" else blk
-        cur.append(html)
+        cur.append(blk)
         used += ln
-        low = html.lstrip().lower()
-        if low.startswith("<h2"):
-            sec += 1
-            sub = 0
-        elif low.startswith("<h3"):
-            sub += 1
-    pages.append({"blocks": cur, "cap": cap, "used": used, "seed": seed})
+        i += 1
+    if cur:
+        pages.append({"blocks": cur, "cap": cap, "used": used})
+
+    _pull_tail(pages)
     return pages
+
+
+def _pull_tail(pages: list[dict]) -> None:
+    """마지막 페이지가 두문자 박스(±빈 줄)뿐이면 직전 페이지로 당겨 앉힌다.
+
+    자리 확보 순서(단계적): ① 직전 페이지의 남는 줄 ② 직전 페이지 단락 간 .gap 제거
+    ③ 최후 수단으로 "끝" 직후 여백 1줄 축약 — 박스 단독 페이지보다 "끝" 바로 아래
+    박스가 낫다는 판단(발주자 검수 2026-07). 그래도 안 들어가면 현행(별도 페이지) 유지.
+    """
+    if len(pages) < 2:
+        return
+    last, prev = pages[-1], pages[-2]
+    nongap = [b for b in last["blocks"] if b != _GAP_HTML]
+    if not nongap or not all(b.lstrip().startswith('<div class="mnemonic') for b in nongap):
+        return
+    tail_blocks = list(last["blocks"])
+    need = last["used"]
+    deficit = need - (prev["cap"] - prev["used"])
+    if deficit > 0:
+        blocks = prev["blocks"]
+        para_gaps = [i for i, b in enumerate(blocks)
+                     if b == _GAP_HTML and not (i > 0 and 'class="end"' in blocks[i - 1])]
+        end_gaps = [i for i, b in enumerate(blocks)
+                    if b == _GAP_HTML and (i > 0 and 'class="end"' in blocks[i - 1])]
+        lead_gap = 1 if tail_blocks and tail_blocks[0] == _GAP_HTML else 0
+        if len(para_gaps) + len(end_gaps) + lead_gap < deficit:
+            return  # 여백 제거로도 확보 불가 — 현행 유지
+        take = sorted((para_gaps + end_gaps)[:deficit])  # 단락 여백 우선, 끝-뒤 여백은 최후
+        for i in reversed(take):
+            del blocks[i]
+        prev["used"] -= len(take)
+        deficit -= len(take)
+        if deficit > 0 and lead_gap:
+            tail_blocks.pop(0)  # 넘어온 꼬리의 선행 여백 축약
+            need -= 1
+    prev["blocks"].extend(tail_blocks)
+    prev["used"] += need
+    pages.pop()
 
 
 def _volume(body_html: str, kind: str) -> dict:
@@ -385,10 +471,8 @@ _ANSWER_TEMPLATE = """<!DOCTYPE html>
   --ink: #1c2f4a; --chrome: #3d4148;
   --rule: #c5cedd; --rule2: #9db0c8; --paper: #fdfdfa;
 }
-@counter-style ganada {
-  system: fixed; symbols: "가" "나" "다" "라" "마" "바" "사" "아" "자" "차";
-  suffix: ". ";
-}
+/* 목차 번호(h2 로마자 · h3 가나다)는 서버가 텍스트로 스탬프한다 — CSS 카운터는
+   페이지 분할(.content 다중화) 시 브라우저 카운터 스코프 결함으로 폐기 (2026-07 검수) */
 html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 body {
   background: #e6e5e0; color: var(--ink);
@@ -428,10 +512,8 @@ body {
 .body::before { content: ""; position: absolute; left: 44px; top: 0; bottom: 0; width: 1px; background: var(--rule2); }
 .content { margin: 0 20px 0 58px; }
 .content h2, .content h3, .content p { line-height: var(--lh); font-size: 15px; font-weight: 400; }
-.content h2 { font-weight: 700; counter-increment: sec; counter-reset: sub; }
-.content h2::before { content: counter(sec, upper-roman) ". "; }
-.content h3 { font-weight: 700; counter-increment: sub; padding-left: 18px; }
-.content h3::before { content: counter(sub, ganada) ". "; }
+.content h2 { font-weight: 700; }
+.content h3 { font-weight: 700; padding-left: 18px; }
 /* 2교시형 단락(h2) 사이 1줄 여백은 서버가 .gap 블록으로 물질화한다 (페이지 분할 정합) */
 .ans { font-weight: 700; }
 .def { min-height: calc(2 * var(--lh)); padding-left: 18px; }
@@ -475,6 +557,7 @@ body {
 .d-box.d-hub { border-width: 2.5px; padding: 12px 20px; font-size: 15px; }
 .d-arrow { font-weight: 700; font-size: 17px; flex: none; }
 .mnemonic { height: calc(3 * var(--lh)); border: 1.5px dashed var(--ink); padding: 0 14px; overflow: hidden; }
+.mnemonic.mn2 { height: calc(2 * var(--lh)); }
 .mn-label { line-height: var(--lh); font-size: 12px; font-weight: 700; letter-spacing: 0.25em; }
 .mnemonic p { line-height: var(--lh); font-size: 14px; }
 .mnemonic b { border-bottom: 1px solid var(--ink); }
@@ -498,8 +581,8 @@ def render_answer(question: str, title: str, kind: str, points: int | str,
     """답안지 템플릿에 내용을 채워 완성 HTML을 만든다 (v2 서버 페이지 분할).
 
     본문+꼬리를 _layout으로 22줄 페이지에 배치하고, 쪽마다 머리행("N 쪽")을
-    붙인다(1쪽만 문제 스트립 포함). h2/h3 카운터는 페이지별 inline counter-reset
-    시드로 이어달린다. CSS 중괄호 때문에 str.format() 금지 — 입력값에 "{pages}"
+    붙인다(1쪽만 문제 스트립 포함). 목차 번호는 _layout이 스탬프하므로 여기선
+    배치만 한다. CSS 중괄호 때문에 str.format() 금지 — 입력값에 "{pages}"
     같은 리터럴이 있어도 재치환되지 않도록 단일 패스 re.sub로 치환한다.
     question/title/kind/points는 escape, body/mnemonic_html은 이미 HTML.
     """
@@ -528,12 +611,11 @@ def render_answer(question: str, title: str, kind: str, points: int | str,
                 f'    <p class="qs-text">{esc(str(question))}</p>\n'
                 "  </div>\n"
             )
-        sec, sub = pg["seed"]
         content = "\n".join(pg["blocks"])
         page_parts.append(
             f'<div class="page">\n{head}{strip}'
             f'  <div class="body" style="--body:{pg["cap"]}">\n'
-            f'    <div class="content {pcls}" style="counter-reset: sec {sec} sub {sub};">\n'
+            f'    <div class="content {pcls}">\n'
             f"{content}\n"
             "    </div>\n  </div>\n</div>"
         )
