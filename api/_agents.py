@@ -524,7 +524,9 @@ body {
   text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px;
   font-weight: inherit; border: none;
 }
-.content table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13.5px; }
+/* border-collapse 표는 외곽 보더로 실측 높이가 행합보다 +1px — 후속 블록을 1px 당겨
+   줄 그리드 정렬을 유지한다 (만석 페이지 하단 테두리 클리핑 방지, 세아 검수 2026-07) */
+.content table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13.5px; margin-bottom: -1px; }
 .content th, .content td { border: 1px solid var(--ink); padding: 2px 8px; vertical-align: middle; line-height: 1.5; overflow: hidden; }
 .content th { font-weight: 700; text-align: center; background: rgba(28, 47, 74, 0.04); }
 .content tr { height: var(--lh); }
