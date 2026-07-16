@@ -27,6 +27,9 @@ from typing import Any, AsyncIterator
 
 import httpx
 
+import _topic_library as _library
+from _assembler import assemble, short_name, split_subjects
+
 AGENTS = [
     {"id": "orchestrator", "name": "코디", "role": "진행 간사", "color": "#f2b544"},
     {"id": "nlu", "name": "누리", "role": "출제 의도 분석", "color": "#5bc8f5"},
@@ -561,37 +564,25 @@ _DEMO_MNEMONIC = (
 _DEMO_WEAK = ["구성도 아래 간글 누락", "개조식 문체 미준수 문장 존재", "Ⅳ단락(결론) 차별화 요소 미흡"]
 
 
-async def _demo(message: str) -> AsyncIterator[dict]:
-    exam = any(w in message for w in EXAM_WORDS)
-    yield _ev("orchestrator", "working", "문제 접수 중…")
-    yield _talk("orchestrator", "새 문제 접수! 누리님, 출제 의도 분석 부탁해요 🖋️")
+async def _demo_chat() -> AsyncIterator[dict]:
+    """일반 질문 데모 (키 없음)."""
+    yield _ev("writer", "working", "답변 작성 중…")
+    await asyncio.sleep(0.6)
+    yield _ev("writer", "done", "답변 완료")
+    yield _talk("writer", "답변 보냈어요!")
+    yield _ev("orchestrator", "done", "턴 완료")
+    yield {
+        "type": "reply",
+        "reply": "지금은 데모 모드예요! 🖋️ GEMINI_API_KEY(무료)를 설정하면 실제 LLM이 답변합니다.\n"
+                 "시험 문제를 입력하면 라이브러리 적중 시 키 없이도 실제 답안지가 조립돼요 — "
+                 "\"SLA에 대하여 설명하시오 (25점)\"처럼 입력해 보세요.",
+        "demo": True,
+        "llm_calls": 0,
+    }
 
-    yield _ev("nlu", "thinking", "출제 의도 분석 중…")
-    await asyncio.sleep(0.7)
 
-    if not exam:
-        yield _ev("nlu", "done", "일반 문의")
-        yield _talk("nlu", "시험 문제는 아니네요. 로운님이 멘토로 바로 답할게요!")
-        yield _ev("writer", "working", "답변 작성 중…")
-        await asyncio.sleep(0.9)
-        yield _ev("writer", "done", "답변 완료")
-        yield _talk("writer", "답변 보냈어요!")
-        yield _ev("orchestrator", "done", "턴 완료")
-        yield {
-            "type": "reply",
-            "reply": "지금은 데모 모드예요! 🖋️ GEMINI_API_KEY(무료)를 설정하면 실제 LLM 팀이 "
-                     "출제 의도 분석부터 채점까지 진행합니다.\n"
-                     "\"제로 트러스트 보안 모델에 대하여 설명하시오 (25점)\"처럼 문제를 입력하시면 "
-                     "답안 작성·채점·보완 과정을 데모로 보실 수 있어요.",
-            "demo": True,
-            "llm_calls": 0,
-        }
-        return
-
-    # ---- 시험 문제 데모: 보완 루프 포함 고정 시나리오
-    yield _ev("nlu", "done", "2교시형 25점")
-    yield _talk("nlu", "2교시형(서술) 25점 문제예요. 정의·구성요소·도입 시 고려사항이 채점 포인트!")
-
+async def _demo_exam() -> AsyncIterator[dict]:
+    """라이브러리 미적중 + 키 없음 데모 — 보완 루프 포함 고정 시나리오 (다인부터 이어짐)."""
     yield _ev("designer", "thinking", "답안 구조 설계 중…")
     await asyncio.sleep(0.8)
     yield _ev("designer", "done", "ITPE 4단락")
@@ -631,12 +622,13 @@ async def _demo(message: str) -> AsyncIterator[dict]:
     vol = _volume(_DEMO_BODY, "2교시형(서술)")  # 데모도 실측 분량 노출
     yield {
         "type": "reply",
-        "reply": "『제로 트러스트 보안 모델』 2교시형(서술) 25점 데모 답안지가 완성됐어요! 📄\n"
-                 f"세아 채점: 1차 72점 → 보완 1회 → 재채점 91점 (합격권). "
+        "reply": "라이브러리에 없는 토픽이라 라이브 파이프라인 데모로 안내드려요. 📄\n"
+                 "『제로 트러스트 보안 모델』 2교시형(서술) 25점 고정 답안지입니다. "
+                 f"세아 채점: 1차 72점 → 보완 1회 → 재채점 91점. "
                  f"분량 {vol['pages']}쪽 {vol['line_in_page']}줄 (환산 {vol['pages_frac']}매).\n"
-                 "지금은 데모 모드라 고정 답안이에요. GEMINI_API_KEY(무료)를 설정하면 "
-                 "입력하신 문제로 진짜 답안을 작성해 드립니다.",
+                 "GEMINI_API_KEY(무료)를 설정하면 입력하신 문제로 진짜 답안을 작성해 드립니다.",
         "demo": True,
+        "library": False,
         "exam": {"kind": "2교시형(서술)", "points": 25, "topic": "제로 트러스트 보안 모델"},
         "review": {"score": 91, "rounds": 1, "weak_points": _DEMO_WEAK,
                    "volume": {"lines": vol["lines"], "pages": vol["pages_frac"]}},
@@ -650,271 +642,95 @@ async def _demo(message: str) -> AsyncIterator[dict]:
 # ---------------------------------------------------------------- 파이프라인
 
 
-async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]:
-    """사용자 메시지 하나를 5인 답안 팀 파이프라인으로 처리한다."""
-    if provider() is None:
-        async for e in _demo(message):
-            yield e
-        return
+def classify_exam(message: str, kind_hint: str | None = None) -> tuple[str, int]:
+    """배점·교시형 규칙 판별 (LLM 0콜, 코디 담당). kind_hint는 프런트 수동 선택."""
+    m = re.search(r"(\d{1,3})\s*점", message)
+    points = int(m.group(1)) if m else None
+    if kind_hint and "1교시" in kind_hint:
+        kind = "1교시형(용어)"
+    elif kind_hint and "2교시" in kind_hint:
+        kind = "2교시형(서술)"
+    elif points is not None:
+        kind = "1교시형(용어)" if points <= 10 else "2교시형(서술)"
+    elif re.search(r"약술|정의하|간략히", message):
+        kind = "1교시형(용어)"
+    else:
+        kind = "2교시형(서술)"  # 3·4교시도 2교시형과 동일 취급
+    if points is None:
+        points = 10 if "1교시" in kind else 25
+    return kind, points
 
-    llm_calls = 0
+
+def _verify_assembly(body: str, sheet: str, kind: str) -> list[str]:
+    """세아 규칙 검증 (0콜): 필수 슬롯/표 최소 2행/암기 박스/외부 리소스 0건 + 형식 린트."""
+    warnings = list(_lint_format(body, kind))
+    for tbl in re.findall(r"<table.*?</table>", body, re.S | re.I):
+        if len(re.findall(r"<tr[\s>]", tbl, re.I)) < 2:
+            warnings.append("행 2개 미만 표 존재")
+            break
+    if re.search(r"https?://|<script", sheet, re.I):
+        warnings.append("외부 리소스/스크립트 감지")
+    if 'class="mnemonic"' not in sheet:
+        warnings.append("암기 박스 누락")
+    return warnings
+
+
+async def run_pipeline(history: list[dict], message: str,
+                       kind_hint: str | None = None) -> AsyncIterator[dict]:
+    """사용자 메시지 하나를 처리한다.
+
+    1) 비시험 문장 → chat 분기 (라이브 1콜 / 데모)
+    2) 시험 문제 → 규칙 판별(0콜) → 라이브러리 매칭(0콜, 모호 시 1콜)
+       - 적중 → 부품 조립 (0~2콜, 3초 목표)
+       - 미적중 → 라이브 파이프라인 폴백 (최대 5콜) / 키 없으면 데모
+    """
     try:
-        yield _ev("orchestrator", "working", "문제 접수 중…")
-        yield _talk("orchestrator", "새 문제 접수! 누리님, 출제 의도 분석 부탁해요 🖋️")
-
-        # ---- 1. 출제 의도 분석 (누리)
-        yield _ev("nlu", "thinking", "출제 의도 분석 중…")
-        recent = " / ".join(str(m.get("content") or "")[:60] for m in history[-4:])
-        llm_calls += 1
-        plan = _parse_json(
-            await _chat(
-                "당신은 기술사 답안 팀의 출제 의도 분석가 '누리'입니다. 사용자 입력을 분석해 JSON만 출력하세요.\n"
-                "- 기술사 시험 문제(…에 대하여 설명하시오/기술하시오/논하시오/약술/정의/비교 등 기술 주제 문제)면 "
-                "type을 exam으로, 일반 질문/대화면 chat으로 판별합니다.\n"
-                "- kind: 정의·약술 중심의 짧은 문제면 \"1교시형(용어)\", 설명·논술·비교형이면 \"2교시형(서술)\".\n"
-                "- points: 문제 속 \"(25점)\" 같은 배점 표기에서 추출. 없으면 1교시형 10, 2교시형 25.\n"
-                "- topic: 답안지 제목으로 쓸 짧은 주제명.\n"
-                "- intents: 출제 의도/채점 포인트 2~5개.\n"
-                "형식: {\"type\": \"exam|chat\", \"kind\": \"1교시형(용어)|2교시형(서술)\", \"points\": 10, "
-                "\"topic\": \"짧은 제목\", \"intents\": [\"출제 의도/채점 포인트\", ...], "
-                "\"say\": \"팀에게 분석 결과를 전하는 짧은 구어체 한 마디\"}",
-                [{"role": "user", "content": f"이전 대화: {recent}\n\n입력: {message}"}],
-                json_mode=True,
-            ),
-            {"type": "chat"},
-        )
-        is_exam = plan.get("type") == "exam"
-        # kind는 ITPE 표기로 정규화. 3·4교시(서술·논술)는 2교시형과 동일 취급.
-        raw_kind = str(plan.get("kind") or "")
-        is_terms = "1교시" in raw_kind or "용어" in raw_kind
-        kind = "1교시형(용어)" if is_terms else "2교시형(서술)"
-        m_pts = re.search(r"(\d{1,3})\s*점", message)
-        points = _score_of(plan.get("points"),
-                           int(m_pts.group(1)) if m_pts else (10 if is_terms else 25))
-        topic = str(plan.get("topic") or "").strip() or message[:30]
-        intents = [str(i) for i in (plan.get("intents") or []) if str(i).strip()]
-
-        if not is_exam:
-            yield _ev("nlu", "done", "일반 문의")
-            yield _talk("nlu", plan.get("say") or "시험 문제는 아니네요. 로운님이 멘토로 바로 답할게요!")
-            # ---- 일반 대화: 로운이 수험 멘토로 바로 답변
-            yield _ev("writer", "working", "답변 작성 중…")
-            llm_calls += 1
-            reply = await _chat(
-                "당신은 '기술사 답안 사무소'의 답안 작성자이자 기술사 수험 멘토 '로운'입니다. "
-                "기술사 시험 준비(공부법, 답안 작성 요령, 용어 개념, 서브노트 등)에 대해 "
-                "친절하고 간결한 한국어로 답하세요. "
-                "사용자가 시험 문제를 그대로 입력하면 팀이 채점까지 마친 답안지를 만들어 준다는 것도 "
-                "필요할 때 자연스럽게 안내하세요.",
-                history[-10:] + [{"role": "user", "content": message}],
-                max_tokens=2048,
-            )
-            yield _ev("writer", "done", "답변 완료")
-            yield _talk("writer", "답변 보냈어요!")
-            yield _ev("orchestrator", "done", "턴 완료")
-            yield {"type": "reply", "reply": reply, "llm_calls": llm_calls}
+        if not any(w in message for w in EXAM_WORDS):
+            async for e in _chat_path(history, message):
+                yield e
             return
 
-        yield _ev("nlu", "done", f"{kind} {points}점")
-        yield _talk("nlu", plan.get("say") or f"{kind} {points}점 문제예요. 채점 포인트 정리해서 다인님께 넘길게요!")
+        kind, points = classify_exam(message, kind_hint)
+        yield _ev("orchestrator", "working", "접수 중…")
+        yield _talk("orchestrator", f"{points}점 {kind.split('(')[0]} 문제네요. 누리님, 토픽 검색!")
+        yield _ev("nlu", "working", "토픽 검색 중…")
+        await asyncio.sleep(0.1)
 
-        # ---- 2. 답안 구조 설계 (다인)
-        yield _ev("designer", "thinking", "답안 구조 설계 중…")
-        llm_calls += 1
-        design = _parse_json(
-            await _chat(
-                "당신은 기술사 답안 팀의 답안 구조 설계자 '다인'입니다. 문제와 출제 의도를 보고 "
-                "답안 목차를 JSON만으로 설계하세요. ITPE 기술사 답안 문법을 따릅니다.\n"
-                "- 2교시형(서술, 4단락 고정): Ⅰ.○○의 개요(리드문+정의+필요성) → Ⅱ.○○의 구성도 및 구성요소(개념도+간글+3단표) → "
-                "Ⅲ.문제가 직접 요구한 사항(비교/고려사항 등, 요구별 소제목) → Ⅳ.결론 및 전망(차별화 포인트) 4개 섹션.\n"
-                "- 1교시형(용어, 3단락): Ⅰ.정의 → Ⅱ.개념도 및 구성요소 → Ⅲ.활용방안/고려사항 3개 섹션.\n"
-                "- 각 섹션의 points는 가나다(가. 나. 다.) 소제목 단위로 작성.\n"
-                "형식: {\"outline\": [{\"section\": \"섹션명\", \"points\": [\"다룰 내용\", ...]}, ...], "
-                "\"mnemonic\": {\"word\": \"핵심 키워드 두문자\", \"expansion\": [\"두문자 풀이\", ...]}, "
-                "\"diagram_idea\": \"개념도 구성 아이디어\", "
-                "\"say\": \"작성자 로운에게 설계를 전달하는 짧은 한 마디\"}",
-                [{"role": "user", "content":
-                    f"문제: {message}\n유형: {kind} {points}점 / 주제: {topic}\n"
-                    f"출제 의도: {json.dumps(intents, ensure_ascii=False)}"}],
-                json_mode=True,
-                max_tokens=1024,  # 목차 JSON은 1024면 충분 (무료 TPM 절약)
-            ),
-            {"outline": [], "mnemonic": {}, "diagram_idea": ""},
-        )
-        outline = design.get("outline") or []
-        yield _ev("designer", "done", f"목차 {len(outline)}개 섹션" if outline else "설계 완료")
-        yield _talk("designer", design.get("say") or "목차 설계 넘겼어요. 로운님, 부탁해요!")
-
-        # ---- 3. 답안 초안 작성 (로운)
-        writer_system = (
-            "당신은 정보관리기술사 답안 작성 전문가 '로운'입니다. "
-            "설계된 목차에 따라 기술사 시험 답안 본문을 작성하세요.\n"
-            f"{_BODY_RULES}\n"
-            "- 코드 펜스나 설명 없이 답안 본문 HTML만 출력하세요."
-        )
-        draft_brief = (
-            f"문제: {message}\n유형: {kind} {points}점 / 주제: {topic}\n"
-            f"출제 의도(채점 포인트): {json.dumps(intents, ensure_ascii=False)}\n"
-            f"목차 설계: {json.dumps(outline, ensure_ascii=False)}\n"
-            f"개념도 아이디어: {design.get('diagram_idea') or '-'}"
-        )
-        yield _ev("writer", "working", "답안 작성 중…")
-        llm_calls += 1
-        body = _extract_body(await _chat(
-            writer_system,
-            [{"role": "user", "content": draft_brief}],
-            max_tokens=4096,  # 무료 TPM 절약 (429 방지)
-        ))
-        yield _ev("writer", "done", "초안 완료")
-        yield _talk("writer", "초안 완성했어요. 세아님, 채점 부탁드립니다!")
-
-        # ---- 4. 채점 (세아) — LLM 채점 + 서버 측 정량 검증(분량·형식 린트)
-        # 분량 기준: 1교시형 최소 1.0매(400자)/권장 2매 이내, 2교시형 최소 2.5매(1000자)/권장 4매 이내.
-        # 권장 상한 초과는 보완 사유 아님(표기만). 최소 미달·린트 위반은 점수와 무관하게 보완 강제.
-        min_pages, rec_pages = (1.0, 1.4) if is_terms else (2.5, 3.5)
-        vol = _volume(body, kind)
-        lint = _lint_format(body, kind)
-        reviewer_system = (
-            "당신은 기술사 시험 채점위원 '세아'입니다. 답안 본문 HTML을 검토해 JSON만 출력하세요.\n"
-            "채점 기준: ① 출제 의도 부합 ② ITPE 목차 완결성(2교시형 Ⅰ~Ⅳ 4단락, 가나다 소제목) "
-            "③ 3단표·개념도·간글 활용 ④ 개조식 문체·키워드 가독성 ⑤ 차별화 요소(결론 단락의 알파) "
-            "⑥ 표 형태 준수 — 개념도·간글 외 자유 문단(<p>)이나 목록(ul/ol)이 있으면 보완(revise) 사유.\n"
-            f"{PASS_SCORE}점 이상이면 verdict를 pass, 미만이면 revise로 판정합니다.\n"
-            "형식: {\"score\": 0~100 정수, \"verdict\": \"pass|revise\", "
-            "\"weak_points\": [\"미흡 항목\", ...], "
-            "\"say\": \"팀에게 채점 결과를 알리는 짧은 한 마디(점수 포함)\"}"
-        )
-        review_brief = (
-            f"문제: {message}\n유형: {kind} {points}점\n"
-            f"출제 의도(채점 포인트): {json.dumps(intents, ensure_ascii=False)}\n"
-        )
-
-        def _metrics() -> str:
-            s = (f"측정 분량: {vol['pages']}쪽 {vol['line_in_page']}줄, 환산 {vol['pages_frac']}매 — "
-                 f"기준: 최소 {min_pages}매, 목표 {rec_pages}매 이내\n")
-            s += ("서버 형식 린트 위반: " + " / ".join(lint) + "\n") if lint else "서버 형식 린트: 통과\n"
-            return s
-
-        yield _ev("reviewer", "thinking", "채점 중…")
-        llm_calls += 1
-        review = _parse_json(
-            await _chat(
-                reviewer_system,
-                [{"role": "user", "content": review_brief + _metrics() + f"\n답안 본문:\n{body[:4000]}"}],
-                json_mode=True,
-            ),
-            {"score": 80, "verdict": "revise", "weak_points": []},
-        )
-        score = _score_of(review.get("score"))
-        weak = [str(w) for w in (review.get("weak_points") or []) if str(w).strip()]
-        rounds = 0
-        under = vol["pages_frac"] < min_pages
-
-        # ---- 5. 보완 1회 (로운) + 재채점 (세아)
-        # 점수 미달 / 분량 최소 미달 / 형식 린트 위반 → 보완 강제. 사유가 겹쳐도 최대 1회.
-        if score < PASS_SCORE or under or lint:
-            say1 = str(review.get("say") or "").strip()
-            if str(score) not in say1:
-                say1 = f"1차 채점 {score}점. " + (say1 or f"보완이 필요해요: {' / '.join(weak[:2]) or '완성도 미흡'}")
-            picks = []
-            if lint:
-                picks.append(lint[0] if len(lint) == 1 else f"형식 위반 {len(lint)}건({lint[0]} 등)")
-            if under:
-                picks.append(f"분량 환산 {vol['pages_frac']}매로 최소 {min_pages}매 미달")
-            if picks:
-                say1 += " " + " · ".join(picks) + " — 로운님, 보완해주세요!"
-            yield _ev("reviewer", "working", f"{score}점 · 보완 요청")
-            yield _talk("reviewer", say1)
-
-            yield _ev("writer", "working", "답안 보완 중…")
-            fix_notes = f"채점위원 1차 채점 {score}점. 미흡 항목: {json.dumps(weak, ensure_ascii=False)}\n"
-            if lint:
-                fix_notes += "서버 형식 린트 위반(반드시 전부 해소할 것): " + " / ".join(lint) + "\n"
-            if under:
-                fix_notes += (f"현재 환산 {vol['pages_frac']}매, 최소 {min_pages}매 — "
-                              "Ⅲ단락 표를 확장해 분량을 확보하세요.\n")
-            fix_notes += ("위 사항을 반영해 답안 본문 전체를 다시 출력하세요. "
-                          "잘 쓴 부분은 유지하고 지적된 부분을 보강합니다.")
+        llm_calls = 0
+        res = _library.match(message)
+        matched = list(res["matched"])
+        if res["status"] == "ambiguous" and provider() is not None:
+            # 모호 구간: 후보 목록 내 선택만 허용하는 LLM 1콜
+            yield _ev("nlu", "thinking", "후보 확인 중…")
             llm_calls += 1
-            revised = _extract_body(await _chat(
-                writer_system,
-                [
-                    {"role": "user", "content": draft_brief},
-                    {"role": "assistant", "content": body[:4000]},
-                    {"role": "user", "content": fix_notes},
-                ],
-                max_tokens=4096,  # 무료 TPM 절약 (429 방지)
-            ))
-            if revised:
-                body = revised
-            rounds = 1
-            vol = _volume(body, kind)
-            lint = _lint_format(body, kind)
-            under = vol["pages_frac"] < min_pages
-            yield _ev("writer", "done", "보완 완료")
-            yield _talk("writer", "지적사항 반영해서 보완했어요. 재채점 부탁해요!")
-
-            yield _ev("reviewer", "thinking", "재채점 중…")
-            llm_calls += 1
-            review = _parse_json(
-                await _chat(
-                    reviewer_system,
+            try:
+                pick = _parse_json(await _chat(
+                    "당신은 기술사 답안 팀의 토픽 검색 담당 '누리'입니다. 문제가 가리키는 토픽을 "
+                    "후보 목록 안에서만 고르세요. 후보 밖 id 금지, 해당 토픽이 없으면 빈 배열. "
+                    "JSON만 출력: {\"ids\": [\"MG-000\", ...]}",
                     [{"role": "user", "content":
-                        review_brief + _metrics() +
-                        f"(보완 후 재채점, 1차 {score}점, 1차 미흡 항목: "
-                        f"{json.dumps(weak, ensure_ascii=False)})\n\n답안 본문:\n{body[:4000]}"}],
+                        f"문제: {message}\n후보: {json.dumps(res['candidates'], ensure_ascii=False)}"}],
                     json_mode=True,
-                ),
-                {"score": max(score, PASS_SCORE), "verdict": "pass", "weak_points": []},
-            )
-            score = _score_of(review.get("score"), default=max(score, PASS_SCORE))
-            weak = [str(w) for w in (review.get("weak_points") or []) if str(w).strip()]
-            say2 = str(review.get("say") or "").strip()
-            if str(score) not in say2:
-                say2 = f"재채점 {score}점. " + (say2 or "많이 좋아졌어요 ✅")
-            yield _ev("reviewer", "done", f"{score}점")
-            yield _talk("reviewer", say2)
+                ), {"ids": []})
+                matched = _library.pick_from_candidates(pick.get("ids"), res["candidates"])
+            except RateLimitError:
+                matched = []
+
+        if matched:
+            async for e in _assembly_path(message, kind, points, matched, llm_calls):
+                yield e
+            return
+
+        # ---- 미적중 폴백
+        yield _ev("nlu", "done", "미적중")
+        if provider() is None:
+            yield _talk("nlu", "라이브러리에 없는 토픽이에요. 데모 시나리오로 안내할게요!")
+            async for e in _demo_exam():
+                yield e
         else:
-            yield _ev("reviewer", "done", f"{score}점")
-            yield _talk("reviewer", review.get("say") or f"{score}점, 합격권이에요. 출고! ✅")
-
-        # 보완 후에도 남은 정량 위반은 weak_points에 명시 (사용자 인지용)
-        if lint:
-            weak += [w for w in lint if w not in weak]
-        if under:
-            note = f"분량 미달 — 환산 {vol['pages_frac']}매 (최소 {min_pages}매)"
-            if note not in weak:
-                weak.append(note)
-
-        yield _ev("orchestrator", "done", "납품 완료")
-        yield _talk("orchestrator", "답안지 납품 완료! 다들 수고했어요 ☕")
-
-        # ---- 6. 답안지 렌더 + 납품
-        sheet = render_answer(
-            question=message, title=topic, kind=kind, points=points,
-            body=body, mnemonic_html=_mnemonic_html(design.get("mnemonic")),
-        )
-        summary = f"『{topic}』 {kind} {points}점 답안지 완성! 세아 채점 {score}점"
-        if rounds:
-            summary += f" (보완 {rounds}회 후 재채점)"
-        summary += f". 분량 {vol['pages']}쪽 {vol['line_in_page']}줄 (환산 {vol['pages_frac']}매)."
-        if score < PASS_SCORE:
-            summary += f"\n기준({PASS_SCORE}점) 미달이라 참고용으로 확인해 주세요."
-        if lint or under:
-            summary += "\n형식 기준 일부 미달 — 아래 보완 포인트를 확인해 주세요."
-        if weak:
-            summary += f"\n남은 보완 포인트: {' / '.join(weak[:4])}"
-        yield {
-            "type": "reply",
-            "reply": summary,
-            "exam": {"kind": kind, "points": points, "topic": topic},
-            "review": {"score": score, "rounds": rounds, "weak_points": weak,
-                       "volume": {"lines": vol["lines"], "pages": vol["pages_frac"]}},
-            "sheet": {"kind": kind, "points": points, "pages": vol["pages"],
-                      "lines": vol["line_in_page"], "target_pages": vol["target_pages"]},
-            "artifact": {"title": topic, "html": sheet},
-            "llm_calls": llm_calls,
-        }
+            yield _talk("nlu", "라이브러리에 없는 토픽이에요. 라이브 파이프라인으로 작성할게요!")
+            async for e in _live_exam(message, kind, points, llm_calls):
+                yield e
     except RateLimitError:
         yield _ev("orchestrator", "error", "LLM 한도 초과")
         yield {
@@ -922,7 +738,6 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
             "reply": "무료 LLM 한도(분당 토큰)를 초과했어요. 약 1분 후 다시 시도해주세요. "
                      "Groq 대신 Gemini 키를 쓰면 여유가 큽니다.",
             "error": "rate_limited",
-            "llm_calls": llm_calls,
         }
     except Exception as exc:
         yield _ev("orchestrator", "error", f"오류: {type(exc).__name__}")
@@ -930,5 +745,337 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
             "type": "reply",
             "reply": f"죄송해요, 작업 중 오류가 발생했어요. ({type(exc).__name__}: {exc})",
             "error": str(exc),
-            "llm_calls": llm_calls,
         }
+
+
+async def _chat_path(history: list[dict], message: str) -> AsyncIterator[dict]:
+    """일반 질문 — 매칭 시도 없이 로운(수험 멘토)이 바로 답변 (라이브 1콜)."""
+    yield _ev("orchestrator", "working", "접수 중…")
+    yield _talk("orchestrator", "일반 질문이네요. 로운님이 멘토로 바로 답할게요!")
+    if provider() is None:
+        async for e in _demo_chat():
+            yield e
+        return
+    yield _ev("writer", "working", "답변 작성 중…")
+    reply = await _chat(
+        "당신은 '기술사 답안 사무소'의 집필 담당이자 기술사 수험 멘토 '로운'입니다. "
+        "기술사 시험 준비(공부법, 답안 작성 요령, 용어 개념, 서브노트 등)에 대해 "
+        "친절하고 간결한 한국어로 답하세요. "
+        "사용자가 시험 문제를 그대로 입력하면 팀이 답안지를 즉시 만들어 준다는 것도 "
+        "필요할 때 자연스럽게 안내하세요.",
+        history[-10:] + [{"role": "user", "content": message}],
+        max_tokens=2048,
+    )
+    yield _ev("writer", "done", "답변 완료")
+    yield _talk("writer", "답변 보냈어요!")
+    yield _ev("orchestrator", "done", "턴 완료")
+    yield {"type": "reply", "reply": reply, "llm_calls": 1}
+
+
+async def _assembly_path(message: str, kind: str, points: int,
+                         matched: list[str], llm_calls: int) -> AsyncIterator[dict]:
+    """라이브러리 적중 — 부품 조립 경로 (LLM 0~2콜, 3초 목표. sleep은 연출용 ≤0.15s)."""
+    is_terms = "1교시" in kind
+    topics = [t for t in (_library.load_topic(i) for i in matched) if t]
+    names = [short_name(t) for t in topics]
+
+    # 부분 적중 감지: 문제 주제어 중 적중 토픽에 안 잡힌 것
+    missing: list[str] = []
+    subjects = split_subjects(message)
+    if len(subjects) >= 2:
+        for s in subjects:
+            r = _library.match(s)
+            if not (set(r["matched"]) & set(matched)):
+                missing.append(s)
+    missing = missing[:2]
+
+    yield _ev("nlu", "done", f"적중 {len(topics)}건")
+    note = f"라이브러리 {len(topics)}건 적중: {', '.join(names)}"
+    if missing:
+        note += f" (미등록 {len(missing)}건: {', '.join(missing)})"
+    yield _talk("nlu", note)
+    await asyncio.sleep(0.12)
+
+    # 다인 — 슬롯 배치 (0콜)
+    yield _ev("designer", "working", "편집 중…")
+    await asyncio.sleep(0.12)
+    result = assemble(message, kind, points, topics, missing, {})
+    yield _ev("designer", "done", f"슬롯 {result['slots']}개")
+    yield _talk("designer", f"{'1교시형' if is_terms else '2교시형'} 슬롯 {result['slots']}개에 부품 배치했어요")
+    await asyncio.sleep(0.12)
+
+    # 로운 — 접합부/미등록 소단락 (기본 0콜, 부분 적중+키 있으면 1콜)
+    yield _ev("writer", "working", "집필 중…")
+    extra: dict[str, str] = {}
+    if missing and provider() is not None:
+        llm_calls += 1
+        try:
+            frag = _extract_body(await _chat(
+                "당신은 기술사 답안 팀의 집필 담당 '로운'입니다. 아래 미등록 토픽의 소단락만 "
+                "HTML 프래그먼트로 출력하세요. 허용: <h3>토픽명의 개요</h3> + "
+                "<p class=\"def\">키워드 나열형 정의(70자 이내, ~임 종결)</p> + "
+                "<table class=\"t2\">(구분|설명 헤더 + 2~3행). 다른 태그·설명 금지.",
+                [{"role": "user", "content": f"문제: {message}\n미등록 토픽: {missing[0]}"}],
+                max_tokens=800,
+            ))
+            if frag:
+                extra[missing[0]] = frag
+        except RateLimitError:
+            pass  # 플레이스홀더로 대체
+        result = assemble(message, kind, points, topics, missing, extra)
+    # 접합부 다듬기(선택): LIBRARY_POLISH=1 + 키 있을 때만 1콜
+    if os.environ.get("LIBRARY_POLISH") == "1" and provider() is not None:
+        llm_calls += 1
+        try:
+            polish = _parse_json(await _chat(
+                "기술사 답안의 서론 정의 문장을 문제 어구에 맞게 1문장으로 다듬어 JSON만 출력: "
+                "{\"definition\": \"...(70자 이내, ~임 종결, 키워드 나열형)\"}",
+                [{"role": "user", "content":
+                    f"문제: {message}\n현재 정의: {topics[0].get('definition_long') or topics[0].get('definition')}"}],
+                json_mode=True, max_tokens=300,
+            ), {})
+            new_def = str(polish.get("definition") or "").strip()
+            if new_def:
+                result["body"] = re.sub(
+                    r'(<p class="def">\(정의\) ).*?(</p>)',
+                    lambda m: m.group(1) + html_mod.escape(new_def) + m.group(2),
+                    result["body"], count=1)
+        except RateLimitError:
+            pass
+    yield _ev("writer", "done", "집필 완료")
+    if missing:
+        yield _talk("writer", f"미등록 토픽 {len(missing)}건 " + ("집필했어요" if extra else "은 플레이스홀더 처리했어요"))
+    else:
+        yield _talk("writer", "부품이 완전해서 연결부만 다듬었어요")
+    await asyncio.sleep(0.12)
+
+    # 세아 — 규칙 검증 (0콜)
+    yield _ev("reviewer", "working", "검증 중…")
+    await asyncio.sleep(0.12)
+    sheet = render_answer(question=message, title=result["title"], kind=kind, points=points,
+                          body=result["body"], mnemonic_html=result["mnemonic_html"])
+    warnings = result["warnings"] + _verify_assembly(result["body"], sheet, kind)
+    yield _ev("reviewer", "done", "통과" if not warnings else f"경고 {len(warnings)}건")
+    yield _talk("reviewer", "필수 섹션·암기박스 확인, 통과 ✅" if not warnings
+                else f"조립은 통과, 경고 {len(warnings)}건: {warnings[0]}")
+
+    yield _ev("orchestrator", "done", "납품 완료")
+    yield _talk("orchestrator", "답안지 납품 완료! 라이브러리 덕에 즉답이었어요 ⚡")
+
+    vol = _volume(result["body"], kind)
+    reply = (f"『{result['title']}』 {kind} {points}점 답안지 조립 완료 — "
+             f"라이브러리 {len(topics)}건 적중({', '.join(names)}), LLM {llm_calls}콜. "
+             f"분량 {vol['pages']}쪽 {vol['line_in_page']}줄 (환산 {vol['pages_frac']}매).")
+    if warnings:
+        reply += "\n검증 경고: " + " / ".join(warnings[:4])
+    yield {
+        "type": "reply",
+        "reply": reply,
+        "exam": {"kind": kind, "points": points, "topic": result["title"]},
+        "library": True,
+        "matched": matched,
+        "llm_calls": llm_calls,
+        "review": {"passed": not warnings, "warnings": warnings},
+        "sheet": {"kind": kind, "points": points, "pages": vol["pages"],
+                  "lines": vol["line_in_page"], "target_pages": vol["target_pages"]},
+        "artifact": {"title": result["title"], "html": sheet},
+    }
+
+
+async def _live_exam(message: str, kind: str, points: int,
+                     llm_calls: int) -> AsyncIterator[dict]:
+    """미적중 폴백 — 라이브 파이프라인 (설계1 + 초안1 + 채점1 + 보완1 + 재채점1 = 최대 5콜)."""
+    subjects = split_subjects(message)
+    topic = (subjects[0] if subjects else message)[:30]
+    is_terms = "1교시" in kind
+
+    # ---- 다인: 답안 구조 설계
+    yield _ev("designer", "thinking", "답안 구조 설계 중…")
+    llm_calls += 1
+    design = _parse_json(
+        await _chat(
+            "당신은 기술사 답안 팀의 답안 편집 담당 '다인'입니다. 문제를 보고 답안 목차를 "
+            "JSON만으로 설계하세요. ITPE 기술사 답안 문법을 따릅니다.\n"
+            "- 2교시형(서술, 4단락 고정): Ⅰ.○○의 개요(로드맵 그림+정의+필요성) → Ⅱ.○○의 구성도 및 구성요소"
+            "(개념도+간글+9줄 상세표) → Ⅲ.문제가 직접 요구한 사항(요구별 소제목) → Ⅳ.결론 및 전망 4개 섹션.\n"
+            "- 1교시형(용어, 3단락): Ⅰ.개요(정의·특징) → Ⅱ.개념도 및 구성요소 → Ⅲ.활용방안/비교 3개 섹션.\n"
+            "- 각 섹션의 points는 가나다(가. 나. 다.) 소제목 단위로 작성.\n"
+            "형식: {\"outline\": [{\"section\": \"섹션명\", \"points\": [\"다룰 내용\", ...]}, ...], "
+            "\"mnemonic\": {\"word\": \"핵심 키워드 두문자\", \"expansion\": [\"두문자 풀이\", ...]}, "
+            "\"diagram_idea\": \"개념도 구성 아이디어\", "
+            "\"say\": \"집필 담당 로운에게 설계를 전달하는 짧은 한 마디\"}",
+            [{"role": "user", "content": f"문제: {message}\n유형: {kind} {points}점 / 주제: {topic}"}],
+            json_mode=True,
+            max_tokens=1024,  # 목차 JSON은 1024면 충분 (무료 TPM 절약)
+        ),
+        {"outline": [], "mnemonic": {}, "diagram_idea": ""},
+    )
+    outline = design.get("outline") or []
+    yield _ev("designer", "done", f"목차 {len(outline)}개 섹션" if outline else "설계 완료")
+    yield _talk("designer", design.get("say") or "목차 설계 넘겼어요. 로운님, 부탁해요!")
+
+    # ---- 로운: 답안 초안
+    writer_system = (
+        "당신은 정보관리기술사 답안 작성 전문가 '로운'입니다. "
+        "설계된 목차에 따라 기술사 시험 답안 본문을 작성하세요.\n"
+        f"{_BODY_RULES}\n"
+        "- 코드 펜스나 설명 없이 답안 본문 HTML만 출력하세요."
+    )
+    draft_brief = (
+        f"문제: {message}\n유형: {kind} {points}점 / 주제: {topic}\n"
+        f"목차 설계: {json.dumps(outline, ensure_ascii=False)}\n"
+        f"개념도 아이디어: {design.get('diagram_idea') or '-'}"
+    )
+    yield _ev("writer", "working", "답안 작성 중…")
+    llm_calls += 1
+    body = _extract_body(await _chat(
+        writer_system,
+        [{"role": "user", "content": draft_brief}],
+        max_tokens=4096,  # 무료 TPM 절약 (429 방지)
+    ))
+    yield _ev("writer", "done", "초안 완료")
+    yield _talk("writer", "초안 완성했어요. 세아님, 채점 부탁드립니다!")
+
+    # ---- 세아: 채점 (LLM) + 서버 측 정량 검증(분량·형식 린트)
+    # 분량 기준: 1교시형 최소 1.0매/목표 1.4매, 2교시형 최소 2.5매/목표 3.5매.
+    # 최소 미달·린트 위반은 점수와 무관하게 보완 강제 (최대 1회).
+    min_pages, rec_pages = (1.0, 1.4) if is_terms else (2.5, 3.5)
+    vol = _volume(body, kind)
+    lint = _lint_format(body, kind)
+    reviewer_system = (
+        "당신은 기술사 시험 채점위원 '세아'입니다. 답안 본문 HTML을 검토해 JSON만 출력하세요.\n"
+        "채점 기준: ① 출제 의도 부합 ② ITPE 목차 완결성(2교시형 Ⅰ~Ⅳ 4단락, 가나다 소제목) "
+        "③ 3단표·개념도·간글 활용 ④ 개조식 문체·키워드 가독성 ⑤ 차별화 요소(결론 단락의 알파) "
+        "⑥ 계약 준수 — 허용 밖 태그/문단이 있으면 보완(revise) 사유.\n"
+        f"{PASS_SCORE}점 이상이면 verdict를 pass, 미만이면 revise로 판정합니다.\n"
+        "형식: {\"score\": 0~100 정수, \"verdict\": \"pass|revise\", "
+        "\"weak_points\": [\"미흡 항목\", ...], "
+        "\"say\": \"팀에게 채점 결과를 알리는 짧은 한 마디(점수 포함)\"}"
+    )
+    review_brief = f"문제: {message}\n유형: {kind} {points}점\n"
+
+    def _metrics() -> str:
+        s = (f"측정 분량: {vol['pages']}쪽 {vol['line_in_page']}줄, 환산 {vol['pages_frac']}매 — "
+             f"기준: 최소 {min_pages}매, 목표 {rec_pages}매 이내\n")
+        s += ("서버 형식 린트 위반: " + " / ".join(lint) + "\n") if lint else "서버 형식 린트: 통과\n"
+        return s
+
+    yield _ev("reviewer", "thinking", "채점 중…")
+    llm_calls += 1
+    review = _parse_json(
+        await _chat(
+            reviewer_system,
+            [{"role": "user", "content": review_brief + _metrics() + f"\n답안 본문:\n{body[:4000]}"}],
+            json_mode=True,
+        ),
+        {"score": 80, "verdict": "revise", "weak_points": []},
+    )
+    score = _score_of(review.get("score"))
+    weak = [str(w) for w in (review.get("weak_points") or []) if str(w).strip()]
+    rounds = 0
+    under = vol["pages_frac"] < min_pages
+
+    # ---- 보완 1회 + 재채점: 점수 미달 / 분량 최소 미달 / 린트 위반 시
+    if score < PASS_SCORE or under or lint:
+        say1 = str(review.get("say") or "").strip()
+        if str(score) not in say1:
+            say1 = f"1차 채점 {score}점. " + (say1 or f"보완이 필요해요: {' / '.join(weak[:2]) or '완성도 미흡'}")
+        picks = []
+        if lint:
+            picks.append(lint[0] if len(lint) == 1 else f"형식 위반 {len(lint)}건({lint[0]} 등)")
+        if under:
+            picks.append(f"분량 환산 {vol['pages_frac']}매로 최소 {min_pages}매 미달")
+        if picks:
+            say1 += " " + " · ".join(picks) + " — 로운님, 보완해주세요!"
+        yield _ev("reviewer", "working", f"{score}점 · 보완 요청")
+        yield _talk("reviewer", say1)
+
+        yield _ev("writer", "working", "답안 보완 중…")
+        fix_notes = f"채점위원 1차 채점 {score}점. 미흡 항목: {json.dumps(weak, ensure_ascii=False)}\n"
+        if lint:
+            fix_notes += "서버 형식 린트 위반(반드시 전부 해소할 것): " + " / ".join(lint) + "\n"
+        if under:
+            fix_notes += (f"현재 환산 {vol['pages_frac']}매, 최소 {min_pages}매 — "
+                          "Ⅲ단락 표를 확장해 분량을 확보하세요.\n")
+        fix_notes += ("위 사항을 반영해 답안 본문 전체를 다시 출력하세요. "
+                      "잘 쓴 부분은 유지하고 지적된 부분을 보강합니다.")
+        llm_calls += 1
+        revised = _extract_body(await _chat(
+            writer_system,
+            [
+                {"role": "user", "content": draft_brief},
+                {"role": "assistant", "content": body[:4000]},
+                {"role": "user", "content": fix_notes},
+            ],
+            max_tokens=4096,
+        ))
+        if revised:
+            body = revised
+        rounds = 1
+        vol = _volume(body, kind)
+        lint = _lint_format(body, kind)
+        under = vol["pages_frac"] < min_pages
+        yield _ev("writer", "done", "보완 완료")
+        yield _talk("writer", "지적사항 반영해서 보완했어요. 재채점 부탁해요!")
+
+        yield _ev("reviewer", "thinking", "재채점 중…")
+        llm_calls += 1
+        review = _parse_json(
+            await _chat(
+                reviewer_system,
+                [{"role": "user", "content":
+                    review_brief + _metrics() +
+                    f"(보완 후 재채점, 1차 {score}점, 1차 미흡 항목: "
+                    f"{json.dumps(weak, ensure_ascii=False)})\n\n답안 본문:\n{body[:4000]}"}],
+                json_mode=True,
+            ),
+            {"score": max(score, PASS_SCORE), "verdict": "pass", "weak_points": []},
+        )
+        score = _score_of(review.get("score"), default=max(score, PASS_SCORE))
+        weak = [str(w) for w in (review.get("weak_points") or []) if str(w).strip()]
+        say2 = str(review.get("say") or "").strip()
+        if str(score) not in say2:
+            say2 = f"재채점 {score}점. " + (say2 or "많이 좋아졌어요 ✅")
+        yield _ev("reviewer", "done", f"{score}점")
+        yield _talk("reviewer", say2)
+    else:
+        yield _ev("reviewer", "done", f"{score}점")
+        yield _talk("reviewer", review.get("say") or f"{score}점, 합격권이에요. 출고! ✅")
+
+    # 보완 후에도 남은 정량 위반은 weak_points에 명시
+    if lint:
+        weak += [w for w in lint if w not in weak]
+    if under:
+        note = f"분량 미달 — 환산 {vol['pages_frac']}매 (최소 {min_pages}매)"
+        if note not in weak:
+            weak.append(note)
+
+    yield _ev("orchestrator", "done", "납품 완료")
+    yield _talk("orchestrator", "답안지 납품 완료! 다들 수고했어요 ☕")
+
+    sheet = render_answer(
+        question=message, title=topic, kind=kind, points=points,
+        body=body, mnemonic_html=_mnemonic_html(design.get("mnemonic")),
+    )
+    summary = f"『{topic}』 {kind} {points}점 답안지 완성! 세아 채점 {score}점"
+    if rounds:
+        summary += f" (보완 {rounds}회 후 재채점)"
+    summary += f". 분량 {vol['pages']}쪽 {vol['line_in_page']}줄 (환산 {vol['pages_frac']}매)."
+    if score < PASS_SCORE:
+        summary += f"\n기준({PASS_SCORE}점) 미달이라 참고용으로 확인해 주세요."
+    if lint or under:
+        summary += "\n형식 기준 일부 미달 — 아래 보완 포인트를 확인해 주세요."
+    if weak:
+        summary += f"\n남은 보완 포인트: {' / '.join(weak[:4])}"
+    yield {
+        "type": "reply",
+        "reply": summary,
+        "exam": {"kind": kind, "points": points, "topic": topic},
+        "library": False,
+        "llm_calls": llm_calls,
+        "review": {"score": score, "rounds": rounds, "weak_points": weak,
+                   "volume": {"lines": vol["lines"], "pages": vol["pages_frac"]}},
+        "sheet": {"kind": kind, "points": points, "pages": vol["pages"],
+                  "lines": vol["line_in_page"], "target_pages": vol["target_pages"]},
+        "artifact": {"title": topic, "html": sheet},
+    }

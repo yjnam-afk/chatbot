@@ -27,6 +27,7 @@ app = FastAPI(title="기술사 답안 사무소")
 class ChatRequest(BaseModel):
     message: str
     history: list[dict] = Field(default_factory=list)
+    kind: str | None = None  # 프런트 교시형 칩 수동 선택("1교시형"|"2교시형") — 규칙 판별 오버라이드
 
 
 @app.get("/api/debug")
@@ -64,7 +65,7 @@ async def get_agents():
 @app.post("/api/chat")
 async def chat(req: ChatRequest):
     async def stream():
-        async for event in run_pipeline(req.history, req.message):
+        async for event in run_pipeline(req.history, req.message, kind_hint=req.kind):
             yield json.dumps(event, ensure_ascii=False) + "\n"
 
     return StreamingResponse(
