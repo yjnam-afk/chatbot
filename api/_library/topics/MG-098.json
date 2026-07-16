@@ -1,0 +1,27 @@
+{
+  "id": "MG-098",
+  "name": "린 스타트업(Lean Strartup)",
+  "aliases": [
+    "린 스타트업",
+    "Lean Strartup"
+  ],
+  "category": "MG > 범정부 IT 전략/정책 > 린 스타트업",
+  "keywords": [
+    "Build",
+    "Measure",
+    "Learn",
+    "MVP",
+    "Pivoting"
+  ],
+  "mnemonic": {
+    "word": "빌측학(빌드, 측정, 학습)",
+    "expansion": [
+      "Build",
+      "Measure",
+      "Learn",
+      "MVP",
+      "Pivoting"
+    ]
+  },
+  "definition": "MVP를 신속 출시해 고객 반응으로 비즈니스를 개선하는 창업 방법론"
+}

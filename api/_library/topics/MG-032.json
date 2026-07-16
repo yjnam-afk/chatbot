@@ -1,0 +1,22 @@
+{
+  "id": "MG-032",
+  "name": "마케팅 STP(Segmentation, Targeting, Positioning)",
+  "aliases": [
+    "마케팅 STP"
+  ],
+  "category": "경영전략 > 전략수립도구 > 마케팅 STP",
+  "keywords": [
+    "Segmentation(시장세분화)",
+    "Targeting(목표시장)",
+    "Positioning(포지셔닝)"
+  ],
+  "mnemonic": {
+    "word": "시목포",
+    "expansion": [
+      "Segmentation(시장세분화)",
+      "Targeting(목표시장)",
+      "Positioning(포지셔닝)"
+    ]
+  },
+  "definition": "시장세분화·표적시장선정·포지셔닝의 3단계로 진행하는 마케팅 전략 기법"
+}

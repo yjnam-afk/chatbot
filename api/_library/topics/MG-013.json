@@ -1,0 +1,29 @@
+{
+  "id": "MG-013",
+  "name": "시스템 다이내믹스(System Dynamics)",
+  "aliases": [
+    "시스템 다이내믹스",
+    "System Dynamics"
+  ],
+  "category": "MG > Mining 총론 > 시스템 다이내믹스(System Dynamics)",
+  "keywords": [
+    "피드백 루프",
+    "+",
+    "- 기호의 의미",
+    "인과관계",
+    "Level",
+    "Rate"
+  ],
+  "mnemonic": {
+    "word": "시인피레(시스템, 인과관계, 피드백, 레벨)",
+    "expansion": [
+      "피드백 루프",
+      "+",
+      "- 기호의 의미",
+      "인과관계",
+      "Level",
+      "Rate"
+    ]
+  },
+  "definition": "동태적·순환적 인과관계 시각으로 현상을 이해·시뮬레이션하는 방법론"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "MG-102",
+  "name": "섭테크(Suptech)",
+  "aliases": [
+    "섭테크",
+    "Suptech"
+  ],
+  "category": "MG > 기타 > 섭테크",
+  "keywords": [
+    "금융감독(Supervision)과 기술(Technology)의 합성어"
+  ],
+  "mnemonic": {
+    "word": "감기(감독+기술)",
+    "expansion": [
+      "금융감독(Supervision)과 기술(Technology)의 합성어"
+    ]
+  },
+  "definition": "감독과 기술의 합성어로 금융감독 업무에 첨단 기술을 도입하는 분야"
+}

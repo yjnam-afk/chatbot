@@ -1,0 +1,30 @@
+{
+  "id": "MG-037",
+  "name": "CRM(Customer Relationship Management)",
+  "aliases": [
+    "CRM",
+    "Customer Relationship Management"
+  ],
+  "category": "IT 경영전략 > 기간시스템 > CRM",
+  "keywords": [
+    "LTV(Life Time Value)",
+    "운영CRM",
+    "분석CRM",
+    "협업CRM",
+    "e-CRM",
+    "g-CRM",
+    "m-CRM"
+  ],
+  "mnemonic": {
+    "word": "운분협(운영, 분석, 협업)",
+    "expansion": [
+      "LTV(Life Time Value)",
+      "운영CRM",
+      "분석CRM",
+      "협업CRM",
+      "e-CRM",
+      "g-CRM"
+    ]
+  },
+  "definition": "고객 이해 기반으로 LTV를 극대화하는 마케팅 관리 기법"
+}

@@ -1,0 +1,116 @@
+{
+  "id": "MG-005",
+  "name": "SLM",
+  "aliases": [
+    "Service Level Management",
+    "서비스 수준 관리",
+    "에스엘엠"
+  ],
+  "category": "MG > ITSM > SLM",
+  "keywords": [
+    "SOW",
+    "SLA",
+    "SLA서비스 측정/평가/개선",
+    "계획/설계/운영/지속적평가"
+  ],
+  "mnemonic": {
+    "word": "오삼(S)영(O)일",
+    "expansion": [
+      "SOW(작업명세)",
+      "SLA(수준합의)",
+      "측정",
+      "평가",
+      "개선"
+    ]
+  },
+  "definition": "사용자 요구를 파악해 서비스·프로세스·조직역량·기술을 통합 관리하는 체계",
+  "definition_long": "SLA에 합의된 서비스 수준을 측정·평가·개선하는 순환 프로세스로 서비스 품질을 지속 관리하는 체계",
+  "background": "SLA는 계약일 뿐 — 이행 여부의 상시 측정·평가·개선 체계 없이는 실효성 부재",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">계획<small>SLR 수집</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">설계<small>SLA 합의</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">운영<small>측정 · 보고</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">지속 평가<small>개선 · 재협상</small></div></div>",
+  "diagram_gloss": "– 계획→설계→운영→지속적 평가의 순환으로 서비스 수준 유지·개선",
+  "features": [
+    {
+      "item": "순환 관리",
+      "desc": "측정·평가·개선의 PDCA형 지속 사이클"
+    },
+    {
+      "item": "가시화",
+      "desc": "서비스 수준 보고서로 이행 현황 공유"
+    },
+    {
+      "item": "정합성",
+      "desc": "SoW·SLA 문서와 운영 지표의 일치 관리"
+    }
+  ],
+  "components": [
+    {
+      "role": "요구",
+      "name": "SLR",
+      "detail": "사용자 서비스 수준 요구사항 수집·정의"
+    },
+    {
+      "role": "합의",
+      "name": "SLA, SoW",
+      "detail": "수준 합의 계약과 세부 작업명세 관리"
+    },
+    {
+      "role": "측정",
+      "name": "모니터링, 보고",
+      "detail": "지표 실측·수준 보고서 산출"
+    },
+    {
+      "role": "개선",
+      "name": "평가, 개선계획",
+      "detail": "미달 항목 원인 분석과 개선·재협상"
+    }
+  ],
+  "components_gloss": "– 요구(SLR)→합의(SLA)→측정→개선의 관리 요소로 구성",
+  "comparisons": [
+    {
+      "vs": "MG-004",
+      "vs_name": "SLA",
+      "axes": [
+        {
+          "axis": "목적",
+          "a": "서비스 수준의 지속 관리",
+          "b": "서비스 수준의 합의"
+        },
+        {
+          "axis": "산출물",
+          "a": "측정·평가·개선 프로세스",
+          "b": "계약서(문서)"
+        },
+        {
+          "axis": "시점",
+          "a": "계약 이후 운영 전 기간",
+          "b": "계약 체결 시점"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "품질 유지",
+      "desc": "수준 미달의 조기 탐지·개선으로 품질 유지"
+    },
+    {
+      "item": "신뢰 확보",
+      "desc": "투명한 수준 보고로 사용자 신뢰 확보"
+    },
+    {
+      "item": "계약 최적화",
+      "desc": "실측 데이터 기반 SLA 재협상 근거 확보"
+    }
+  ],
+  "conclusion": "SLM은 SLA의 실효성을 담보하는 운영 체계 — ITSM(ITIL) 프로세스와 통합 운영이 바람직",
+  "exam_points": [
+    "SLM 프로세스(계획·설계·운영·지속적 평가)",
+    "SLA와의 관계·비교",
+    "SoW-SLA-SLM 문서 체계"
+  ],
+  "related": [
+    "MG-001",
+    "MG-003",
+    "MG-004"
+  ]
+}

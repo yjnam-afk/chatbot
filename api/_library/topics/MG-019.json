@@ -1,0 +1,25 @@
+{
+  "id": "MG-019",
+  "name": "BIA (Business Impact Analysis)",
+  "aliases": [
+    "BIA",
+    "Business Impact Analysis"
+  ],
+  "category": "MG > BCP > BIA",
+  "keywords": [
+    "비즈니스 분석",
+    "평가",
+    "우선순위 및 복구대상 설정",
+    "복구시간 설정"
+  ],
+  "mnemonic": {
+    "word": "분평도분(분석, 평가, 도출, 분석)",
+    "expansion": [
+      "비즈니스 분석",
+      "평가",
+      "우선순위 및 복구대상 설정",
+      "복구시간 설정"
+    ]
+  },
+  "definition": "비즈니스 업무의 재해영향도를 평가해 복구우선순위·목표를 정의하는 활동"
+}

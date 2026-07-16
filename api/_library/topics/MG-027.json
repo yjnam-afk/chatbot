@@ -1,0 +1,19 @@
+{
+  "id": "MG-027",
+  "name": "LISS(Linearly Independent Spanning Set)",
+  "aliases": [
+    "LISS",
+    "Linearly Independent Spanning Set"
+  ],
+  "category": "경영전략 > 전략수립도구 > LISS",
+  "keywords": [
+    "중요과제의 명확화"
+  ],
+  "mnemonic": {
+    "word": "중명",
+    "expansion": [
+      "중요과제의 명확화"
+    ]
+  },
+  "definition": "중복 없이 부분집합의 중요한 의미를 명확히 하는 전략적 사고 방법"
+}

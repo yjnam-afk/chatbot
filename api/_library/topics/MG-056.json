@@ -1,0 +1,25 @@
+{
+  "id": "MG-056",
+  "name": "EA(Enterprise Architecture) Framework",
+  "aliases": [
+    "EA Framework",
+    "Enterprise Architecture"
+  ],
+  "category": "경영 > EA/ITA > EA Framework",
+  "keywords": [
+    "EAMS/GITAMS",
+    "자크만 F/W",
+    "TOGAF",
+    "FEAF"
+  ],
+  "mnemonic": {
+    "word": "거아참(거버넌스, 아키텍처, 참조모델)",
+    "expansion": [
+      "EAMS/GITAMS",
+      "자크만 F/W",
+      "TOGAF",
+      "FEAF"
+    ]
+  },
+  "definition": "기업의 IT와 비즈니스 관계를 총괄해 설명하는 종합 청사진 프레임워크"
+}

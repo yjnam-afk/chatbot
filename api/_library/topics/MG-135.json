@@ -1,0 +1,27 @@
+{
+  "id": "MG-135",
+  "name": "Design Thinking",
+  "aliases": [],
+  "category": "MG > 기타 > Design Thinking",
+  "keywords": [
+    "공감",
+    "인간중심적 사고",
+    "Empathize",
+    "Define",
+    "Ideate",
+    "Prototype",
+    "Test"
+  ],
+  "mnemonic": {
+    "word": "영아실",
+    "expansion": [
+      "공감",
+      "인간중심적 사고",
+      "Empathize",
+      "Define",
+      "Ideate",
+      "Prototype"
+    ]
+  },
+  "definition": "공감적 관찰로 문제를 재해석하고 시각적·창의적으로 해결하는 사고법"
+}

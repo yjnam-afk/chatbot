@@ -1,0 +1,27 @@
+{
+  "id": "MG-097",
+  "name": "TAM-SAM-SOM 프레임워크",
+  "aliases": [],
+  "category": "MG",
+  "keywords": [
+    "기업",
+    "벤처",
+    "스타트업 시장 규모 추정",
+    "시장 규모 파악",
+    "Total Available Market",
+    "Serviceable Available Market",
+    "Servieable Obtainable Market"
+  ],
+  "mnemonic": {
+    "word": "탐전/삼재/소생(전체시장, 재무고려, 초기생존)",
+    "expansion": [
+      "기업",
+      "벤처",
+      "스타트업 시장 규모 추정",
+      "시장 규모 파악",
+      "Total Available Market",
+      "Serviceable Available Market"
+    ]
+  },
+  "definition": "전체·유효·유효 가능 시장으로 시장 규모를 추정하는 스타트업 프레임워크"
+}

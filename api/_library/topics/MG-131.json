@@ -1,0 +1,31 @@
+{
+  "id": "MG-131",
+  "name": "O4O(Online for Offline)",
+  "aliases": [
+    "O4O",
+    "Online for Offline"
+  ],
+  "category": "IT 경영전략 > Commerce > O4O",
+  "keywords": [
+    "RFID",
+    "NFC",
+    "이미지/얼굴 인식",
+    "지오펜싱",
+    "비콘",
+    "인공지능",
+    "빅데이터",
+    "아마존고"
+  ],
+  "mnemonic": {
+    "word": "인위분체",
+    "expansion": [
+      "RFID",
+      "NFC",
+      "이미지/얼굴 인식",
+      "지오펜싱",
+      "비콘",
+      "인공지능"
+    ]
+  },
+  "definition": "온라인 기업이 빅데이터로 오프라인 사업 영역에 진출하는 비즈니스 전략"
+}

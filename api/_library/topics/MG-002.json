@@ -1,0 +1,26 @@
+{
+  "id": "MG-002",
+  "name": "IT Outsourcing",
+  "aliases": [],
+  "category": "MG > ITSM > IT Outsourcing",
+  "keywords": [
+    "Total/Selective/자회사/Co-Sourcing",
+    "ITIL",
+    "SLA",
+    "SLM",
+    "SoW",
+    "취약점 및 개선방안"
+  ],
+  "mnemonic": {
+    "word": "토셀자코",
+    "expansion": [
+      "Total/Selective/자회사/Co-Sourcing",
+      "ITIL",
+      "SLA",
+      "SLM",
+      "SoW",
+      "취약점 및 개선방안"
+    ]
+  },
+  "definition": "Value Chain 비전략적 부분을 외부 전문가에게 위탁하는 정보기술 위탁서비스"
+}

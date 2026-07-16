@@ -1,0 +1,25 @@
+{
+  "id": "MG-073",
+  "name": "ALM (Application Lifecycle Management)",
+  "aliases": [
+    "ALM",
+    "Application Lifecycle Management"
+  ],
+  "category": "경영전략 > 생명주기관리 > ALM",
+  "keywords": [
+    "이슈관리",
+    "개발환경",
+    "빌드 테스트 자동화",
+    "소스관리"
+  ],
+  "mnemonic": {
+    "word": "이개빌소",
+    "expansion": [
+      "이슈관리",
+      "개발환경",
+      "빌드 테스트 자동화",
+      "소스관리"
+    ]
+  },
+  "definition": "비즈니스 요건과 SW 개발 프로세스를 융합·자동화하는 관리 방법"
+}

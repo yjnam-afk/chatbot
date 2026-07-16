@@ -1,0 +1,21 @@
+{
+  "id": "MG-048",
+  "name": "ISMP(Information System Master Plan)",
+  "aliases": [
+    "ISMP",
+    "Information System Master Plan"
+  ],
+  "category": "경영전략(MG) > 전략 계획 > ISMP(Information System Master Plan)",
+  "keywords": [
+    "RFP",
+    "기능점수 도출 가능 수준"
+  ],
+  "mnemonic": {
+    "word": "참방분정수(참여자, 방향성, 분석, 정의, 수립)",
+    "expansion": [
+      "RFP",
+      "기능점수 도출 가능 수준"
+    ]
+  },
+  "definition": "특정 SW 사업의 RFP 마련을 위해 기능점수 도출 수준까지 요건을 상세화"
+}

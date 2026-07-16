@@ -1,0 +1,31 @@
+{
+  "id": "MG-061",
+  "name": "VBM(Value Based Management)",
+  "aliases": [
+    "VBM",
+    "Value Based Management"
+  ],
+  "category": "IT 경영전략> SEM(전략적 경영 관리) >VBM",
+  "keywords": [
+    "기업가치 극대화",
+    "가치 경영 관리",
+    "비즈니스 가치(EVA",
+    "MVA",
+    "ROIC)",
+    "목표비용",
+    "책임회계",
+    "성과평가"
+  ],
+  "mnemonic": {
+    "word": "경시투(경제적 부가가치, 시장부가가치, 투자자본수익률)",
+    "expansion": [
+      "기업가치 극대화",
+      "가치 경영 관리",
+      "비즈니스 가치(EVA",
+      "MVA",
+      "ROIC)",
+      "목표비용"
+    ]
+  },
+  "definition": "기업가치 극대화를 목표로 의사결정·성과를 가치로 측정하는 경영방식"
+}

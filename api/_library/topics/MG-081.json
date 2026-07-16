@@ -1,0 +1,25 @@
+{
+  "id": "MG-081",
+  "name": "MSP(Management Service Provider)",
+  "aliases": [
+    "MSP",
+    "Management Service Provider"
+  ],
+  "category": "MG > Outsourcing > MSP",
+  "keywords": [
+    "Monitoring Service",
+    "Management Service",
+    "Operation Service",
+    "Consulting Service"
+  ],
+  "mnemonic": {
+    "word": "모마운컨",
+    "expansion": [
+      "Monitoring Service",
+      "Management Service",
+      "Operation Service",
+      "Consulting Service"
+    ]
+  },
+  "definition": "기업의 IT 자원을 IDC 기반으로 통합 관리·운영하는 서비스 사업자"
+}

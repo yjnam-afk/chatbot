@@ -1,0 +1,22 @@
+{
+  "id": "MG-008",
+  "name": "Process Mining",
+  "aliases": [],
+  "category": "MG > Mining 총론 > Process Mining",
+  "keywords": [
+    "모델링",
+    "조직성과",
+    "정보시스템 로그",
+    "현실세계"
+  ],
+  "mnemonic": {
+    "word": "모조정로",
+    "expansion": [
+      "모델링",
+      "조직성과",
+      "정보시스템 로그",
+      "현실세계"
+    ]
+  },
+  "definition": "정보시스템 로그 분석을 통해 업무 프로세스를 도출하고 개선하는 분석 기법"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "MG-079",
+  "name": "ISO 20000",
+  "aliases": [],
+  "category": "경영전략 > 아웃소싱/표준/정책 > ISO 20000",
+  "keywords": [
+    "ITSM 국제심사인증 표준"
+  ],
+  "mnemonic": {
+    "word": "일인이가(Part1-인증규격, Part2-가이드)",
+    "expansion": [
+      "ITSM 국제심사인증 표준"
+    ]
+  },
+  "definition": "ITIL 기반으로 IT 서비스 관리체계를 평가·인증하는 국제 표준"
+}

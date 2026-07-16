@@ -1,0 +1,27 @@
+{
+  "id": "MG-088",
+  "name": "OSS(Open Source Software) Governance",
+  "aliases": [
+    "OSS Governance",
+    "Open Source Software"
+  ],
+  "category": "SW > OSS > OSS 거버넌스",
+  "keywords": [
+    "활동전반 진단",
+    "도입전략 수립",
+    "정책 결정",
+    "지원전략 수립",
+    "유지보수"
+  ],
+  "mnemonic": {
+    "word": "활도정지유",
+    "expansion": [
+      "활동전반 진단",
+      "도입전략 수립",
+      "정책 결정",
+      "지원전략 수립",
+      "유지보수"
+    ]
+  },
+  "definition": "오픈소스SW 라이선스의 위험·이슈를 관리하기 위한 거버넌스 체계"
+}

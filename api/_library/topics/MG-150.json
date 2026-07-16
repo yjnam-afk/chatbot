@@ -1,0 +1,19 @@
+{
+  "id": "MG-150",
+  "name": "리빙랩(Living Lab)",
+  "aliases": [
+    "리빙랩",
+    "Living Lab"
+  ],
+  "category": "경영 > 기타 > 리빙랩",
+  "keywords": [
+    "시민참여"
+  ],
+  "mnemonic": {
+    "word": "공민(공공제품, 민간제품)",
+    "expansion": [
+      "시민참여"
+    ]
+  },
+  "definition": "시민 참여 기반으로 사회문제 해결을 연구·실험하는 사용자 주도 방법"
+}

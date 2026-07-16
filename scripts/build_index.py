@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""토픽 라이브러리 검증 + 역인덱스 생성.
+
+사용법: python3 scripts/build_index.py
+- api/_library/topics/*.json 스캔 → 스키마 검증 → api/_library/index.json 재생성.
+- 검증 실패 시 exit 1 (커밋 전 반드시 실행 — docs/library-spec.md 2-2).
+
+검증 항목:
+- 필수 필드: id, name, aliases, category, keywords, mnemonic, definition
+- id == 파일명, "MG-" + 3자리 형식
+- HTML 부품(diagram_html, intro_diagram_html) 금칙어: <script, 외부 URL, 인라인 이벤트
+- 전체 라이브러리 총량 5MB 이하
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "api"))
+from _topic_library import topic_terms  # noqa: E402
+
+LIB_DIR = ROOT / "api" / "_library"
+TOPICS_DIR = LIB_DIR / "topics"
+INDEX_PATH = LIB_DIR / "index.json"
+
+REQUIRED = ("id", "name", "aliases", "category", "keywords", "mnemonic", "definition")
+HTML_FIELDS = ("diagram_html", "intro_diagram_html")
+FORBIDDEN = ("<script", "javascript:", "http://", "https://", "onerror=", "onclick=", "onload=", "<iframe")
+MAX_TOTAL_BYTES = 5 * 1024 * 1024
+# 풀부품 판정: 이 중 2개 이상 보유
+FULL_FIELDS = ("definition_long", "diagram_html", "components", "features", "comparisons", "usage")
+
+
+def fail(msg: str) -> None:
+    print(f"검증 실패: {msg}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def main() -> int:
+    files = sorted(TOPICS_DIR.glob("*.json"))
+    if not files:
+        fail(f"토픽 파일 없음: {TOPICS_DIR}")
+
+    total = sum(f.stat().st_size for f in files)
+    if total > MAX_TOTAL_BYTES:
+        fail(f"총량 초과: {total / 1024:.0f}KB > 5MB")
+
+    terms: dict[str, list] = {}
+    topics_meta: dict[str, dict] = {}
+    for f in files:
+        try:
+            t = json.loads(f.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as e:
+            fail(f"{f.name}: JSON 파싱 오류 — {e}")
+        for k in REQUIRED:
+            if k not in t:
+                fail(f"{f.name}: 필수 필드 누락 — {k}")
+        if not re.fullmatch(r"MG-\d{3}", t["id"]) or t["id"] != f.stem:
+            fail(f"{f.name}: id 형식/파일명 불일치 — {t['id']}")
+        if not isinstance(t["aliases"], list) or not isinstance(t["keywords"], list):
+            fail(f"{f.name}: aliases/keywords는 배열이어야 함")
+        if not isinstance(t["mnemonic"], dict) or "word" not in t["mnemonic"]:
+            fail(f"{f.name}: mnemonic은 {{word, expansion}} 객체여야 함")
+        for hf in HTML_FIELDS:
+            html = t.get(hf) or ""
+            low = html.lower()
+            for bad in FORBIDDEN:
+                if bad in low:
+                    fail(f"{f.name}: {hf}에 금칙어 '{bad}' 포함")
+        # comparisons.vs 상호참조 검사(존재하는 id인지)는 전체 로드 후
+        tid = t["id"]
+        full = sum(1 for k in FULL_FIELDS if t.get(k)) >= 2
+        topics_meta[tid] = {
+            "name": re.sub(r"\s+", " ", re.sub(r"\([^)]*\)", " ", t["name"])).strip() or t["name"],
+            "category": t["category"],
+            "mn": (t["mnemonic"].get("word") or ""),
+            "def": t["definition"],
+            "full": full,
+        }
+        seen = set()
+        for term, w, typ in topic_terms(t):
+            key = (term, typ)
+            if key in seen:
+                continue
+            seen.add(key)
+            terms.setdefault(term, []).append({"id": tid, "w": w, "t": typ})
+
+    # comparisons.vs 참조 무결성
+    for f in files:
+        t = json.loads(f.read_text(encoding="utf-8"))
+        for cmp_ in t.get("comparisons") or []:
+            vs = cmp_.get("vs")
+            if vs and vs not in topics_meta:
+                fail(f"{f.name}: comparisons.vs가 존재하지 않는 토픽 참조 — {vs}")
+
+    index = {"terms": terms, "topics": topics_meta}
+    INDEX_PATH.write_text(json.dumps(index, ensure_ascii=False, separators=(",", ":")) + "\n",
+                          encoding="utf-8")
+    full_n = sum(1 for v in topics_meta.values() if v["full"])
+    print(f"OK: 토픽 {len(topics_meta)}건(풀부품 {full_n}) / 용어 {len(terms)}개 / "
+          f"총 {total / 1024:.0f}KB → {INDEX_PATH.relative_to(ROOT)}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

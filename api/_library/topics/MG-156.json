@@ -1,0 +1,31 @@
+{
+  "id": "MG-156",
+  "name": "ESG(Environment, Social, Governance)경영",
+  "aliases": [
+    "ESG 경영"
+  ],
+  "category": "MA > CSR > ESG 경영",
+  "keywords": [
+    "ESG(Environment",
+    "Social",
+    "Governance)",
+    "친환경",
+    "사회적 책임",
+    "지배구조",
+    "지속가능성",
+    "비재무적인 지표",
+    "지속 가능한 발전"
+  ],
+  "mnemonic": {
+    "word": "친사지",
+    "expansion": [
+      "ESG(Environment",
+      "Social",
+      "Governance)",
+      "친환경",
+      "사회적 책임",
+      "지배구조"
+    ]
+  },
+  "definition": "환경·사회·지배구조 비재무 요소를 고려하는 지속가능 경영 전략"
+}

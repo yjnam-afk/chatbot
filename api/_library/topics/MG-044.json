@@ -1,0 +1,27 @@
+{
+  "id": "MG-044",
+  "name": "RTE(Real Time Enterprise)",
+  "aliases": [
+    "RTE",
+    "Real Time Enterprise"
+  ],
+  "category": "IT 경영전략 > 실시간 기업 > RTE",
+  "keywords": [
+    "실시간 이벤트(event)",
+    "인지(awareness)",
+    "의사결정(decision)",
+    "집행(action)",
+    "대응(response)"
+  ],
+  "mnemonic": {
+    "word": "인결활",
+    "expansion": [
+      "실시간 이벤트(event)",
+      "인지(awareness)",
+      "의사결정(decision)",
+      "집행(action)",
+      "대응(response)"
+    ]
+  },
+  "definition": "실시간 의사결정과 자원 배분으로 경영성과를 도출하는 실시간 기업 모델"
+}

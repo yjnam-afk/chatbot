@@ -1,0 +1,20 @@
+{
+  "id": "MG-121",
+  "name": "경제성 평가방법",
+  "aliases": [],
+  "category": "MG > 투자평가관리",
+  "keywords": [
+    "비즈니스 케이스",
+    "경제성 분석 기법",
+    "BCR(Benefit Cost Ratio) 평가순서: TCO -> ROI -> NPV ->IRR -> PP"
+  ],
+  "mnemonic": {
+    "word": "재정다통",
+    "expansion": [
+      "비즈니스 케이스",
+      "경제성 분석 기법",
+      "BCR(Benefit Cost Ratio) 평가순서: TCO -> ROI -> NPV ->IRR -> PP"
+    ]
+  },
+  "definition": "비용·편익을 측정해 경제적 수익률을 평가하는 BCR·TCO·ROI 등 기법"
+}

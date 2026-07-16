@@ -1,0 +1,23 @@
+{
+  "id": "MG-065",
+  "name": "BAM(Business Activity Monitoring)",
+  "aliases": [
+    "BAM",
+    "Business Activity Monitoring"
+  ],
+  "category": "경영전략(MG)> 프로세스 관리 >BAM",
+  "keywords": [
+    "이벤트",
+    "BAM 모델링",
+    "Alerts"
+  ],
+  "mnemonic": {
+    "word": "이바모알",
+    "expansion": [
+      "이벤트",
+      "BAM 모델링",
+      "Alerts"
+    ]
+  },
+  "definition": "비즈니스 이벤트를 실시간 모니터링·분석해 의사결정을 지원하는 시스템"
+}

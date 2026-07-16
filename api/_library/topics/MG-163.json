@@ -1,0 +1,27 @@
+{
+  "id": "MG-163",
+  "name": "CoE(Center of Excellence)",
+  "aliases": [
+    "CoE",
+    "Center of Excellence"
+  ],
+  "category": "MG",
+  "keywords": [
+    "전문가 조직",
+    "테크놀로지",
+    "시장",
+    "메커니즘",
+    "목표 지향"
+  ],
+  "mnemonic": {
+    "word": "메시테(메커니즘, 시장, 테크놀로지)",
+    "expansion": [
+      "전문가 조직",
+      "테크놀로지",
+      "시장",
+      "메커니즘",
+      "목표 지향"
+    ]
+  },
+  "definition": "선진 기술·툴·배포 채널 접근을 위한 전문 조직 또는 협업체"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "MG-011",
+  "name": "텍스트 마이닝(Text Mining)",
+  "aliases": [
+    "텍스트 마이닝",
+    "Text Mining"
+  ],
+  "category": "MG > Mining 총론 > Text Mining",
+  "keywords": [
+    "형태소 분석"
+  ],
+  "mnemonic": {
+    "word": "분요군(분류, 요약, 군집화)",
+    "expansion": [
+      "형태소 분석"
+    ]
+  },
+  "definition": "비정형 텍스트 집단에서 자동으로 정보를 추출해 새 정보를 발견하는 기술"
+}

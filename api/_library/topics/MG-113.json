@@ -1,0 +1,24 @@
+{
+  "id": "MG-113",
+  "name": "다면 플랫폼",
+  "aliases": [],
+  "category": "MG > 플랫폼(유형) > 다면플랫폼",
+  "keywords": [
+    "다수 고객집단 연결",
+    "Exchange",
+    "Advertisement-supported media",
+    "Transaction systems",
+    "Software platform"
+  ],
+  "mnemonic": {
+    "word": "교광결플(교환, 광고, 결재, 플랫폼)",
+    "expansion": [
+      "다수 고객집단 연결",
+      "Exchange",
+      "Advertisement-supported media",
+      "Transaction systems",
+      "Software platform"
+    ]
+  },
+  "definition": "둘 이상의 고객 집단이 상호작용해 가치를 창출하는 양면형 플랫폼"
+}

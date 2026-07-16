@@ -1,0 +1,27 @@
+{
+  "id": "MG-047",
+  "name": "ISP(Information Strategy Plan)",
+  "aliases": [
+    "ISP",
+    "Information Strategy Plan"
+  ],
+  "category": "경영전략(MG) > 전략계획 > ISP(Information Strategy Plan)",
+  "keywords": [
+    "환경분석",
+    "현황분석",
+    "정보화 비전 및 전략 수립",
+    "목표모델 설계",
+    "통합 이행 계획"
+  ],
+  "mnemonic": {
+    "word": "환형정목통",
+    "expansion": [
+      "환경분석",
+      "현황분석",
+      "정보화 비전 및 전략 수립",
+      "목표모델 설계",
+      "통합 이행 계획"
+    ]
+  },
+  "definition": "조직 목표 달성을 위한 정보화 전략·비전과 IT 사업·로드맵을 수립하는 활동"
+}

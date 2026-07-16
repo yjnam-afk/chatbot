@@ -1,0 +1,29 @@
+{
+  "id": "MG-101",
+  "name": "레그테크(RegTech)",
+  "aliases": [
+    "레그테크",
+    "RegTech"
+  ],
+  "category": "IT 경영전략 > 디지털 컨버전스> 레그테크(RegTech)",
+  "keywords": [
+    "Regulation",
+    "Technology",
+    "규제준수",
+    "위험예측",
+    "이상거래",
+    "컴플라이언스"
+  ],
+  "mnemonic": {
+    "word": "데위실고",
+    "expansion": [
+      "Regulation",
+      "Technology",
+      "규제준수",
+      "위험예측",
+      "이상거래",
+      "컴플라이언스"
+    ]
+  },
+  "definition": "기술을 활용해 금융규제 요구사항에 효율적으로 대응하는 규제 대응 기술"
+}

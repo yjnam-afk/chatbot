@@ -1,0 +1,21 @@
+{
+  "id": "MG-109",
+  "name": "디지털 포용(Digital Inclusion)",
+  "aliases": [
+    "디지털 포용",
+    "Digital Inclusion"
+  ],
+  "category": "MG > 기타",
+  "keywords": [
+    "포용사회",
+    "혁신사회"
+  ],
+  "mnemonic": {
+    "word": "포혁",
+    "expansion": [
+      "포용사회",
+      "혁신사회"
+    ]
+  },
+  "definition": "전 국민이 디지털 역량을 갖추고 차별없이 혜택을 누리는 포용 정책"
+}

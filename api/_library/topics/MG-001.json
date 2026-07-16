@@ -1,0 +1,129 @@
+{
+  "id": "MG-001",
+  "name": "ITSM(Information Technology Service Management)",
+  "aliases": [
+    "ITSM",
+    "Information Technology Service Management",
+    "IT 서비스 관리",
+    "IT서비스관리체계",
+    "아이티에스엠"
+  ],
+  "category": "MG> ITSM> ITSM",
+  "keywords": [
+    "ITIL V3",
+    "eSCM",
+    "CMMI",
+    "SLA",
+    "SLM",
+    "PMO",
+    "HA",
+    "운영 및 유지보수",
+    "MTTF",
+    "MTBF",
+    "MTTR",
+    "QoS",
+    "SPICE",
+    "품질관리"
+  ],
+  "mnemonic": {
+    "word": "이삼씨투(ITIL. Escm, SLM, CMMI)",
+    "expansion": [
+      "ITIL(베스트프랙티스)",
+      "eSCM(평가·인증)",
+      "SLM(서비스수준)",
+      "CMMI(품질인증)"
+    ]
+  },
+  "definition": "SLA 수준에 맞춰 IT 서비스 품질을 종합 관리하는 선진 IT 서비스 관리 기법",
+  "definition_long": "IT 서비스 제공에 있어 고객 요구사항에 맞게 SLA 기반의 \"고품질 서비스\"를 제공하는 관리 체계",
+  "background": "서비스 품질의 정량 관리, 표준 프로세스 기반의 안정적 운영, 고객 만족 확보",
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 품질<br>요구 증대</div><div class=\"d-circle\">운영 표준<br>부재</div><div class=\"d-circle\">고객 요구<br>다양화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">ITSM 도입</div><div class=\"d-box soft\">검토 모델 · 구성요소 (Ⅱ)</div><div class=\"d-box soft\">구축 요건 · 활용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">고품질 IT 서비스<small>고객 만족</small></div></div>",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">평가·인증<small>eSCM · ISO 20000</small></div><div class=\"d-box\">서비스수준<small>SOW · SLA</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">ITSM<small>고품질 IT 서비스 관리체계</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">품질인증<small>CMMI</small></div><div class=\"d-box\">Best Practice<small>ITIL</small></div></div></div>",
+  "diagram_gloss": "– ITIL, SOW, eSCM, CMMI 등 4가지 범위의 구축 모델 검토",
+  "features": [
+    {
+      "item": "정량 관리",
+      "desc": "SLA 지표 기반 서비스 품질의 정량적 측정·관리"
+    },
+    {
+      "item": "프로세스 표준화",
+      "desc": "ITIL 모범 사례 기반의 표준 운영 프로세스"
+    },
+    {
+      "item": "고객 지향",
+      "desc": "고객 요구사항 중심의 서비스 수준 상호 합의"
+    }
+  ],
+  "components": [
+    {
+      "role": "평가·인증",
+      "name": "eSCM, ISO 20000",
+      "detail": "서비스 제공업자의 서비스 능력 평가 및 인증"
+    },
+    {
+      "role": "품질인증",
+      "name": "CMMI",
+      "detail": "서비스 품질 및 품질 성숙도에 대한 인증"
+    },
+    {
+      "role": "서비스수준",
+      "name": "SOW, SLA·SLM",
+      "detail": "고객과 상호 협의하의 업무 정의·수준 관리"
+    },
+    {
+      "role": "Best Practice",
+      "name": "ITIL",
+      "detail": "IT 서비스 도입·운영의 모범 사례 제공"
+    }
+  ],
+  "components_gloss": "– \"평가·인증, 품질, 서비스수준, BP\" 4가지 범위의 검토 모델로 활용",
+  "comparisons": [
+    {
+      "vs": "MG-035",
+      "vs_name": "ITIL",
+      "axes": [
+        {
+          "axis": "성격",
+          "a": "서비스 관리 체계(What)",
+          "b": "모범 사례 라이브러리(How)"
+        },
+        {
+          "axis": "범위",
+          "a": "조직 전체 서비스 관리",
+          "b": "프로세스 절차·지침"
+        },
+        {
+          "axis": "관계",
+          "a": "ITIL을 구현 수단으로 채택",
+          "b": "ITSM 구축의 참조 모델"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "업무 효율성",
+      "desc": "표준 프로세스 적용으로 효율적 업무 수행"
+    },
+    {
+      "item": "생산성 향상",
+      "desc": "사용 편리성과 시스템 접근성 향상"
+    },
+    {
+      "item": "비용 절감",
+      "desc": "IT 인프라 관리 비용 절감"
+    }
+  ],
+  "conclusion": "ITSM은 ITIL 기반 프로세스 표준화와 SLA 관리를 통한 안정적 IT 서비스 운영의 기반",
+  "exam_points": [
+    "검토 모델 4종(ITIL·eSCM·CMMI·ISO 20000) 비교",
+    "성공적 구축 요건(관리·기술·서비스·비즈니스·품질 측면)",
+    "SLA/SLM 연계 운영"
+  ],
+  "related": [
+    "MG-004",
+    "MG-005",
+    "MG-035",
+    "MG-079"
+  ]
+}

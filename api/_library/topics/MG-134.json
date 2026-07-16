@@ -1,0 +1,30 @@
+{
+  "id": "MG-134",
+  "name": "오픈뱅킹(Open Banking)",
+  "aliases": [
+    "오픈뱅킹",
+    "Open Banking"
+  ],
+  "category": "SV>출제 예상 토픽> 오픈뱅킹",
+  "keywords": [
+    "오픈 API",
+    "테스트베드",
+    "PSD2",
+    "GDPR",
+    "마이데이터",
+    "핀테크",
+    "정보주체 자기 결정권 강화"
+  ],
+  "mnemonic": {
+    "word": "오테(오픈API, 테스트베드)",
+    "expansion": [
+      "오픈 API",
+      "테스트베드",
+      "PSD2",
+      "GDPR",
+      "마이데이터",
+      "핀테크"
+    ]
+  },
+  "definition": "구성주체의 데이터 공유를 통해 개인화 금융 서비스를 창출하는 체계"
+}

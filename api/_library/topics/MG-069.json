@@ -1,0 +1,15 @@
+{
+  "id": "MG-069",
+  "name": "PDCA(Plan Do Check Action)",
+  "aliases": [
+    "PDCA",
+    "Plan Do Check Action"
+  ],
+  "category": "MG> 프로세스 혁신 > PDCA",
+  "keywords": [],
+  "mnemonic": {
+    "word": "계실점조",
+    "expansion": []
+  },
+  "definition": "계획-실행-평가-개선의 사이클로 품질·생산을 관리하는 방법론"
+}

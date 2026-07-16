@@ -1,0 +1,25 @@
+{
+  "id": "MG-057",
+  "name": "EAMS(Enterprise Architecture Management system)",
+  "aliases": [
+    "EAMS",
+    "Enterprise Architecture Management system"
+  ],
+  "category": "경영전략 > EA/ITA > EAMS",
+  "keywords": [
+    "체계적 관리(프레임워크",
+    "참조모델",
+    "산출물",
+    "EA 메타모델)"
+  ],
+  "mnemonic": {
+    "word": "모아참(모델관리, 아키텍처 산출물 관리, 참조모델 정보)",
+    "expansion": [
+      "체계적 관리(프레임워크",
+      "참조모델",
+      "산출물",
+      "EA 메타모델)"
+    ]
+  },
+  "definition": "EA 산출물의 작성·관리·활용을 지원하는 포괄적 EA 관리 도구"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "MG-087",
+  "name": "ISO/IEC 38500",
+  "aliases": [
+    "ISO",
+    "IEC 38500"
+  ],
+  "category": "MG > IT Governance",
+  "keywords": [
+    "E(Evaluate)",
+    "D(Direct)",
+    "M(Monitoring)",
+    "책임",
+    "준거",
+    "전략",
+    "획득(구매)",
+    "성과",
+    "인간행동"
+  ],
+  "mnemonic": {
+    "word": "책준전구성인 -> 책을 준건 구성인이다.",
+    "expansion": [
+      "E(Evaluate)",
+      "D(Direct)",
+      "M(Monitoring)",
+      "책임",
+      "준거",
+      "전략"
+    ]
+  },
+  "definition": "조직 IT 활용을 평가·지휘·모니터링하는 IT 거버넌스 국제 표준"
+}

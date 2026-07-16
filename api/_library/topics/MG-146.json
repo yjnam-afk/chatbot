@@ -1,0 +1,29 @@
+{
+  "id": "MG-146",
+  "name": "성과경제(Outcome Economy)",
+  "aliases": [
+    "성과경제",
+    "Outcome Economy"
+  ],
+  "category": "MG",
+  "keywords": [
+    "보상모델(Reward Model)",
+    "강화학습(PPO)",
+    "인간 선호 정렬(Alignment)",
+    "직접 선호 최적화",
+    "보상모델 제거",
+    "학습 구조 단순화"
+  ],
+  "mnemonic": {
+    "word": "성보(성과/보상)",
+    "expansion": [
+      "보상모델(Reward Model)",
+      "강화학습(PPO)",
+      "인간 선호 정렬(Alignment)",
+      "직접 선호 최적화",
+      "보상모델 제거",
+      "학습 구조 단순화"
+    ]
+  },
+  "definition": "고객이 달성한 성과에 대해 가치를 제공·보상받는 결과 중심 경제 모델"
+}

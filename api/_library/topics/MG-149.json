@@ -1,0 +1,32 @@
+{
+  "id": "MG-149",
+  "name": "그로스(Growth Hacking)/라이프(Life Hacking)/시빅 해킹(Civic Hacking)",
+  "aliases": [
+    "그로스 /라이프 /시빅 해킹",
+    "Growth Hacking",
+    "Life Hacking",
+    "Civic Hacking",
+    "그로스",
+    "라이프",
+    "시빅 해킹"
+  ],
+  "category": "IT 경영전략 > 디지털 컨버전스> 그로스/라이프/시빅 해킹",
+  "keywords": [
+    "인지",
+    "측진",
+    "유지",
+    "추천",
+    "매출"
+  ],
+  "mnemonic": {
+    "word": "인측유추매",
+    "expansion": [
+      "인지",
+      "측진",
+      "유지",
+      "추천",
+      "매출"
+    ]
+  },
+  "definition": "성장·생활·시민 영역에서 해킹적 사고로 목표를 달성하는 혁신 기법"
+}

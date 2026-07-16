@@ -1,0 +1,24 @@
+{
+  "id": "MG-031",
+  "name": "CPND(Contents, Platform, Network, Device)",
+  "aliases": [
+    "CPND"
+  ],
+  "category": "경영전략 > 전략수립도구 > CPND",
+  "keywords": [
+    "Contents",
+    "Platform",
+    "Network",
+    "Device"
+  ],
+  "mnemonic": {
+    "word": "씨피엔디",
+    "expansion": [
+      "Contents",
+      "Platform",
+      "Network",
+      "Device"
+    ]
+  },
+  "definition": "콘텐츠·플랫폼·네트워크·디바이스로 구성되는 IT 생태환경 시스템"
+}

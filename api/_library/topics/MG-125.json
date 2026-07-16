@@ -1,0 +1,20 @@
+{
+  "id": "MG-125",
+  "name": "e-Marketplace",
+  "aliases": [],
+  "category": "MG > Commerce > e-Marketplace",
+  "keywords": [
+    "Escrow System",
+    "key Escrow",
+    "SW 임치제도"
+  ],
+  "mnemonic": {
+    "word": "판구중(판매자/구매자/중개자)",
+    "expansion": [
+      "Escrow System",
+      "key Escrow",
+      "SW 임치제도"
+    ]
+  },
+  "definition": "인터넷상에서 불특정 다수 공급자·수요자가 비즈니스를 수행하는 가상 장터"
+}

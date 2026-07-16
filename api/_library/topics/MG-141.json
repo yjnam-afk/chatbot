@@ -1,0 +1,31 @@
+{
+  "id": "MG-141",
+  "name": "제약(조건) 이론(ToC)",
+  "aliases": [
+    "제약 이론",
+    "조건",
+    "ToC"
+  ],
+  "category": "MG > 기타 > 제약(조건) 이론(ToC)",
+  "keywords": [
+    "전체최적화",
+    "제약사항",
+    "집중개선",
+    "DBR(Drum-Buffer-Rope)",
+    "ToC Thinking Process",
+    "Critical Chain",
+    "Throughput Accounting"
+  ],
+  "mnemonic": {
+    "word": "전제집",
+    "expansion": [
+      "전체최적화",
+      "제약사항",
+      "집중개선",
+      "DBR(Drum-Buffer-Rope)",
+      "ToC Thinking Process",
+      "Critical Chain"
+    ]
+  },
+  "definition": "전략 방해 제약사항을 발견·제거해 시스템 목적 달성을 지원하는 이론"
+}

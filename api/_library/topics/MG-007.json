@@ -1,0 +1,34 @@
+{
+  "id": "MG-007",
+  "name": "CRISP-DM (Cross Industry Standard Process For Data Mining)",
+  "aliases": [
+    "CRISP-DM",
+    "Cross Industry Standard Process For Data Mining"
+  ],
+  "category": "MG > Mining 총론 > CRISP-DM",
+  "keywords": [
+    "CRISP-DM은 비즈니스 이해와 고객 요구사항 분석에 집중(Biz. Understanding",
+    "Data Understanding",
+    "Data Preparation",
+    "Modeling",
+    "Evaluation",
+    "Deployment)",
+    "SEMMA 분석 방법론은 개발자 관점(Sample",
+    "Explore",
+    "Modify",
+    "Model",
+    "Assess)"
+  ],
+  "mnemonic": {
+    "word": "비디투엠이디",
+    "expansion": [
+      "CRISP-DM은 비즈니스 이해와 고객 요구사항 분석에 집중(Biz. Understanding",
+      "Data Understanding",
+      "Data Preparation",
+      "Modeling",
+      "Evaluation",
+      "Deployment)"
+    ]
+  },
+  "definition": "비즈니스 이해 중심의 6단계로 구성된 데이터 마이닝 표준 프로세스 방법론"
+}

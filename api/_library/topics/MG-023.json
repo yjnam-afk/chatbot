@@ -1,0 +1,29 @@
+{
+  "id": "MG-023",
+  "name": "7S(Strategy, Structure, Systems, Shared Values, Skills, Staff, Style) Model",
+  "aliases": [
+    "7S Model"
+  ],
+  "category": "경영전략 > 전략수립도구 > 7S Model",
+  "keywords": [
+    "Strategy",
+    "Structure",
+    "Systems",
+    "Shared Values",
+    "Skills",
+    "Staff",
+    "Style"
+  ],
+  "mnemonic": {
+    "word": "전구시 공역스인",
+    "expansion": [
+      "Strategy",
+      "Structure",
+      "Systems",
+      "Shared Values",
+      "Skills",
+      "Staff"
+    ]
+  },
+  "definition": "변화 대처를 위한 7개 요소의 조화·정렬을 진단하는 내부역량 분석 도구"
+}

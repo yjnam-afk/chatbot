@@ -1,0 +1,19 @@
+{
+  "id": "MG-071",
+  "name": "PRM (Partner Relationship Management)",
+  "aliases": [
+    "PRM",
+    "Partner Relationship Management"
+  ],
+  "category": "경영전략 > 기업간 관계 관리 > PRM",
+  "keywords": [
+    "Partner Lifecycle"
+  ],
+  "mnemonic": {
+    "word": "파요송평(파트너 등록, 요청, 송장, 평가)",
+    "expansion": [
+      "Partner Lifecycle"
+    ]
+  },
+  "definition": "파트너 공급·협력업체 관계 관리로 수익성과 협력을 강화하는 기법"
+}

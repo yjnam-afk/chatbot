@@ -1,0 +1,32 @@
+{
+  "id": "MG-003",
+  "name": "SoW (Statement of Work)",
+  "aliases": [
+    "SoW",
+    "Statement of Work"
+  ],
+  "category": "MG > ITSM > SLM > SLA > SoW",
+  "keywords": [
+    "SoW",
+    "SLA",
+    "SLM",
+    "제품",
+    "서비스",
+    "결과",
+    "Business case",
+    "RFP",
+    "BM"
+  ],
+  "mnemonic": {
+    "word": "프업책",
+    "expansion": [
+      "SoW",
+      "SLA",
+      "SLM",
+      "제품",
+      "서비스",
+      "결과"
+    ]
+  },
+  "definition": "SLA의 세부 범위·작업내용을 규정하는 작업명세서로 서비스 수준관리 문서"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "MG-064",
+  "name": "BPR(Business Process Reengineering)",
+  "aliases": [
+    "BPR",
+    "Business Process Reengineering"
+  ],
+  "category": "경영관리 > 통합/연계",
+  "keywords": [
+    "Zero-base",
+    "기술/사람/프로세스"
+  ],
+  "mnemonic": {
+    "word": "기사프",
+    "expansion": [
+      "Zero-base",
+      "기술/사람/프로세스"
+    ]
+  },
+  "definition": "비용·품질·서비스·속도의 비약적 향상을 위한 프로세스 근본적 재설계"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "MG-046",
+  "name": "EDA(Event Driven Architecture)",
+  "aliases": [
+    "EDA",
+    "Event Driven Architecture"
+  ],
+  "category": "IT 경영전략 > 실시간 기업 > EDA",
+  "keywords": [
+    "이벤트 감지 및 대응"
+  ],
+  "mnemonic": {
+    "word": "메프구관엔외(메타데이터, 프로세싱, 구축도구, 관리도구, 엔터프라이즈 통합, 외부자원)",
+    "expansion": [
+      "이벤트 감지 및 대응"
+    ]
+  },
+  "definition": "이벤트 감지·대응이 가능한 비동기적 IT 아키텍처 설계 사상"
+}

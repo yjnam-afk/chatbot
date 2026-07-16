@@ -1,0 +1,33 @@
+{
+  "id": "MG-123",
+  "name": "6 sigma",
+  "aliases": [],
+  "category": "경영 > 경영전략기법> 6Sigma",
+  "keywords": [
+    "DMAIC(Define",
+    "Measure",
+    "Analyze",
+    "Improve",
+    "Control)",
+    "CTQ(Critical to Quality) 고객관점",
+    "통계적 측정",
+    "전사 프로세스 혁신",
+    "고객중심",
+    "지속적 개선",
+    "MBB/BB/GB",
+    "DMAIC",
+    "DMADV"
+  ],
+  "mnemonic": {
+    "word": "드마익 드마디브",
+    "expansion": [
+      "DMAIC(Define",
+      "Measure",
+      "Analyze",
+      "Improve",
+      "Control)",
+      "CTQ(Critical to Quality) 고객관점"
+    ]
+  },
+  "definition": "고객 관점에서 문제를 정의하고 과학적·통계적으로 개선하는 품질혁신 기법"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "MG-026",
+  "name": "MECE(Mutually Exclusive Collectively Exhaustive)",
+  "aliases": [
+    "MECE",
+    "Mutually Exclusive Collectively Exhaustive"
+  ],
+  "category": "경영전략 > 전략수립도구 > MECE",
+  "keywords": [
+    "Mutually Exclusive: 요소들끼리 중복이 없는지 Collectively Exhaustive: 부분요소를 모두 합하면 전체가 되는지(누락이 없게)"
+  ],
+  "mnemonic": {
+    "word": "상중전누",
+    "expansion": [
+      "Mutually Exclusive: 요소들끼리 중복이 없는지 Collectively Exhaustive: 부분요소를 모두 합하면 전체가 되는지(누락이 없게)"
+    ]
+  },
+  "definition": "중복 없이 누락 없이 문제 전체를 파악해 분류하는 전략적 사고방식"
+}

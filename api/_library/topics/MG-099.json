@@ -1,0 +1,31 @@
+{
+  "id": "MG-099",
+  "name": "디지털 컨버전스(Digital Convergence)",
+  "aliases": [
+    "디지털 컨버전스",
+    "Digital Convergence"
+  ],
+  "category": "MG > 디지털 컨버전스 > 디지털 컨버전스",
+  "keywords": [
+    "- 구성요소 : 정책",
+    "고객",
+    "기업",
+    "기술 - 영역 : Device/Network/Business 컨버전스 - 융합요소 : IT",
+    "BT",
+    "NT (&CT",
+    "ET",
+    "ST)"
+  ],
+  "mnemonic": {
+    "word": "정고기기(정책, 고객, 기업, 기술)",
+    "expansion": [
+      "- 구성요소 : 정책",
+      "고객",
+      "기업",
+      "기술 - 영역 : Device/Network/Business 컨버전스 - 융합요소 : IT",
+      "BT",
+      "NT (&CT"
+    ]
+  },
+  "definition": "디지털 기술로 가전·자동차·서비스의 제품·비즈니스가 수렴하는 현상"
+}

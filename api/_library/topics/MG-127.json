@@ -1,0 +1,27 @@
+{
+  "id": "MG-127",
+  "name": "온라인광고비",
+  "aliases": [],
+  "category": "경영> Commerce>온라인광고비",
+  "keywords": [
+    "광고클릭횟수",
+    "광고단가 산정기법",
+    "부정클릭 반작용 방지 기술 적용으로 건전성 확보필요 유사비교 1) CPC(Click)      : Target 노출",
+    "Pull 방식 2) CPM(Millennium) : 무작위 노출",
+    "Push 방식 3) CPA (Action):   광고실적당 지급. 광고주 선호 4) CPA (Impression ) ;1 회 노출비로 산정",
+    "상품노출 당",
+    "70~150 만원 SEO ( Search Engine Optimization ) 검색엔진 최적화. 광고비 절감효과"
+  ],
+  "mnemonic": {
+    "word": "씨엠아이(CPC, CPM, CPA, CPI)",
+    "expansion": [
+      "광고클릭횟수",
+      "광고단가 산정기법",
+      "부정클릭 반작용 방지 기술 적용으로 건전성 확보필요 유사비교 1) CPC(Click)      : Target 노출",
+      "Pull 방식 2) CPM(Millennium) : 무작위 노출",
+      "Push 방식 3) CPA (Action):   광고실적당 지급. 광고주 선호 4) CPA (Impression ) ;1 회 노출비로 산정",
+      "상품노출 당"
+    ]
+  },
+  "definition": "이용자의 광고 클릭 횟수를 기준으로 매체에 광고비를 지불하는 방식"
+}

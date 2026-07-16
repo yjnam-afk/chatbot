@@ -1,0 +1,25 @@
+{
+  "id": "MG-014",
+  "name": "BCM (Business Continuity Management)",
+  "aliases": [
+    "BCM",
+    "Business Continuity Management"
+  ],
+  "category": "MG > BCP > BCM",
+  "keywords": [
+    "비즈니스 연속성 경영",
+    "BCP",
+    "DRS",
+    "ISO 22301"
+  ],
+  "mnemonic": {
+    "word": "비디아이(BCP, DRS, ISO22301)",
+    "expansion": [
+      "비즈니스 연속성 경영",
+      "BCP",
+      "DRS",
+      "ISO 22301"
+    ]
+  },
+  "definition": "위기 상황에도 핵심 업무를 지속하기 위한 전사적 정책·절차 관리 시스템"
+}

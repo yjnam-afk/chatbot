@@ -1,0 +1,24 @@
+{
+  "id": "MG-082",
+  "name": "MRO(Maintenance, Repair and Operation)",
+  "aliases": [
+    "MRO"
+  ],
+  "category": "경영전략 > 아웃소싱 표준/정책 > MRO",
+  "keywords": [
+    "Maintenance",
+    "Repair",
+    "Operation",
+    "e-Procurement"
+  ],
+  "mnemonic": {
+    "word": "멤알오",
+    "expansion": [
+      "Maintenance",
+      "Repair",
+      "Operation",
+      "e-Procurement"
+    ]
+  },
+  "definition": "원자재를 제외한 간접 생산활동 자재를 인터넷으로 구매·관리하는 시스템"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "MG-112",
+  "name": "서비스 플랫폼",
+  "aliases": [],
+  "category": "MG > 플랫폼(유형)> 서비스 플랫폼",
+  "keywords": [
+    "SaaS",
+    "SOA",
+    "Web3.0"
+  ],
+  "mnemonic": {
+    "word": "사소웹",
+    "expansion": [
+      "SaaS",
+      "SOA",
+      "Web3.0"
+    ]
+  },
+  "definition": "다른 서비스가 자사 기능을 쉽게 사용하도록 제공하는 인터넷 기반 환경"
+}

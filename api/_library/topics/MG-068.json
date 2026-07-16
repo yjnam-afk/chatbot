@@ -1,0 +1,22 @@
+{
+  "id": "MG-068",
+  "name": "Crowd Sourcing",
+  "aliases": [],
+  "category": "경영전략(MG) > 아웃소싱 표준/정책 > Crowd Sourcing",
+  "keywords": [
+    "협업",
+    "통합선택",
+    "의뢰자",
+    "대중선택"
+  ],
+  "mnemonic": {
+    "word": "협통의대",
+    "expansion": [
+      "협업",
+      "통합선택",
+      "의뢰자",
+      "대중선택"
+    ]
+  },
+  "definition": "생산·서비스 과정에 대중을 참여시켜 효율을 높이는 군중 활용 방식"
+}

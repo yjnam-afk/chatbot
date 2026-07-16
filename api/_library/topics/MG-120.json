@@ -1,0 +1,27 @@
+{
+  "id": "MG-120",
+  "name": "IT 생산성 패러독스(Productivity Paradox of IT)",
+  "aliases": [
+    "IT 생산성 패러독스",
+    "Productivity Paradox of IT"
+  ],
+  "category": "IT 경영전략 > 투자평가관리",
+  "keywords": [
+    "경영 투자 오류",
+    "잘못된 관리",
+    "측정오류",
+    "ROI",
+    "투자평가"
+  ],
+  "mnemonic": {
+    "word": "경관측",
+    "expansion": [
+      "경영 투자 오류",
+      "잘못된 관리",
+      "측정오류",
+      "ROI",
+      "투자평가"
+    ]
+  },
+  "definition": "IT 투자 증가에도 생산성이 비례 증가하지 않는 모순적 현상"
+}

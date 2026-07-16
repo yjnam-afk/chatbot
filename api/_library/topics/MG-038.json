@@ -1,0 +1,25 @@
+{
+  "id": "MG-038",
+  "name": "VRM(Vendor Relationship Management)",
+  "aliases": [
+    "VRM",
+    "Vendor Relationship Management"
+  ],
+  "category": "IT 경영전략 > 기간시스템 > VRM",
+  "keywords": [
+    "PDS",
+    "PDA",
+    "RFP",
+    "권한 관리와 역 메시징"
+  ],
+  "mnemonic": {
+    "word": "피피알권",
+    "expansion": [
+      "PDS",
+      "PDA",
+      "RFP",
+      "권한 관리와 역 메시징"
+    ]
+  },
+  "definition": "개인이 기업에 제공할 정보·선호도를 직접 관리하는 CRM 반대 경영기법"
+}

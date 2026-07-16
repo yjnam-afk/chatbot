@@ -1,0 +1,32 @@
+{
+  "id": "MG-074",
+  "name": "ILM(Information Lifecycle Management)",
+  "aliases": [
+    "ILM",
+    "Information Lifecycle Management"
+  ],
+  "category": "MG > ILM",
+  "keywords": [
+    "정책",
+    "데이터",
+    "스토리지",
+    "HSM",
+    "SRM",
+    "가상화 기술",
+    "데이터 보호 기술",
+    "저장장치 기술",
+    "아카이브 매니저"
+  ],
+  "mnemonic": {
+    "word": "가데저아(가상화, 데이터보호, 저장장치, 아키이브 메니저)",
+    "expansion": [
+      "정책",
+      "데이터",
+      "스토리지",
+      "HSM",
+      "SRM",
+      "가상화 기술"
+    ]
+  },
+  "definition": "정보의 생성에서 소멸까지 IT 인프라로 가치를 관리하는 데이터 관리 전략"
+}

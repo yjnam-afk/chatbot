@@ -1,0 +1,23 @@
+{
+  "id": "MG-094",
+  "name": "IFRS(International Financial Reporting Standards)",
+  "aliases": [
+    "IFRS",
+    "International Financial Reporting Standards"
+  ],
+  "category": "MG > IT-Compliance",
+  "keywords": [
+    "Consolidation & Report",
+    "Valuation & Conversion",
+    "Transaction"
+  ],
+  "mnemonic": {
+    "word": "컨발트",
+    "expansion": [
+      "Consolidation & Report",
+      "Valuation & Conversion",
+      "Transaction"
+    ]
+  },
+  "definition": "국제 통일 회계기준 제정을 위해 IASB가 제정한 국제재무보고기준"
+}

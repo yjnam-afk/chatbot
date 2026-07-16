@@ -1,0 +1,29 @@
+{
+  "id": "MG-140",
+  "name": "기술경영((Management Of Technology)",
+  "aliases": [
+    "기술경영",
+    "(Management Of Technology"
+  ],
+  "category": "MG > 기타 > 기술경영(MOT)",
+  "keywords": [
+    "기술획득",
+    "기술관리",
+    "기술활용",
+    "기술 혁신",
+    "지속가능 경영",
+    "기술 경영 프로세스"
+  ],
+  "mnemonic": {
+    "word": "연개사시",
+    "expansion": [
+      "기술획득",
+      "기술관리",
+      "기술활용",
+      "기술 혁신",
+      "지속가능 경영",
+      "기술 경영 프로세스"
+    ]
+  },
+  "definition": "기술을 전략적으로 활용해 사업 기회·혁신 제품을 창출하는 융합 경영"
+}

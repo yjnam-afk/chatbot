@@ -1,0 +1,27 @@
+{
+  "id": "MG-034",
+  "name": "AHP(Analytic Hierarchy Process)",
+  "aliases": [
+    "AHP",
+    "Analytic Hierarchy Process"
+  ],
+  "category": "MG",
+  "keywords": [
+    "쌍대비교(이원비교)",
+    "행렬",
+    "CI",
+    "RI",
+    "CR"
+  ],
+  "mnemonic": {
+    "word": "개쌍부일최",
+    "expansion": [
+      "쌍대비교(이원비교)",
+      "행렬",
+      "CI",
+      "RI",
+      "CR"
+    ]
+  },
+  "definition": "요소를 계층화하고 쌍대비교로 정량적 결과를 도출하는 다기준 의사결정 기법"
+}

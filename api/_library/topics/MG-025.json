@@ -1,0 +1,24 @@
+{
+  "id": "MG-025",
+  "name": "4C(Customer, Circumstance, Competition, Company)",
+  "aliases": [
+    "4C"
+  ],
+  "category": "경영전략 > 전략수립도구 > 4C",
+  "keywords": [
+    "Customer",
+    "Circumstance",
+    "Competition",
+    "Company"
+  ],
+  "mnemonic": {
+    "word": "고환경기",
+    "expansion": [
+      "Customer",
+      "Circumstance",
+      "Competition",
+      "Company"
+    ]
+  },
+  "definition": "고객·환경·경쟁·자사 4개 관점에서 차별화 포인트를 분석하는 마케팅 기법"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "MG-124",
+  "name": "Commerce",
+  "aliases": [],
+  "category": "MG > 마케팅 > Commerce",
+  "keywords": [
+    "E-Commerce",
+    "U-Commerce",
+    "M-Commerce",
+    "T-Commerce",
+    "C-Commerce",
+    "OTT"
+  ],
+  "mnemonic": {
+    "word": "이유엠티씨",
+    "expansion": [
+      "E-Commerce",
+      "U-Commerce",
+      "M-Commerce",
+      "T-Commerce",
+      "C-Commerce",
+      "OTT"
+    ]
+  },
+  "definition": "다양한 기술과 매체를 통해 상품을 판매하는 상거래 형태의 통칭"
+}

@@ -1,0 +1,124 @@
+{
+  "id": "MG-016",
+  "name": "DRS(Disaster Recovery System)",
+  "aliases": [
+    "DRS",
+    "Disaster Recovery System",
+    "재해복구시스템",
+    "재해복구센터",
+    "BCP-DRS",
+    "디알에스"
+  ],
+  "category": "IT경영전략 > BCP > DRS",
+  "keywords": [
+    "Mirror",
+    "Hot",
+    "Warm",
+    "Cold site",
+    "RSO",
+    "RTO",
+    "RPO",
+    "RCO",
+    "BCO"
+  ],
+  "mnemonic": {
+    "word": "상공외독",
+    "expansion": [
+      "상호계약 · 공동이용 · 외부위탁 · 독자구축(운영 형태)",
+      "Mirror · Hot · Warm · Cold(복구센터 유형)"
+    ]
+  },
+  "definition": "비상사태에 대비해 정보시스템 복구계획을 통해 업무연속성을 유지하는 체계",
+  "definition_long": "재해·재난 발생 시 핵심 업무의 연속성 확보를 위해 데이터·시스템을 복제·복구하는 \"재해복구 체계\"",
+  "background": "자연재해·사이버 공격 등 비상사태 증가, 서비스 중단의 비즈니스 손실 직결",
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">자연재해<br>화재</div><div class=\"d-circle\">사이버<br>공격</div><div class=\"d-circle\">시스템<br>장애</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">DRS 구축</div><div class=\"d-box soft\">복구센터 유형 (Ⅱ)</div><div class=\"d-box soft\">복구 목표 지표 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">업무 연속성<small>RTO · RPO 보장</small></div></div>",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">메인센터<small>운영 시스템</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">실시간 복제<small>DWDM · 네트워크 이중화</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">DR센터<small>Mirror · Hot</small></div><div class=\"d-box soft\">백업센터<small>Warm · Cold</small></div></div></div>",
+  "diagram_gloss": "– 메인센터-DR센터 이중화와 실시간 데이터 복제로 업무연속성 확보",
+  "features": [
+    {
+      "item": "RTO",
+      "desc": "서비스 복구까지 허용되는 목표 시간"
+    },
+    {
+      "item": "RPO",
+      "desc": "데이터 손실을 허용하는 목표 복구 시점"
+    },
+    {
+      "item": "RSO/RCO/BCO",
+      "desc": "복구 범위·통신망·업무 연속성 목표"
+    }
+  ],
+  "components": [
+    {
+      "role": "Mirror Site",
+      "name": "실시간 이중화",
+      "detail": "동시 운영, RTO 즉시 — 비용 최고"
+    },
+    {
+      "role": "Hot Site",
+      "name": "대기 복구센터",
+      "detail": "수 시간 내 복구, 실시간 데이터 복제"
+    },
+    {
+      "role": "Warm Site",
+      "name": "부분 설비 보유",
+      "detail": "수일 내 복구, 주요 설비만 사전 확보"
+    },
+    {
+      "role": "Cold Site",
+      "name": "공간만 확보",
+      "detail": "수주 내 복구, 최소 비용의 기본 설비"
+    }
+  ],
+  "components_gloss": "– Mirror→Cold 순으로 복구 속도와 구축 비용이 반비례",
+  "comparisons": [
+    {
+      "vs": "MG-014",
+      "vs_name": "BCM",
+      "axes": [
+        {
+          "axis": "성격",
+          "a": "복구 시스템(기술 체계)",
+          "b": "연속성 경영(관리 체계)"
+        },
+        {
+          "axis": "범위",
+          "a": "정보시스템·데이터 복구",
+          "b": "전사 업무·조직·프로세스"
+        },
+        {
+          "axis": "산출물",
+          "a": "DR센터·복제 인프라",
+          "b": "BCP 정책·절차·훈련"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "연속성 보장",
+      "desc": "재해 시에도 핵심 서비스 무중단 제공"
+    },
+    {
+      "item": "규제 대응",
+      "desc": "금융·공공 BCP 의무화 규제 충족"
+    },
+    {
+      "item": "신뢰도 제고",
+      "desc": "가용성 보장으로 고객·이해관계자 신뢰 확보"
+    }
+  ],
+  "conclusion": "DRS는 BIA 기반 RTO/RPO 목표 설정과 정기 모의훈련(DRP)이 실효성의 관건",
+  "exam_points": [
+    "복구센터 유형(Mirror/Hot/Warm/Cold) 비교",
+    "복구 목표 지표(RTO/RPO/RSO/RCO/BCO)",
+    "BCP-BCM-BIA-DRP 체계 연계"
+  ],
+  "related": [
+    "MG-014",
+    "MG-017",
+    "MG-018",
+    "MG-019",
+    "MG-020"
+  ]
+}

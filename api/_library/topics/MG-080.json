@@ -1,0 +1,14 @@
+{
+  "id": "MG-080",
+  "name": "ITSM (ISO/IEC 20000)",
+  "aliases": [
+    "ISO/IEC 20000"
+  ],
+  "category": "경영전략 > 아웃소싱/표준/정책 > ITSM (ISO/IEC 20000)",
+  "keywords": [],
+  "mnemonic": {
+    "word": "",
+    "expansion": []
+  },
+  "definition": "IT 서비스 관리 체계 구축에 필요한 요건을 정의한 국제 표준"
+}

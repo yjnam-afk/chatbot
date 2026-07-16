@@ -1,0 +1,31 @@
+{
+  "id": "MG-142",
+  "name": "이슈탐색(Horizon Scanning)",
+  "aliases": [
+    "이슈탐색",
+    "Horizon Scanning"
+  ],
+  "category": "MG > 기타 > 이슈탐색(Horizon Scanning)",
+  "keywords": [
+    "Data",
+    "Analysis",
+    "Force",
+    "국가 정책",
+    "국가 전략",
+    "교차영향분석",
+    "추세외삽법",
+    "시나리오"
+  ],
+  "mnemonic": {
+    "word": "데분포",
+    "expansion": [
+      "Data",
+      "Analysis",
+      "Force",
+      "국가 정책",
+      "국가 전략",
+      "교차영향분석"
+    ]
+  },
+  "definition": "다양한 영역 데이터로 중장기 위험·기회를 발굴하는 미래 전략 수립 기법"
+}

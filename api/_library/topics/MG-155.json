@@ -1,0 +1,29 @@
+{
+  "id": "MG-155",
+  "name": "(크로스보더 플랫폼이 주도하는) 플랫폼 경제",
+  "aliases": [
+    "플랫폼 경제",
+    "크로스보더 플랫폼이 주도하는"
+  ],
+  "category": "MG > 플랫폼(유형) > 플랫폼 경제",
+  "keywords": [
+    "매치메이커(match maker)",
+    "네트워크 효과(network effect)",
+    "Cross subsidy)",
+    "다면플랫폼",
+    "다 중플랫폼",
+    "플랫폼의 플랫폼"
+  ],
+  "mnemonic": {
+    "word": "면중플",
+    "expansion": [
+      "매치메이커(match maker)",
+      "네트워크 효과(network effect)",
+      "Cross subsidy)",
+      "다면플랫폼",
+      "다 중플랫폼",
+      "플랫폼의 플랫폼"
+    ]
+  },
+  "definition": "이용자 그룹이 플랫폼 환경에서 거래·상호작용으로 활동하는 경제"
+}

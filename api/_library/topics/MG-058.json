@@ -1,0 +1,19 @@
+{
+  "id": "MG-058",
+  "name": "RM(Reference Model)",
+  "aliases": [
+    "RM",
+    "Reference Model"
+  ],
+  "category": "경영전략(MG) > EA/ITA> RM(참조모델)",
+  "keywords": [
+    "PRM"
+  ],
+  "mnemonic": {
+    "word": "성업서데기",
+    "expansion": [
+      "PRM"
+    ]
+  },
+  "definition": "아키텍처 구성요소를 식별·표준화한 EA 수립 시 참조하는 추상 모델"
+}

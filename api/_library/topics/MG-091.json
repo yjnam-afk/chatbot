@@ -1,0 +1,22 @@
+{
+  "id": "MG-091",
+  "name": "Crowd Funding",
+  "aliases": [],
+  "category": "MG> IPO/ICO > Crowd Funding",
+  "keywords": [
+    "지분투자",
+    "대출",
+    "후원",
+    "기부"
+  ],
+  "mnemonic": {
+    "word": "지대후기",
+    "expansion": [
+      "지분투자",
+      "대출",
+      "후원",
+      "기부"
+    ]
+  },
+  "definition": "인터넷 플랫폼을 통해 다수 개인으로부터 소액 자금을 모으는 자금조달 행위"
+}

@@ -1,0 +1,31 @@
+{
+  "id": "MG-151",
+  "name": "디지털 카르텔(Digital Cartel)",
+  "aliases": [
+    "디지털 카르텔",
+    "Digital Cartel"
+  ],
+  "category": "IT경영 > 기타> 디지털카르텔",
+  "keywords": [
+    "모니터링",
+    "병행",
+    "신호",
+    "자가학습",
+    "Messenger",
+    "Hub and Spoke",
+    "Predictable Agent",
+    "Autonomous Machine"
+  ],
+  "mnemonic": {
+    "word": "모병신자",
+    "expansion": [
+      "모니터링",
+      "병행",
+      "신호",
+      "자가학습",
+      "Messenger",
+      "Hub and Spoke"
+    ]
+  },
+  "definition": "알고리즘 기반 정보교환·가격조정으로 이뤄지는 디지털 담합 행위"
+}

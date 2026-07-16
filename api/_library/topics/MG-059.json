@@ -1,0 +1,31 @@
+{
+  "id": "MG-059",
+  "name": "IRM(Information Resource Management) 정보자원관리",
+  "aliases": [
+    "IRM 정보자원관리",
+    "Information Resource Management"
+  ],
+  "category": "MG > EA/ITA > IRM",
+  "keywords": [
+    "정보자원관리",
+    "Information Resource Management 연계",
+    "체계적",
+    "효율적",
+    "투명",
+    "계획",
+    "구축",
+    "운영 및 평가"
+  ],
+  "mnemonic": {
+    "word": "시기정(시스템, 기술, 정보)",
+    "expansion": [
+      "정보자원관리",
+      "Information Resource Management 연계",
+      "체계적",
+      "효율적",
+      "투명",
+      "계획"
+    ]
+  },
+  "definition": "조직의 정보시스템 관련 자원을 통합 관리하는 정보 자원 관리 기법"
+}

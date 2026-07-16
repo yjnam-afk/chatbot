@@ -1,0 +1,23 @@
+{
+  "id": "MG-085",
+  "name": "Val IT(Value IT)",
+  "aliases": [
+    "Val IT",
+    "Value IT"
+  ],
+  "category": "MG > IT Governance",
+  "keywords": [
+    "가치 거버넌스",
+    "포트폴리오 관리",
+    "투자관리"
+  ],
+  "mnemonic": {
+    "word": "가거포투",
+    "expansion": [
+      "가치 거버넌스",
+      "포트폴리오 관리",
+      "투자관리"
+    ]
+  },
+  "definition": "IT 투자에서 비즈니스 가치를 창출하는 포괄적·실용적 IT 거버넌스 프레임워크"
+}

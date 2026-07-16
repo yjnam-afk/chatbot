@@ -1,0 +1,24 @@
+{
+  "id": "MG-143",
+  "name": "4P(Product, Price, Place, Promotion)",
+  "aliases": [
+    "4P"
+  ],
+  "category": "MG > 기타 > 4P",
+  "keywords": [
+    "Product",
+    "Price",
+    "Place",
+    "Promotion"
+  ],
+  "mnemonic": {
+    "word": "제가유촉",
+    "expansion": [
+      "Product",
+      "Price",
+      "Place",
+      "Promotion"
+    ]
+  },
+  "definition": "제품·가격·유통·촉진의 4요소로 구성된 마케팅 믹스 전략"
+}

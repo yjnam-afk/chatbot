@@ -1,0 +1,35 @@
+{
+  "id": "MG-129",
+  "name": "O2O(Online to Offline)",
+  "aliases": [
+    "O2O",
+    "Online to Offline"
+  ],
+  "category": "IT 경영전략 > Commerce > O2O",
+  "keywords": [
+    "쇼핑유형: 쇼루밍",
+    "역소루밍",
+    "옴니쇼핑",
+    "모바일쇼핑 UBER /카카오 택시",
+    "비콘(Beacon)",
+    "지오펜싱(Geo-fencing)",
+    "BLE",
+    "NFC",
+    "간편결제",
+    "LBS",
+    "GPS",
+    "이동통신기"
+  ],
+  "mnemonic": {
+    "word": "비지와블(비콘, 지오펜싱, 와이파이, 블루투스)",
+    "expansion": [
+      "쇼핑유형: 쇼루밍",
+      "역소루밍",
+      "옴니쇼핑",
+      "모바일쇼핑 UBER /카카오 택시",
+      "비콘(Beacon)",
+      "지오펜싱(Geo-fencing)"
+    ]
+  },
+  "definition": "온라인·오프라인을 연결해 상호 진출·활용을 지원하는 상거래 형태"
+}

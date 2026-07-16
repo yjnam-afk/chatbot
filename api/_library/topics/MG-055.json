@@ -1,0 +1,27 @@
+{
+  "id": "MG-055",
+  "name": "Indide-out_Outside-in 전략",
+  "aliases": [],
+  "category": "경영전략(MG) > 아웃소싱 표준/정책 > Indide-out_Outside-in 전략",
+  "keywords": [
+    "Licensing-Out",
+    "Spin-Out",
+    "Spin-Off",
+    "프로젝트 공개",
+    "Licensing-In",
+    "지적재산권 공유 Joint Venture Intent",
+    "M&A"
+  ],
+  "mnemonic": {
+    "word": "리스프지조마",
+    "expansion": [
+      "Licensing-Out",
+      "Spin-Out",
+      "Spin-Off",
+      "프로젝트 공개",
+      "Licensing-In",
+      "지적재산권 공유 Joint Venture Intent"
+    ]
+  },
+  "definition": "기술 외부 판매(In)와 외부기술 도입(Out)을 활용하는 개방형 혁신 전략"
+}

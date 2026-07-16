@@ -1,0 +1,126 @@
+{
+  "id": "MG-004",
+  "name": "SLA",
+  "aliases": [
+    "Service Level Agreement",
+    "서비스 수준 협약",
+    "서비스수준계약",
+    "에스엘에이"
+  ],
+  "category": "MG > ITSM > SLA",
+  "keywords": [
+    "기본계약서",
+    "서비스 카탈로그",
+    "SoW (Statement of Works)",
+    "SLM (Service Level Metric)",
+    "SLO (Service Level Objectives)",
+    "SLM",
+    "SLR",
+    "보상체계",
+    "평가지표",
+    "관리지표",
+    "SOW",
+    "SLM"
+  ],
+  "mnemonic": {
+    "word": "기소카 메오메보",
+    "expansion": [
+      "기본계약서",
+      "SoW(작업명세)",
+      "서비스 카탈로그",
+      "Metric(관리지표)",
+      "Objectives(목표수준)",
+      "보상체계"
+    ]
+  },
+  "definition": "IT서비스 제공자와 사용자 간 서비스 수준을 정량적으로 합의한 계약서",
+  "definition_long": "IT 서비스 제공자와 사용자 간 제공할 서비스의 수준을 정량적 지표로 상호 합의한 \"서비스 수준 계약서\"",
+  "background": "아웃소싱 확대에 따른 서비스 품질 분쟁 예방, 객관적 평가·보상 기준 필요",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">기본계약서<small>계약 조건</small></div><div class=\"d-box\">서비스 카탈로그<small>서비스 정의</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">SLA<small>서비스 수준 합의</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">SLO · Metric<small>목표 · 지표</small></div><div class=\"d-box soft\">보상체계<small>패널티 · 인센티브</small></div></div></div>",
+  "diagram_gloss": "– 기본계약·카탈로그 기반으로 목표수준(SLO)과 지표·보상체계를 합의",
+  "features": [
+    {
+      "item": "정량화",
+      "desc": "가용성·응답시간 등 측정 가능한 지표로 수준 정의"
+    },
+    {
+      "item": "상호 합의",
+      "desc": "제공자·사용자 쌍방 서명의 계약 문서"
+    },
+    {
+      "item": "평가·보상",
+      "desc": "달성도 평가와 연계된 패널티·인센티브"
+    }
+  ],
+  "components": [
+    {
+      "role": "계약",
+      "name": "기본계약서",
+      "detail": "서비스 제공의 법적 조건·범위 정의"
+    },
+    {
+      "role": "정의",
+      "name": "서비스 카탈로그, SoW",
+      "detail": "제공 서비스 목록과 세부 작업명세"
+    },
+    {
+      "role": "지표",
+      "name": "SLO, SLM(Metric), SLR",
+      "detail": "목표수준·관리지표·요구수준의 정량 정의"
+    },
+    {
+      "role": "보상",
+      "name": "보상체계",
+      "detail": "달성도 평가 결과에 따른 패널티·인센티브"
+    }
+  ],
+  "components_gloss": "– \"기소카 메오메보\" — 계약·정의·지표·보상의 4계층 구성",
+  "comparisons": [
+    {
+      "vs": "MG-005",
+      "vs_name": "SLM",
+      "axes": [
+        {
+          "axis": "목적",
+          "a": "서비스 수준의 합의",
+          "b": "서비스 수준의 지속 관리"
+        },
+        {
+          "axis": "산출물",
+          "a": "계약서(문서)",
+          "b": "측정·평가·개선 프로세스"
+        },
+        {
+          "axis": "시점",
+          "a": "계약 체결 시점",
+          "b": "계약 이후 운영 전 기간"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "분쟁 예방",
+      "desc": "객관적 지표 기반으로 품질 분쟁 사전 차단"
+    },
+    {
+      "item": "품질 향상",
+      "desc": "평가·보상 연계로 제공자의 개선 유인 확보"
+    },
+    {
+      "item": "비용 최적화",
+      "desc": "요구 수준별 차등 요금으로 비용 합리화"
+    }
+  ],
+  "conclusion": "SLA는 SLM 프로세스와 연계 운영될 때 실효성 확보 — 지표는 측정·검증 가능하게 설계",
+  "exam_points": [
+    "SLA 구성요소(기소카 메오메보)와 작성 절차",
+    "SLM과의 관계·비교",
+    "평가지표(가용성·응답시간·적기처리율) 설계"
+  ],
+  "related": [
+    "MG-001",
+    "MG-003",
+    "MG-005"
+  ]
+}

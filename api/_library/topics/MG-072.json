@@ -1,0 +1,29 @@
+{
+  "id": "MG-072",
+  "name": "PLM (Product Lifecycle Management)",
+  "aliases": [
+    "PLM",
+    "Product Lifecycle Management"
+  ],
+  "category": "IT경영전략 > 생명주기관리",
+  "keywords": [
+    "CAD/CAM",
+    "BOM(Bill   of   Material)",
+    "Engineering    Application",
+    "Product    Information Management",
+    "Operation Management",
+    "Maintenance Management"
+  ],
+  "mnemonic": {
+    "word": "비프가(BOM, 프로젝트관리, 가상생산)",
+    "expansion": [
+      "CAD/CAM",
+      "BOM(Bill   of   Material)",
+      "Engineering    Application",
+      "Product    Information Management",
+      "Operation Management",
+      "Maintenance Management"
+    ]
+  },
+  "definition": "제품 기획부터 폐기까지 전체 생명주기를 통합 관리하는 체계"
+}

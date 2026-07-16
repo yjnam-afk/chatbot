@@ -1,0 +1,26 @@
+{
+  "id": "MG-138",
+  "name": "SMART(Specific, Measurable, Achievable, Relevant, Time-bound)",
+  "aliases": [
+    "SMART"
+  ],
+  "category": "MG > 기타 > SMART",
+  "keywords": [
+    "Specific(구체적인)",
+    "Measurable(측정가능한)",
+    "Achievable(실현가능한)",
+    "Result-Oriented(결과지향적인)",
+    "Time-bound(완료시간이 있는)"
+  ],
+  "mnemonic": {
+    "word": "SMART",
+    "expansion": [
+      "Specific(구체적인)",
+      "Measurable(측정가능한)",
+      "Achievable(실현가능한)",
+      "Result-Oriented(결과지향적인)",
+      "Time-bound(완료시간이 있는)"
+    ]
+  },
+  "definition": "구체적·측정·달성·관련·기한의 5가지 목표 설정 원칙"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "MG-015",
+  "name": "ISO 22301",
+  "aliases": [],
+  "category": "MG > BCM > ISO22301",
+  "keywords": [
+    "BCM 표준",
+    "PDCA 사이클 적용"
+  ],
+  "mnemonic": {
+    "word": "피디씨에이",
+    "expansion": [
+      "BCM 표준",
+      "PDCA 사이클 적용"
+    ]
+  },
+  "definition": "BCP 수립·운영·검토·개선 요구사항을 규정한 비즈니스 연속성 국제표준"
+}

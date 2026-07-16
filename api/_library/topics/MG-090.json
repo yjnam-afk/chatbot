@@ -1,0 +1,21 @@
+{
+  "id": "MG-090",
+  "name": "암호화폐 거래소(Cryptocurrency exchange)",
+  "aliases": [
+    "암호화폐 거래소",
+    "Cryptocurrency exchange"
+  ],
+  "category": "MG > IPO/ICO > 암호화폐 거래소",
+  "keywords": [
+    "매수",
+    "출금"
+  ],
+  "mnemonic": {
+    "word": "매출",
+    "expansion": [
+      "매수",
+      "출금"
+    ]
+  },
+  "definition": "사용자가 암호화폐를 거래·교환할 수 있도록 매개하는 디지털화폐 거래소"
+}

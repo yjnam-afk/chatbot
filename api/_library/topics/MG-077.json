@@ -1,0 +1,26 @@
+{
+  "id": "MG-077",
+  "name": "RFI(Request for Information), RFP(Request For Proposal), Proposal",
+  "aliases": [
+    "RFI , RFP , Proposal",
+    "Request for Information",
+    "Request For Proposal"
+  ],
+  "category": "PM > 발주 프로세스 > RFI, RFP, Proposal",
+  "keywords": [
+    "RFI",
+    "RFP",
+    "Proposal",
+    "공공 소프트웨어 사업 제안 요청서 작성 가이드라인"
+  ],
+  "mnemonic": {
+    "word": "개일요정요(개요, 일정, 요구내역, 정의, 요구사항)",
+    "expansion": [
+      "RFI",
+      "RFP",
+      "Proposal",
+      "공공 소프트웨어 사업 제안 요청서 작성 가이드라인"
+    ]
+  },
+  "definition": "발주자가 요구사항을 정리해 제안자가 제안서를 작성하도록 제시하는 문서"
+}

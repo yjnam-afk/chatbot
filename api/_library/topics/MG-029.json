@@ -1,0 +1,21 @@
+{
+  "id": "MG-029",
+  "name": "BABOK(Business Analysis Body of Knowledge)",
+  "aliases": [
+    "BABOK",
+    "Business Analysis Body of Knowledge"
+  ],
+  "category": "IT경영> 전략계획 > BABOK",
+  "keywords": [
+    "BABOK 6대 지식영역 (v3.0기준) -Business Analysis",
+    "Planning & Monitoring (업무분석 계획과 모니터링) -Elicitation and Collaboration (수집과 협업) -Requirements Life Cycle Management (요구사항 생명주기 관리) -Strategy Analysis (전략분석) -Requirements Analysis & Design Definition (요구사항 분석과 설계 정의) -Solution Evaluation (솔루션 평가)"
+  ],
+  "mnemonic": {
+    "word": "계수요전분평",
+    "expansion": [
+      "BABOK 6대 지식영역 (v3.0기준) -Business Analysis",
+      "Planning & Monitoring (업무분석 계획과 모니터링) -Elicitation and Collaboration (수집과 협업) -Requirements Life Cycle Management (요구사항 생명주기 관리) -Strategy Analysis (전략분석) -Requirements Analysis & Design Definition (요구사항 분석과 설계 정의) -Solution Evaluation (솔루션 평가)"
+    ]
+  },
+  "definition": "이해관계자에게 가치를 제공하기 위한 비즈니스 분석 국제 표준 지식체계"
+}

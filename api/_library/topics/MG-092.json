@@ -1,0 +1,23 @@
+{
+  "id": "MG-092",
+  "name": "IPO(Initial Public Offering)",
+  "aliases": [
+    "IPO",
+    "Initial Public Offering"
+  ],
+  "category": "경영전략 > IPO/ICO > IPO",
+  "keywords": [
+    "사전절차",
+    "예비심사",
+    "공모 및 상장"
+  ],
+  "mnemonic": {
+    "word": "신재추변",
+    "expansion": [
+      "사전절차",
+      "예비심사",
+      "공모 및 상장"
+    ]
+  },
+  "definition": "비상장기업이 처음 외부투자자에게 주식을 공개·매도하는 기업공개 절차"
+}

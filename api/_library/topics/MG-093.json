@@ -1,0 +1,31 @@
+{
+  "id": "MG-093",
+  "name": "IT-Compliance",
+  "aliases": [],
+  "category": "MG > IT-Compliance",
+  "keywords": [
+    "Sarbanes-Oxley",
+    "Basel-II",
+    "E-Discovery",
+    "정보통신망법",
+    "전자서명법",
+    "의료법",
+    "개인정보보호",
+    "정보관리",
+    "정보보안",
+    "COBIT",
+    "패널티"
+  ],
+  "mnemonic": {
+    "word": "외내투경(외부규정, 내부실태, 투명성 학보, 경쟁력 강화)",
+    "expansion": [
+      "Sarbanes-Oxley",
+      "Basel-II",
+      "E-Discovery",
+      "정보통신망법",
+      "전자서명법",
+      "의료법"
+    ]
+  },
+  "definition": "각종 규제·법안을 IT 관점에서 만족시키기 위한 기업 컴플라이언스 활동"
+}

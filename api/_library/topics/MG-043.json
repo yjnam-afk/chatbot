@@ -1,0 +1,27 @@
+{
+  "id": "MG-043",
+  "name": "HOLAP(Hybrid OnLine Analytical Processing)",
+  "aliases": [
+    "HOLAP",
+    "Hybrid OnLine Analytical Processing"
+  ],
+  "category": "IT 경영전략 > 의사판단시스템 > HOLAP",
+  "keywords": [
+    "ROLAP",
+    "MOLAP",
+    "다차원 데이터",
+    "저장 및 처리 프로세싱",
+    "데이터 큐브"
+  ],
+  "mnemonic": {
+    "word": "알디(RDB, Dimension)",
+    "expansion": [
+      "ROLAP",
+      "MOLAP",
+      "다차원 데이터",
+      "저장 및 처리 프로세싱",
+      "데이터 큐브"
+    ]
+  },
+  "definition": "ROLAP과 MOLAP을 결합해 RDB와 다차원 접근을 동시에 제공하는 OLAP"
+}

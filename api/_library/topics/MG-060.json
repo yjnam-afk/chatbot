@@ -1,0 +1,30 @@
+{
+  "id": "MG-060",
+  "name": "SEM(Strategic Enterprise Management)",
+  "aliases": [
+    "SEM",
+    "Strategic Enterprise Management"
+  ],
+  "category": "IT경영전략 > SEM > SEM",
+  "keywords": [
+    "가치중심",
+    "전사적 전략경영",
+    "VBM",
+    "ABM",
+    "BSC",
+    "KPI",
+    "ESG 경영"
+  ],
+  "mnemonic": {
+    "word": "브아비(VBM, ABM, BSC)",
+    "expansion": [
+      "가치중심",
+      "전사적 전략경영",
+      "VBM",
+      "ABM",
+      "BSC",
+      "KPI"
+    ]
+  },
+  "definition": "전사 정보를 통합 분석해 가치중심 전략경영을 지원하는 응용 시스템"
+}

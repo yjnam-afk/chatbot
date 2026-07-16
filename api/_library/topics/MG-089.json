@@ -1,0 +1,31 @@
+{
+  "id": "MG-089",
+  "name": "ICO(Initial Coin Offering)",
+  "aliases": [
+    "ICO",
+    "Initial Coin Offering"
+  ],
+  "category": "MG > IPO/ICO > ICO",
+  "keywords": [
+    "디지털 토큰",
+    "암호화폐",
+    "pre-sale",
+    "pre-allocation",
+    "White Paper",
+    "pre-minded",
+    "fraud",
+    "한국블록체인협회 자율규제안"
+  ],
+  "mnemonic": {
+    "word": "프알미(Pre-sale, Allocation, minded)",
+    "expansion": [
+      "디지털 토큰",
+      "암호화폐",
+      "pre-sale",
+      "pre-allocation",
+      "White Paper",
+      "pre-minded"
+    ]
+  },
+  "definition": "블록체인 기반 디지털 토큰 판매로 자금을 조달하는 암호화폐 자금조달 방식"
+}

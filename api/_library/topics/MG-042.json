@@ -1,0 +1,29 @@
+{
+  "id": "MG-042",
+  "name": "OLAP(Online Analytical Processing)",
+  "aliases": [
+    "OLAP",
+    "Online Analytical Processing"
+  ],
+  "category": "IT 경영전략 > 의사판단시스템 > OLAP",
+  "keywords": [
+    "다차원정보",
+    "ROLAP",
+    "MOLAP",
+    "DOLAP",
+    "HOLAP",
+    "Web OLAP"
+  ],
+  "mnemonic": {
+    "word": "알모호(ROLAP, MOLAP, HOLAP)",
+    "expansion": [
+      "다차원정보",
+      "ROLAP",
+      "MOLAP",
+      "DOLAP",
+      "HOLAP",
+      "Web OLAP"
+    ]
+  },
+  "definition": "다차원 정보에 직접 접근해 대화식으로 분석·의사결정에 활용하는 도구"
+}

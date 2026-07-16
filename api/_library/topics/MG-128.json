@@ -1,0 +1,22 @@
+{
+  "id": "MG-128",
+  "name": "Programmatic Buying",
+  "aliases": [],
+  "category": "MG> Commerce > Programmatic Buying",
+  "keywords": [
+    "Advertiser",
+    "DSP",
+    "SSP",
+    "Publisher"
+  ],
+  "mnemonic": {
+    "word": "사파(사는쪽, 파는쪽)",
+    "expansion": [
+      "Advertiser",
+      "DSP",
+      "SSP",
+      "Publisher"
+    ]
+  },
+  "definition": "사용자 데이터를 자동 분석해 타깃 고객에게 광고를 노출하는 자동화 기법"
+}

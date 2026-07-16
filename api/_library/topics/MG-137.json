@@ -1,0 +1,16 @@
+{
+  "id": "MG-137",
+  "name": "Backcasting",
+  "aliases": [],
+  "category": "경영 > 기타 > Backcasting",
+  "keywords": [
+    "불확실한 미래의 장기적 목표설정 예측 기법"
+  ],
+  "mnemonic": {
+    "word": "연전현외시실영",
+    "expansion": [
+      "불확실한 미래의 장기적 목표설정 예측 기법"
+    ]
+  },
+  "definition": "원하는 미래상을 설정하고 현재로 거슬러 계획을 수립하는 미래 예측 기법"
+}

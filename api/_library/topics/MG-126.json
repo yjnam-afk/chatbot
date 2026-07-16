@@ -1,0 +1,25 @@
+{
+  "id": "MG-126",
+  "name": "소셜 커머스(Social Commerce)",
+  "aliases": [
+    "소셜 커머스",
+    "Social Commerce"
+  ],
+  "category": "MG > Commerce > 소셜커머스",
+  "keywords": [
+    "SNS",
+    "소비자중심",
+    "리얼타임",
+    "위치기반"
+  ],
+  "mnemonic": {
+    "word": "링웹구연",
+    "expansion": [
+      "SNS",
+      "소비자중심",
+      "리얼타임",
+      "위치기반"
+    ]
+  },
+  "definition": "SNS를 활용해 소비자 협력·합리적 의사결정을 지원하는 소셜 기반 상거래"
+}

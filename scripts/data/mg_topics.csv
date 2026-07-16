@@ -1,0 +1,167 @@
+No,토픽 이름,분류,키워드(암기),암기법(해당경우),정의 요약 (35자 내외)
+1,ITSM(Information Technology Service Management),MG> ITSM> ITSM,"ITIL V3, eSCM, CMMI, SLA, SLM, PMO, HA, 운영 및 유지보수, MTTF, MTBF, MTTR, QoS, SPICE, 품질관리","이삼씨투(ITIL. Escm, SLM, CMMI)",SLA 수준에 맞춰 IT 서비스 품질을 종합 관리하는 선진 IT 서비스 관리 기법
+2,IT Outsourcing,MG > ITSM > IT Outsourcing,"Total/Selective/자회사/Co-Sourcing, ITIL, SLA, SLM, SoW, 취약점 및 개선방안",토셀자코,Value Chain 비전략적 부분을 외부 전문가에게 위탁하는 정보기술 위탁서비스
+3,SoW (Statement of Work),MG > ITSM > SLM > SLA > SoW,"SoW, SLA, SLM, 제품, 서비스, 결과, Business case, RFP, BM",프업책,SLA의 세부 범위·작업내용을 규정하는 작업명세서로 서비스 수준관리 문서
+4,SLA,MG > ITSM > SLA,"기본계약서, 서비스 카탈로그, SoW (Statement of Works), SLM (Service Level Metric), SLO (Service Level Objectives), SLM, SLR, 보상체계, 평가지표, 관리지표, SOW, SLM",기소카 메오메보,IT서비스 제공자와 사용자 간 서비스 수준을 정량적으로 합의한 계약서
+5,SLM,MG > ITSM > SLM,"SOW, SLA, SLA서비스 측정/평가/개선, 계획/설계/운영/지속적평가",오삼(S)영(O)일,사용자 요구를 파악해 서비스·프로세스·조직역량·기술을 통합 관리하는 체계
+6,Data Mining,MG > Mining 총론 > Data Mining,"연관성기법(지지도/신뢰도/리프트), 연속성, 분류, 군집화(Clustering), Machine Learning(기 계학습 연계), 특성화, 의사결정트리",AS 분데특신의,대량 데이터에 통계·모델링 기법을 적용해 숨겨진 패턴·관계를 도출하는 기법
+7,CRISP-DM (Cross Industry Standard Process For Data Mining),MG > Mining 총론 > CRISP-DM,"CRISP-DM은 비즈니스 이해와 고객 요구사항 분석에 집중(Biz. Understanding, Data Understanding, Data Preparation, Modeling, Evaluation, Deployment), SEMMA 분석 방법론은 개발자 관점(Sample, Explore, Modify, Model, Assess)",비디투엠이디,비즈니스 이해 중심의 6단계로 구성된 데이터 마이닝 표준 프로세스 방법론
+8,Process Mining,MG > Mining 총론 > Process Mining,"모델링, 조직성과, 정보시스템 로그, 현실세계",모조정로,정보시스템 로그 분석을 통해 업무 프로세스를 도출하고 개선하는 분석 기법
+9,웹 마이닝(WEB Mining),MG > Mining 총론 > WEB Mining,"WWW, 온톨로지, ONTEX, RDF, Semantic Web, REST, Web Log","구내사(구조, 내용, 사용 마이닝)",웹상 사용자 데이터·로그 분석을 통해 가치 있는 정보를 추출하는 마이닝 기법
+10,오피니언 마이닝(Opinion Mining),MG > Mining 총론 > Opinion Mining,"의견분석, 비정형데이터, 도메인지식추출, 의존적 단어, 양태분석, 전처리, 단서단어, 공기정보, 시스템평점","지오(지식 추출, 오피니언 추출)",SNS 등 대량 리뷰에서 사용자 의견을 신속히 분석·유추하는 마이닝 기술
+11,텍스트 마이닝(Text Mining),MG > Mining 총론 > Text Mining,형태소 분석,"분요군(분류, 요약, 군집화)",비정형 텍스트 집단에서 자동으로 정보를 추출해 새 정보를 발견하는 기술
+12,신경망(Neural Network) 분석,MG > Mining 총론 > 신경망 분석,"구조(입력층, 은닉층, 출력층, 활성화함수, 가중치) 학습유형(지도학습, 자율학습)",입은출활가,인간 뇌세포를 모방해 학습·일반화·연상기억을 수행하는 인공지능 분석 기법
+13,시스템 다이내믹스(System Dynamics),MG > Mining 총론 > 시스템 다이내믹스(System Dynamics),"피드백 루프, +, - 기호의 의미, 인과관계, Level, Rate","시인피레(시스템, 인과관계, 피드백, 레벨)",동태적·순환적 인과관계 시각으로 현상을 이해·시뮬레이션하는 방법론
+14,BCM (Business Continuity Management),MG > BCP > BCM,"비즈니스 연속성 경영, BCP, DRS, ISO 22301","비디아이(BCP, DRS, ISO22301)",위기 상황에도 핵심 업무를 지속하기 위한 전사적 정책·절차 관리 시스템
+15,ISO 22301,MG > BCM > ISO22301,"BCM 표준, PDCA 사이클 적용",피디씨에이,BCP 수립·운영·검토·개선 요구사항을 규정한 비즈니스 연속성 국제표준
+16,DRS(Disaster Recovery System),IT경영전략 > BCP > DRS,"Mirror, Hot, Warm, Cold site, RSO, RTO, RPO, RCO, BCO",상공외독,비상사태에 대비해 정보시스템 복구계획을 통해 업무연속성을 유지하는 체계
+17,RTO(Recovery Time Objective)/RPO(Recovery Point Objective),"MG > BCP/BCM > RTO, RPO","재해복구, 업무복구, 업무재계, 비상계획, RTO, RPO, RCO, RSO, BCO",MHWC,"RTO는 서비스 복구 허용시간, RPO는 데이터 손실 허용시점을 나타내는 지표"
+18,DRP(Disaster Recovery Plan),MG > BCP > DRP,"Disaster Recovery Plan, 정기/비정기 훈련","디복훈(DRS, 복구계획서, 훈련계획서)",재해 발생 시 체계적 업무복구를 위한 절차와 문서를 수립한 재해복구계획
+19,BIA (Business Impact Analysis),MG > BCP > BIA,"비즈니스 분석, 평가, 우선순위 및 복구대상 설정, 복구시간 설정","분평도분(분석, 평가, 도출, 분석)",비즈니스 업무의 재해영향도를 평가해 복구우선순위·목표를 정의하는 활동
+20,"BCP(Business Continuity Plan), DRS(Disaster Recovery System) 필요 기술","MG > BCP > BCP, DRS 필요 기술","Dense Wavelength Division Multiplexing, DRS 데이터 통신기법 여러 개 빛 파장을 동시에 전송하는 광전송방식",HFID,메인센터·재해복구센터 이중화로 실시간 데이터 전송을 지원하는 DRS 기술
+21,UPS(Uninterruptible Power Supply),경영전략/디지털서비스,"무정전 전원공급, 전원 품질보장, 시스템 보호, 정류기, 인버터, 축전지, 동기절체 스위치","정축동유아(정류기, 축전지, 동기절체, 유지보수, AVR)",전원 장애를 극복해 안정된 교류 전력을 공급하는 무정전 전원공급 장치
+22,5Force,MG > 외부환경분석>,"경쟁사, 잠재적 경쟁자, 대체제, 공급업자, 구매자",공구기대잠,조직 외부환경을 5가지 경쟁요인 관점에서 분석해 산업 매력도를 평가하는 기법
+23,"7S(Strategy, Structure, Systems, Shared Values, Skills, Staff, Style) Model",경영전략 > 전략수립도구 > 7S Model,"Strategy, Structure, Systems, Shared Values, Skills, Staff, Style",전구시 공역스인,변화 대처를 위한 7개 요소의 조화·정렬을 진단하는 내부역량 분석 도구
+24,"SWOT(Strengths, Weaknesses, Opportunities, Threats) 분석",경영전략 > 전략수립도구 > SWOT 분석,"Strengths, Weaknesses, Opportunities, Threats",강약기위,내부 강·약점과 외부 기회·위협을 분석해 전략 대안을 도출하는 기법
+25,"4C(Customer, Circumstance, Competition, Company)",경영전략 > 전략수립도구 > 4C,"Customer, Circumstance, Competition, Company",고환경기,고객·환경·경쟁·자사 4개 관점에서 차별화 포인트를 분석하는 마케팅 기법
+26,MECE(Mutually Exclusive Collectively Exhaustive),경영전략 > 전략수립도구 > MECE,Mutually Exclusive: 요소들끼리 중복이 없는지 Collectively Exhaustive: 부분요소를 모두 합하면 전체가 되는지(누락이 없게),상중전누,중복 없이 누락 없이 문제 전체를 파악해 분류하는 전략적 사고방식
+27,LISS(Linearly Independent Spanning Set),경영전략 > 전략수립도구 > LISS,중요과제의 명확화,중명,중복 없이 부분집합의 중요한 의미를 명확히 하는 전략적 사고 방법
+28,TRIZ,경영전략 > 전략수립도구 > TRIZ,창의적 문제해결,"특일일특(특정문제, 일반화문제, 일반화 해결책, 특정 해결책)",주어진 문제의 모순을 찾아 극복하여 혁신적 해결안을 얻는 창의적 방법론
+29,BABOK(Business Analysis Body of Knowledge),IT경영> 전략계획 > BABOK,"BABOK 6대 지식영역 (v3.0기준) -Business Analysis, Planning & Monitoring (업무분석 계획과 모니터링) -Elicitation and Collaboration (수집과 협업) -Requirements Life Cycle Management (요구사항 생명주기 관리) -Strategy Analysis (전략분석) -Requirements Analysis & Design Definition (요구사항 분석과 설계 정의) -Solution Evaluation (솔루션 평가)",계수요전분평,이해관계자에게 가치를 제공하기 위한 비즈니스 분석 국제 표준 지식체계
+30,Decision Tree,경영전략 > 전략수립도구 > Decision Tree,"Root node, Parent node, Child node, Terminal node(Leaf), Branch","의가타해(의사결정나무, 가지치기, 타당성평가, 해석)",분할기준 속성에 따라 트리 형태로 분류·예측을 수행하는 의사결정 모델
+31,"CPND(Contents, Platform, Network, Device)",경영전략 > 전략수립도구 > CPND,"Contents, Platform, Network, Device",씨피엔디,콘텐츠·플랫폼·네트워크·디바이스로 구성되는 IT 생태환경 시스템
+32,"마케팅 STP(Segmentation, Targeting, Positioning)",경영전략 > 전략수립도구 > 마케팅 STP,"Segmentation(시장세분화), Targeting(목표시장), Positioning(포지셔닝)",시목포,시장세분화·표적시장선정·포지셔닝의 3단계로 진행하는 마케팅 전략 기법
+33,"PEST(Political, Economic, Social, Technological) 분석",경영전략 > 전략수립도구 > PEST 분석,"Political(정치), Economic(경제), Social(사회문화), Technological(기술)",정경사기,정치·경제·사회·기술의 거시환경 요인을 분석해 전략수립의 기초를 제공
+34,AHP(Analytic Hierarchy Process),MG,"쌍대비교(이원비교), 행렬, CI, RI, CR",개쌍부일최,요소를 계층화하고 쌍대비교로 정량적 결과를 도출하는 다기준 의사결정 기법
+35,ITIL(IT Infrastructure Library) / ITIL 3.0,IT 경영전략 > ITIL 3.0 > ITIL / ITIL 3.0,"절차 5개(서비스 전략,설계,이행,운영,개선), Service Support, Service Delivery",전설전운지,안정적 서비스지원·이행·운영·인프라 관리의 베스트 프랙티스 모음집
+36,ITIL 4.0,IT 경영전략 > ITIL 3.0 > ITIL 4.0,참여 - 계획 - 설계 및 전환 - 확보/빌드 - 제공 및 지원 - 개선 Engage – Plan – Design & Transition – Obtain/Build –– Deliver & Support – Improve,"스시(SVS, SVC)",SVS·SVC 가치사슬 기반으로 재정의한 차세대 ITIL IT 서비스 관리
+37,CRM(Customer Relationship Management),IT 경영전략 > 기간시스템 > CRM,"LTV(Life Time Value), 운영CRM, 분석CRM, 협업CRM, e-CRM, g-CRM, m-CRM","운분협(운영, 분석, 협업)",고객 이해 기반으로 LTV를 극대화하는 마케팅 관리 기법
+38,VRM(Vendor Relationship Management),IT 경영전략 > 기간시스템 > VRM,"PDS, PDA, RFP, 권한 관리와 역 메시징",피피알권,개인이 기업에 제공할 정보·선호도를 직접 관리하는 CRM 반대 경영기법
+39,ERP(Enterprise Resource Planning),IT 경영전략 > 기간시스템 > ERP,"영업, 생산, 자재/구매, 무역, 원가, 회계, 인사, Bing Bang, 기능/단계별, 사업장별, BPR, XRP, ERP II","빅기사(빅뱅, 기능별, 사업장별)",기업의 경영자원·정보자원을 통합 관리해 경쟁력을 극대화하는 자원관리시스템
+40,Composable ERP,IT 경영전략 > 기간시스템 > ERP,"모듈화, SOA, MSA, 느슨한 결합, 확장성, 유연성","이컴통오유데(EPR, 컴포저블, 통합, 오케스트레이션, UI, Data)",마이크로서비스를 통합·조립해 유연성과 확장성을 제공하는 차세대 ERP 시스템
+41,"BI(Business Intelligence)2.0, 3.0","IT 경영전략 > 의사판단시스템 > BI 2.0, 3.0","운영BI, 전략BI, 분석BI, 데이터분석, 의사결정지원, BI 3.0 미래예측","운전분정, 수분의표",DW를 기반으로 다양한 분석 도구를 활용한 의사결정 지원 시스템
+42,OLAP(Online Analytical Processing),IT 경영전략 > 의사판단시스템 > OLAP,"다차원정보, ROLAP, MOLAP, DOLAP, HOLAP, Web OLAP","알모호(ROLAP, MOLAP, HOLAP)",다차원 정보에 직접 접근해 대화식으로 분석·의사결정에 활용하는 도구
+43,HOLAP(Hybrid OnLine Analytical Processing),IT 경영전략 > 의사판단시스템 > HOLAP,"ROLAP, MOLAP, 다차원 데이터, 저장 및 처리 프로세싱, 데이터 큐브","알디(RDB, Dimension)",ROLAP과 MOLAP을 결합해 RDB와 다차원 접근을 동시에 제공하는 OLAP
+44,RTE(Real Time Enterprise),IT 경영전략 > 실시간 기업 > RTE,"실시간 이벤트(event), 인지(awareness), 의사결정(decision), 집행(action), 대응(response)",인결활,실시간 의사결정과 자원 배분으로 경영성과를 도출하는 실시간 기업 모델
+45,Cyclone Model,MG > 실시간 기업 > Cyclone Mode,"Lead, Manage, Operate, cyclone(end-to-end process)","지관운(지휘, 관리, 운영)",지휘·관리·운영 프로세스로 기업의 End-to-End 응답을 통합 관리하는 모델
+46,EDA(Event Driven Architecture),IT 경영전략 > 실시간 기업 > EDA,이벤트 감지 및 대응,"메프구관엔외(메타데이터, 프로세싱, 구축도구, 관리도구, 엔터프라이즈 통합, 외부자원)",이벤트 감지·대응이 가능한 비동기적 IT 아키텍처 설계 사상
+47,ISP(Information Strategy Plan),경영전략(MG) > 전략계획 > ISP(Information Strategy Plan),"환경분석, 현황분석, 정보화 비전 및 전략 수립, 목표모델 설계, 통합 이행 계획",환형정목통,조직 목표 달성을 위한 정보화 전략·비전과 IT 사업·로드맵을 수립하는 활동
+48,ISMP(Information System Master Plan),경영전략(MG) > 전략 계획 > ISMP(Information System Master Plan),"RFP, 기능점수 도출 가능 수준","참방분정수(참여자, 방향성, 분석, 정의, 수립)",특정 SW 사업의 RFP 마련을 위해 기능점수 도출 수준까지 요건을 상세화
+49,BCG(BostonConsultingGroup) Matrix,경영전략(MG) > 전략 계획 > BCG Matrix,"Star, Cash Cow, Question Mark, Dog",개소물별,시장성장률·점유율로 SBU를 4영역으로 구분해 사업 전략을 도출하는 매트릭스
+50,Value Chain,경영전략(MG) > 전략 계획 > Value Chain,"가치 사슬, 전략적 분석기법, 부가가치, 전략적 단위 활동, 강점 약점","주부(주활동, 부활동)",기업 활동을 분해해 경쟁우위 강화 지점을 찾는 마이클포터의 분석 모형
+51,Value Chain Model,경영전략(MG) > 전략 계획 > Value Chain Model,"지원활동, 본원적활동, 내부물류, 제조/생산, 외부물류, 마케팅영업, 서비스, 기업구조, 인적자원관리, 기술개발, 조달활동, 이윤, 평가방법","주부(주활동, 부활동)",원재료·노동력·자본을 결합해 부가가치를 창출하는 기업 활동의 모형
+52,캐즘이론(Chasm Theory),IT경영전략 > 전략 계획 > 캐즘이론,소비자유형(혁신/선각/전기다수/후기다수/지각 수용자),혁선전후지,초기시장에서 주류시장으로 넘어가는 시점에 발생하는 신제품 확산의 단절
+53,악마의 강,IT경영전략 > 전략 계획 > 악마의 강,"악마의 강, 죽음의 계곡, 다윈의 바다","기투지(기술마케팅, 투자유치, 지재권)",원천기술이 자금 부족으로 응용 기술로 발전하지 못하는 기술사업화 단절
+54,Flywheel Framework,MG,"유기적 순환, 성장 중심, 두 개의 바퀴, 제품 종류, 고객 경험, 방문자 수, 판매자 수, 낮은 비용 구조, 낮은 판매 가격",유지개,성장 중심 항목들이 유기적으로 순환하며 시너지를 만드는 성장 전략
+55,Indide-out_Outside-in 전략,경영전략(MG) > 아웃소싱 표준/정책 > Indide-out_Outside-in 전략,"Licensing-Out, Spin-Out, Spin-Off, 프로젝트 공개, Licensing-In, 지적재산권 공유 Joint Venture Intent, M&A",리스프지조마,기술 외부 판매(In)와 외부기술 도입(Out)을 활용하는 개방형 혁신 전략
+56,EA(Enterprise Architecture) Framework,경영 > EA/ITA > EA Framework,"EAMS/GITAMS, 자크만 F/W, TOGAF, FEAF","거아참(거버넌스, 아키텍처, 참조모델)",기업의 IT와 비즈니스 관계를 총괄해 설명하는 종합 청사진 프레임워크
+57,EAMS(Enterprise Architecture Management system),경영전략 > EA/ITA > EAMS,"체계적 관리(프레임워크, 참조모델, 산출물, EA 메타모델)","모아참(모델관리, 아키텍처 산출물 관리, 참조모델 정보)",EA 산출물의 작성·관리·활용을 지원하는 포괄적 EA 관리 도구
+58,RM(Reference Model),경영전략(MG) > EA/ITA> RM(참조모델),PRM,성업서데기,아키텍처 구성요소를 식별·표준화한 EA 수립 시 참조하는 추상 모델
+59,IRM(Information Resource Management) 정보자원관리,MG > EA/ITA > IRM,"정보자원관리, Information Resource Management 연계, 체계적, 효율적, 투명, 계획, 구축, 운영 및 평가","시기정(시스템, 기술, 정보)",조직의 정보시스템 관련 자원을 통합 관리하는 정보 자원 관리 기법
+60,SEM(Strategic Enterprise Management),IT경영전략 > SEM > SEM,"가치중심, 전사적 전략경영, VBM, ABM, BSC, KPI, ESG 경영","브아비(VBM, ABM, BSC)",전사 정보를 통합 분석해 가치중심 전략경영을 지원하는 응용 시스템
+61,VBM(Value Based Management),IT 경영전략> SEM(전략적 경영 관리) >VBM,"기업가치 극대화, 가치 경영 관리, 비즈니스 가치(EVA, MVA, ROIC), 목표비용, 책임회계, 성과평가","경시투(경제적 부가가치, 시장부가가치, 투자자본수익률)",기업가치 극대화를 목표로 의사결정·성과를 가치로 측정하는 경영방식
+62,BSC(Balanced Score Card),IT경영전략 > SEM > BSC,"재무적관점, 고객관점, 내부 프로세스 관점, 학습과 성장 관점, 비재무적 관점, 핵심성과 지표(KPI)(재고내학) 기업공헌도, 사용자관점, 운영프로세스관점,미래지향적관점(기사운미)","재고내학, 기사운미",재무·고객·내부프로세스·학습 4관점 KPI로 균형 있게 성과를 관리하는 기법
+63,BPM(Business Process Management),경영전략 > 프로세스 관리,"프로세스 모델링, BPA, BRE, BAM","알이엠(BPA, BRE, BAM)",업무 프로세스 자동화·통합·최적화로 기업 가치를 향상시키는 경영 기법
+64,BPR(Business Process Reengineering),경영관리 > 통합/연계,"Zero-base, 기술/사람/프로세스",기사프,비용·품질·서비스·속도의 비약적 향상을 위한 프로세스 근본적 재설계
+65,BAM(Business Activity Monitoring),경영전략(MG)> 프로세스 관리 >BAM,"이벤트, BAM 모델링, Alerts",이바모알,비즈니스 이벤트를 실시간 모니터링·분석해 의사결정을 지원하는 시스템
+66,BRE(Business Rule Engine),MG > 프로세스 관리 > BRE,"Rule Manager, Rule Service, Rule Monitoring, Rule Repository","메서모엔(Rule Manager, Rule Service, Rule Monitoring, Interface Engine)",조직과 컨트롤 프로세스를 분리해 비즈니스 요구를 신속 수용하는 룰 엔진
+67,Open Innovation,MG > 프로세스 혁신 > Open Innovation,"개방형 혁신, 내부에서 외부로, 외부에서 내부로, 외부의 다양한 기술원천을 활용 외부 -> 내부 : In-Sourcing, 공동연구, 벤처투자 내부 -> 외부 : 기술자산판매, 분사화, 프로젝트 공개","개방형 혁신의 유형[인공벤, 기분프]",외부 기술 원천을 활용해 혁신을 가속하는 R&D 개방형 혁신 전략
+68,Crowd Sourcing,경영전략(MG) > 아웃소싱 표준/정책 > Crowd Sourcing,"협업, 통합선택, 의뢰자, 대중선택",협통의대,생산·서비스 과정에 대중을 참여시켜 효율을 높이는 군중 활용 방식
+69,PDCA(Plan Do Check Action),MG> 프로세스 혁신 > PDCA,,계실점조,계획-실행-평가-개선의 사이클로 품질·생산을 관리하는 방법론
+70,SCM(Supply Chain Management),경영전략 > 공급망관리 > SCM,"SCP, SCE, SCI, Value Chain, 공급망 프로세스 관리, Bullwhip Effect, SCM2.0","계실프(계획, 실행, 프로세스관리)",공급자에서 소비자까지 전체 공급망을 통합·최적화하는 경영 기법
+71,PRM (Partner Relationship Management),경영전략 > 기업간 관계 관리 > PRM,Partner Lifecycle,"파요송평(파트너 등록, 요청, 송장, 평가)",파트너 공급·협력업체 관계 관리로 수익성과 협력을 강화하는 기법
+72,PLM (Product Lifecycle Management),IT경영전략 > 생명주기관리,"CAD/CAM,      BOM(Bill   of   Material),   Engineering    Application,   Product    Information Management, Operation Management, Maintenance Management","비프가(BOM, 프로젝트관리, 가상생산)",제품 기획부터 폐기까지 전체 생명주기를 통합 관리하는 체계
+73,ALM (Application Lifecycle Management),경영전략 > 생명주기관리 > ALM,"이슈관리, 개발환경, 빌드 테스트 자동화, 소스관리",이개빌소,비즈니스 요건과 SW 개발 프로세스를 융합·자동화하는 관리 방법
+74,ILM(Information Lifecycle Management),MG > ILM,"정책, 데이터, 스토리지, HSM, SRM, 가상화 기술, 데이터 보호 기술, 저장장치 기술, 아카이브 매니저","가데저아(가상화, 데이터보호, 저장장치, 아키이브 메니저)",정보의 생성에서 소멸까지 IT 인프라로 가치를 관리하는 데이터 관리 전략
+75,EIP(Enterprise Information Portal),MG > EIP,"EIP, EP(Enterprise Portal), 단일창구, SSO, Personalization(개인화), EKP, KMS, DW, 기업 포털","정포인모(정보시스템, 포털, 인트라넷, 인터넷 모듈)",단일 웹 게이트웨이로 사내외 정보를 통합해 맞춤 정보를 제공하는 포털
+76,Data Warehouse,MG > Data Warehouse,"주체지향성, 통합적, 시계열적, 비휘발성, ETL, Data mart, ODS, OLAP, 메타데이터",주통시비,의사결정 지원을 위한 통합·주제 지향·시간가변·비소멸성 데이터베이스
+77,"RFI(Request for Information), RFP(Request For Proposal), Proposal","PM > 발주 프로세스 > RFI, RFP, Proposal","RFI, RFP, Proposal, 공공 소프트웨어 사업 제안 요청서 작성 가이드라인","개일요정요(개요, 일정, 요구내역, 정의, 요구사항)",발주자가 요구사항을 정리해 제안자가 제안서를 작성하도록 제시하는 문서
+78,eSCM(e –Sourcing Capability Model),MG > Outsourcing > eSCM,e-Sourcing Capability Model. ISO20000,조인사기지,IT 아웃소싱 절차의 베스트 프랙티스를 체계화한 업무개선 지침 모델
+79,ISO 20000,경영전략 > 아웃소싱/표준/정책 > ISO 20000,ITSM 국제심사인증 표준,"일인이가(Part1-인증규격, Part2-가이드)",ITIL 기반으로 IT 서비스 관리체계를 평가·인증하는 국제 표준
+80,ITSM (ISO/IEC 20000),경영전략 > 아웃소싱/표준/정책 > ITSM (ISO/IEC 20000),,,IT 서비스 관리 체계 구축에 필요한 요건을 정의한 국제 표준
+81,MSP(Management Service Provider),MG > Outsourcing > MSP,"Monitoring Service, Management Service, Operation Service, Consulting Service",모마운컨,기업의 IT 자원을 IDC 기반으로 통합 관리·운영하는 서비스 사업자
+82,"MRO(Maintenance, Repair and Operation)",경영전략 > 아웃소싱 표준/정책 > MRO,"Maintenance,   Repair,   Operation,   e-Procurement",멤알오,원자재를 제외한 간접 생산활동 자재를 인터넷으로 구매·관리하는 시스템
+83,IT Governance,MG > IT Governance,"전략과 목표달성, 비즈니스와 IT 연계(Alignment), 지배/통제/관리, CobIT, 전략적연계, 가치제공, 위험관리, 자원관리, 성과측정",전가위자성,기업 전략·목표 달성을 위해 IT 자원·프로세스를 통제·관리하는 체계
+84,COBIT5(Control OBjectives for Information and related Technology 5.0),경영전략 > IT-Governance > COBIT5,"COBIT 4.1, Val IT, Risk IT, 5가지 원칙, 7가지 Enabler, 주요 프로세스","5원칙 : 통이비이거, 7Enabler : 원프조문 정서인 프로세스 : 애들아빠바이댄스미(EDm, APo, BAi, DSs, MEa)",IT 거버넌스와 관리 목적 달성을 지원하는 5가지 원칙 기반 프레임워크
+85,Val IT(Value IT),MG > IT Governance,"가치 거버넌스,포트폴리오 관리, 투자관리",가거포투,IT 투자에서 비즈니스 가치를 창출하는 포괄적·실용적 IT 거버넌스 프레임워크
+86,ISO 31000,경영전략,"리스크관리 국제표준, 8개의 기본원칙, 의사소통 및 협의, 맥락의 이해, 위험식별, 위험분 석, 위험평가, 위험대응, 감독 및 보고",통체맞종유인지,비즈니스 활동의 모든 리스크를 관리하기 위한 가이드라인 국제 표준
+87,ISO/IEC 38500,MG > IT Governance,"E(Evaluate), D(Direct), M(Monitoring), 책임, 준거, 전략, 획득(구매), 성과, 인간행동",책준전구성인 -> 책을 준건 구성인이다.,조직 IT 활용을 평가·지휘·모니터링하는 IT 거버넌스 국제 표준
+88,OSS(Open Source Software) Governance,SW > OSS > OSS 거버넌스,"활동전반 진단, 도입전략 수립, 정책 결정, 지원전략 수립, 유지보수",활도정지유,오픈소스SW 라이선스의 위험·이슈를 관리하기 위한 거버넌스 체계
+89,ICO(Initial Coin Offering),MG > IPO/ICO > ICO,"디지털 토큰, 암호화폐, pre-sale, pre-allocation, White Paper, pre-minded, fraud, 한국블록체인협회 자율규제안","프알미(Pre-sale, Allocation, minded)",블록체인 기반 디지털 토큰 판매로 자금을 조달하는 암호화폐 자금조달 방식
+90,암호화폐 거래소(Cryptocurrency exchange),MG > IPO/ICO > 암호화폐 거래소,"매수, 출금",매출,사용자가 암호화폐를 거래·교환할 수 있도록 매개하는 디지털화폐 거래소
+91,Crowd Funding,MG> IPO/ICO > Crowd Funding,"지분투자, 대출, 후원, 기부",지대후기,인터넷 플랫폼을 통해 다수 개인으로부터 소액 자금을 모으는 자금조달 행위
+92,IPO(Initial Public Offering),경영전략 > IPO/ICO > IPO,"사전절차, 예비심사, 공모 및 상장",신재추변,비상장기업이 처음 외부투자자에게 주식을 공개·매도하는 기업공개 절차
+93,IT-Compliance,MG > IT-Compliance,"Sarbanes-Oxley, Basel-II,, E-Discovery, 정보통신망법, 전자서명법, 의료법, 개인정보보호, 정보관리, 정보보안, COBIT, 패널티","외내투경(외부규정, 내부실태, 투명성 학보, 경쟁력 강화)",각종 규제·법안을 IT 관점에서 만족시키기 위한 기업 컴플라이언스 활동
+94,IFRS(International Financial Reporting Standards),MG > IT-Compliance,"Consolidation & Report , Valuation & Conversion , Transaction",컨발트,국제 통일 회계기준 제정을 위해 IASB가 제정한 국제재무보고기준
+95,규제샌드박스,MG > 규제 > 규제샌드박스,"포괄적 네거티브 규제전환, 4 차 산업혁명, 실증 테스트, 실증을 위한 규제특례, 임시허가, 규제 개혁","시규사(시범사업, 규제탄력, 사후규제)",신기술·서비스에 대해 일정 기간 규제를 면제·유예해 사업 시행을 지원
+96,더블 다이아몬드 모델 (Double Diamond Model),IT경영전략,"UX 디자인, Discover, Define, Develop, Deliver, 디자인 싱킹","탐솔(탐색, 솔루션)",발견-정의-개발-전달의 두 다이아몬드로 진행하는 서비스 디자인 모델
+97,TAM-SAM-SOM 프레임워크,MG,"기업, 벤처, 스타트업 시장 규모 추정, 시장 규모 파악, Total Available Market, Serviceable Available Market, Servieable Obtainable Market","탐전/삼재/소생(전체시장, 재무고려, 초기생존)",전체·유효·유효 가능 시장으로 시장 규모를 추정하는 스타트업 프레임워크
+98,린 스타트업(Lean Strartup),MG > 범정부 IT 전략/정책 > 린 스타트업,"Build, Measure, Learn, MVP, Pivoting","빌측학(빌드, 측정, 학습)",MVP를 신속 출시해 고객 반응으로 비즈니스를 개선하는 창업 방법론
+99,디지털 컨버전스(Digital Convergence),MG > 디지털 컨버전스 > 디지털 컨버전스,"- 구성요소 : 정책, 고객, 기업, 기술 - 영역 : Device/Network/Business 컨버전스 - 융합요소 : IT, BT, NT (&CT, ET, ST)","정고기기(정책, 고객, 기업, 기술)",디지털 기술로 가전·자동차·서비스의 제품·비즈니스가 수렴하는 현상
+100,AI+금융,IT 경영전략 > 디지털 컨버전스> AI+금융,"프로세스 간소화, 개인화된 서비스, 서비스 범위 확장, 지능적 의사결정, 미개척 시장 진출, 챗봇, 가상비서, 소셜로봇",챗가소,AI 알고리즘을 금융 생태계에 적용해 다양한 영역에 영향을 주는 기술
+101,레그테크(RegTech),IT 경영전략 > 디지털 컨버전스> 레그테크(RegTech),"Regulation, Technology, 규제준수, 위험예측, 이상거래, 컴플라이언스",데위실고,기술을 활용해 금융규제 요구사항에 효율적으로 대응하는 규제 대응 기술
+102,섭테크(Suptech),MG > 기타 > 섭테크,금융감독(Supervision)과 기술(Technology)의 합성어,감기(감독+기술),감독과 기술의 합성어로 금융감독 업무에 첨단 기술을 도입하는 분야
+103,리걸테크,MG > 기타 > 리걸테크(Legal Tech),"온라인 법률 서비스, 전자 증거 개시, 실습 관리 소프트웨어, 지적재산, 상표 SW서비스 인공지능 법률 기술, 소송 금융",법기(법률+기술),법률과 기술의 합성어로 ICT를 활용해 법률 서비스를 제공하는 분야
+104,인슈어테크,MG > 인슈어테크,보험+IT,보기(보험+기술),보험과 기술의 합성어로 데이터·AI·IoT를 보험에 접목한 혁신 기술
+105,서비타이제이션(Servitization),디지털서비스 > 서비스 > 서비타이제이션(Servitization),"서비스+상품화(Productization), 제품 중심 모델, 사용 중심 모델, 제품 활용 결과 보장 모델, 제품의 서비스화, Servitization, SW융합, 지능화, 최적화, 융합역량, SSPL","결상통(결합, 상품화, 통합제공)",기존 제품 판매에서 제품-서비스 시스템으로 전환해 부가가치를 창출
+106,빅블러(Big Blur),MG > 기타 > 빅블러(Big Blur),"기존 영역과 경계가 무너지고, 경계가 허물어지는 현상 모호화, 융합, 프레너미, 랜섬 APT, 간편결제, 인터넷전문은행, O4O, 플랫폼화","보금유(보안, 금융, 유통)",기존 산업 영역과 경계가 무너지고 융합되는 산업 경계의 모호화 현상
+107,디지털 디바이드(Digital Divide),MG > 기타 > 디지털 디바이드,"불평균, 불균형, 격차, 문해력, 복지",지정불(지식과 정보의 불균형),지식·정보 접근이 계층·성별·연령별로 불균형하게 나타나는 격차 현상
+108,디지털 리터러시(Digital Literacy),경영 > 기타 > 디지털 리터러시,"불평균, 불균형, 격차, 문해력, 복지, 창의, 혁신, 연구, 시민의식, 의사소통, 기술 활용",리비창디의기,다양한 출처의 디지털 정보를 이해·활용하는 디지털 시민의 보편 능력
+109,디지털 포용(Digital Inclusion),MG > 기타,"포용사회, 혁신사회",포혁,전 국민이 디지털 역량을 갖추고 차별없이 혜택을 누리는 포용 정책
+110,SW플랫폼,MG > 플랫폼(유형) > SW플랫폼,"개발, 실행, 유통, 기반",개실유기,SDK·프레임워크·IDE·실행 기반을 통합해 SW를 개발·유통·실행하는 기반
+111,비즈니스플랫폼,MG > 마케팅 > 비즈니스플랫폼,"비즈니스 플랫폼, Ecosystem, 채널주도형, 개방참여형","컴룰플(컴포넌트, 룰, 플랫폼)",참여자가 공통 사양·규칙으로 경제적 가치를 창출하는 비즈니스 토대
+112,서비스 플랫폼,MG > 플랫폼(유형)> 서비스 플랫폼,"SaaS, SOA, Web3.0",사소웹,다른 서비스가 자사 기능을 쉽게 사용하도록 제공하는 인터넷 기반 환경
+113,다면 플랫폼,MG > 플랫폼(유형) > 다면플랫폼,"다수 고객집단 연결, Exchange, Advertisement-supported media, Transaction systems, Software platform","교광결플(교환, 광고, 결재, 플랫폼)",둘 이상의 고객 집단이 상호작용해 가치를 창출하는 양면형 플랫폼
+114,아이디어플랫폼,MG > 마케팅 > 아이디어플랫폼,"Idea Platform, 아이디어 연결하는 場 제공 소셜평가, 상업역량육성, 솔루션경쟁, 기존사업부연결",평육경연,기업과 다수 아이디어 제안자를 상시 연결해 활용하는 개방형 플랫폼
+115,"표준특허, FRAND(Fair, Reasonable And Non-Discriminatory Terms) 특허","경영전략 > 특허 > 표준특허, FRAND 특허","FRAND (Fair, Reasonable And Non-Discriminatory Terms)",공타비,표준이 된 특허에 대한 공정·합리·비차별 라이선싱을 보장하는 특허
+116,지식재산권,MG > 특허 > 지식재산권,소프트웨어 지식재산권(SW Intellectual Property Rights)보호,산저신,창조적 활동·발견으로 창출한 지식·정보·기술 등에 대한 권리
+117,CSR(Corporate Social Responsibility),경영전략 > CSR,"SR 라고도 부름 Corporate Social Responsibility: 기업 활동에 영향을 받거나 영향을 주는 직간접적 이해 관계자에 대해 법적, 경제적, 윤리적 책임을 감당하게 하는 경영 기법 1) 자선, 기부, 환경보호 등 사회공헌 활동 2) 기업이 경제적 책임이나 법적 책임 외에도 폭넓은 사회적 책임을 적극 수행",경법윤자,기업이 이해관계자에 대한 법·경제·윤리적 책임을 다하는 사회적 책임
+118,"ISO26000, ISO14001","MG > CSR(Corporate Social Responsibility > ISO26000, ISO14001","ISO 26000: CSR을 표준화한 ISO26000의 국제규격 ISO 14001: 환경경영, 정도(正道)경영, 사회공헌",조인노환경소사,기업의 사회적 책임 운영 지침과 환경경영 시스템을 제공하는 국제표준
+119,ISO14000,MG,"환경경영시스템, 환경심사, 전과정평가(EPE, LCA), 환경라벨링(EL), 용어 정의 도입준비, 구축/실행, 인증심사",이이엘이,환경 관련 규격을 통일해 제품·기업에 부여하는 환경인증제도 국제표준
+120,IT 생산성 패러독스(Productivity Paradox of IT),IT 경영전략 > 투자평가관리,"경영 투자 오류, 잘못된 관리, 측정오류, ROI, 투자평가",경관측,IT 투자 증가에도 생산성이 비례 증가하지 않는 모순적 현상
+121,경제성 평가방법,MG > 투자평가관리,"비즈니스 케이스, 경제성 분석 기법, BCR(Benefit Cost Ratio) 평가순서: TCO -> ROI -> NPV ->IRR -> PP",재정다통,비용·편익을 측정해 경제적 수익률을 평가하는 BCR·TCO·ROI 등 기법
+122,ISO 9000,품질경영>품질 표준>ISO 9000,"품질경영, 품질보증, 지속적개선, 프로세스",PDCA,ISO에서 제정한 공급자·구매자 간 품질경영·품질보증 국제 규격
+123,6 sigma,경영 > 경영전략기법> 6Sigma,"DMAIC(Define, Measure, Analyze, Improve, Control), CTQ(Critical to Quality) 고객관점, 통계적 측정, 전사 프로세스 혁신, 고객중심, 지속적 개선, MBB/BB/GB, DMAIC, DMADV",드마익 드마디브,고객 관점에서 문제를 정의하고 과학적·통계적으로 개선하는 품질혁신 기법
+124,Commerce,MG > 마케팅 > Commerce,"E-Commerce, U-Commerce, M-Commerce, T-Commerce, C-Commerce, OTT",이유엠티씨,다양한 기술과 매체를 통해 상품을 판매하는 상거래 형태의 통칭
+125,e-Marketplace,MG > Commerce > e-Marketplace,"Escrow System, key Escrow, SW 임치제도",판구중(판매자/구매자/중개자),인터넷상에서 불특정 다수 공급자·수요자가 비즈니스를 수행하는 가상 장터
+126,소셜 커머스(Social Commerce),MG > Commerce > 소셜커머스,"SNS, 소비자중심, 리얼타임, 위치기반",링웹구연,SNS를 활용해 소비자 협력·합리적 의사결정을 지원하는 소셜 기반 상거래
+127,온라인광고비,경영> Commerce>온라인광고비,"광고클릭횟수, 광고단가 산정기법, 부정클릭 반작용 방지 기술 적용으로 건전성 확보필요 유사비교 1) CPC(Click)      : Target 노출, Pull 방식 2) CPM(Millennium) : 무작위 노출         , Push 방식 3) CPA (Action):   광고실적당 지급. 광고주 선호 4) CPA (Impression ) ;1 회 노출비로 산정, 상품노출 당, 70~150 만원 SEO ( Search Engine Optimization ) 검색엔진 최적화. 광고비 절감효과","씨엠아이(CPC, CPM, CPA, CPI)",이용자의 광고 클릭 횟수를 기준으로 매체에 광고비를 지불하는 방식
+128,Programmatic Buying,MG> Commerce > Programmatic Buying,"Advertiser, DSP, SSP, Publisher","사파(사는쪽, 파는쪽)",사용자 데이터를 자동 분석해 타깃 고객에게 광고를 노출하는 자동화 기법
+129,O2O(Online to Offline),IT 경영전략 > Commerce > O2O,"쇼핑유형: 쇼루밍, 역소루밍, 옴니쇼핑, 모바일쇼핑 UBER /카카오 택시, 비콘(Beacon), 지오펜싱(Geo-fencing), BLE, NFC, 간편결제, LBS, GPS, 이동통신기","비지와블(비콘, 지오펜싱, 와이파이, 블루투스)",온라인·오프라인을 연결해 상호 진출·활용을 지원하는 상거래 형태
+130,엠비언트 커머스(Ambient Commerce),IT 경영전략 > Commerce > 엠비언트 커머스,"인공지능, 음성 에이전트, AI 스피커, 상황인지, 인지, 판단, 추천, Zero UI",인판추,사용자 위치·시간·니즈에 맞는 상품을 추천하는 AI 기반 쇼핑 서비스
+131,O4O(Online for Offline),IT 경영전략 > Commerce > O4O,"RFID, NFC, 이미지/얼굴 인식, 지오펜싱, 비콘, 인공지능, 빅데이터, 아마존고",인위분체,온라인 기업이 빅데이터로 오프라인 사업 영역에 진출하는 비즈니스 전략
+132,핀테크,MG > 핀테크 > 핀테크,"금융+기술, 인터넷전문은행, 간편결제, 비대면서비스, 컨버전스","금기(금융, 기술)",금융과 기술의 융합으로 결제·송금·자산관리를 혁신하는 금융 서비스
+133,인터넷전문은행,MG > 핀테크 > 인터넷전문은행,"비대면 인증거래, 보안 관련 인증 기술, FIDO","간메범(간편계좌, 메신저 기반, Bump)",점포 없이 인터넷을 주요 영업채널로 활용하는 비대면 전문은행
+134,오픈뱅킹(Open Banking),SV>출제 예상 토픽> 오픈뱅킹,"오픈 API, 테스트베드, PSD2, GDPR, 마이데이터, 핀테크, 정보주체 자기 결정권 강화","오테(오픈API, 테스트베드)",구성주체의 데이터 공유를 통해 개인화 금융 서비스를 창출하는 체계
+135,Design Thinking,MG > 기타 > Design Thinking,"공감, 인간중심적 사고, Empathize, Define, Ideate, Prototype, Test",영아실,공감적 관찰로 문제를 재해석하고 시각적·창의적으로 해결하는 사고법
+136,Process Thinking,경영 > 기타 > Process Thinking,"프로세스 사고, Focused Improvement","IDC(Inspiration, Design, Creation)",결과·결과를 고려한 준비·노력을 강조하며 현재에 초점을 맞추는 사고
+137,Backcasting,경영 > 기타 > Backcasting,불확실한 미래의 장기적 목표설정 예측 기법,연전현외시실영,원하는 미래상을 설정하고 현재로 거슬러 계획을 수립하는 미래 예측 기법
+138,"SMART(Specific, Measurable, Achievable, Relevant, Time-bound)",MG > 기타 > SMART,"Specific(구체적인), Measurable(측정가능한), Achievable(실현가능한), Result-Oriented(결과지향적인), Time-bound(완료시간이 있는)",SMART,구체적·측정·달성·관련·기한의 5가지 목표 설정 원칙
+139,공유경제,MG > 기타 > 공유경제,"유휴자산, 대여자, 공유 플랫폼, 이용자, 상업 경제, 공유 경제",유대공이상공,유휴 자원을 다수가 공유해 효율을 높이는 협력 소비 기반 경제
+140,기술경영((Management Of Technology),MG > 기타 > 기술경영(MOT),"기술획득, 기술관리, 기술활용, 기술 혁신, 지속가능 경영, 기술 경영 프로세스",연개사시,기술을 전략적으로 활용해 사업 기회·혁신 제품을 창출하는 융합 경영
+141,제약(조건) 이론(ToC),MG > 기타 > 제약(조건) 이론(ToC),"전체최적화, 제약사항, 집중개선, DBR(Drum-Buffer-Rope), ToC Thinking Process, Critical Chain, Throughput Accounting",전제집,전략 방해 제약사항을 발견·제거해 시스템 목적 달성을 지원하는 이론
+142,이슈탐색(Horizon Scanning),MG > 기타 > 이슈탐색(Horizon Scanning),"Data, Analysis, Force, 국가 정책, 국가 전략, 교차영향분석, 추세외삽법, 시나리오",데분포,다양한 영역 데이터로 중장기 위험·기회를 발굴하는 미래 전략 수립 기법
+143,"4P(Product, Price, Place, Promotion)",MG > 기타 > 4P,"Product, Price, Place, Promotion",제가유촉,제품·가격·유통·촉진의 4요소로 구성된 마케팅 믹스 전략
+144,긱 이코노미(Gig Economy),경영 > 기타 > 긱 이코노미,"온디멘드 경제, 온라인, 플랫폼, 위치기반, 맞춤화, 사례(Uber, 크몽, 히든등)",온디멘드,플랫폼을 통해 단기 서비스 제공 계약 형태로 일하는 노동 경제 방식
+145,구독 경제 (Subscription Economy),경영 > 기타 > 구독 경제,"무제한 이용모델, 정기배송 모델, 랜털 모델",무정랜,정기 구독으로 상품·서비스를 정기 배송·이용하는 소비자 중심 경제
+146,성과경제(Outcome Economy),MG,"보상모델(Reward Model), 강화학습(PPO), 인간 선호 정렬(Alignment), 직접 선호 최적화, 보상모델 제거, 학습 구조 단순화",성보(성과/보상),고객이 달성한 성과에 대해 가치를 제공·보상받는 결과 중심 경제 모델
+147,기술 가치 평가,경영 > 기타 > 기술 가치 평가,"기술가치평가 원칙, 방법론, 기술성, 권리성, 시장성, 사업성 분석, 소득(수익)접근법, 시장접근법, 비용(원가)접근법",기권시사,기술이전·사업화 대상 기술의 경제적 가치를 화폐로 산출하는 평가
+148,고객여정지도,경영 > 기타 > 고객여정지도,"-고객경험관리, 디자인 씽킹, 페르소나, 디지털 트랜스포메이션, 고객여정 -Pain Point, 비즈니스 혁신, 고객관리 혁신",인분도패,고객과 브랜드 상호작용 지점을 순차 나열해 문제를 파악하는 시각화 도구
+149,그로스(Growth Hacking)/라이프(Life Hacking)/시빅 해킹(Civic Hacking),IT 경영전략 > 디지털 컨버전스> 그로스/라이프/시빅 해킹,"인지, 측진, 유지, 추천, 매출",인측유추매,성장·생활·시민 영역에서 해킹적 사고로 목표를 달성하는 혁신 기법
+150,리빙랩(Living Lab),경영 > 기타 > 리빙랩,시민참여,"공민(공공제품, 민간제품)",시민 참여 기반으로 사회문제 해결을 연구·실험하는 사용자 주도 방법
+151,디지털 카르텔(Digital Cartel),IT경영 > 기타> 디지털카르텔,"모니터링, 병행, 신호, 자가학습, Messenger, Hub and Spoke, Predictable Agent, Autonomous Machine",모병신자,알고리즘 기반 정보교환·가격조정으로 이뤄지는 디지털 담합 행위
+152,"OKR(Objective, Key Result)",MG > 기타,"목표설정, 집중, 정렬, 추적, 도전",목집정추도,목표와 핵심결과로 협력해 목표를 세우는 성과관리 규약
+153,카노모델(Kano Model),MA > 전략도구 > 카노모델(Kano Model),"매력적 품질요소, 일차원적 품질요소, 당위적 품질요소, 무차별 품질요소, 역 품질요소",매일당 무역,고객 기대와 충족 사이 관계로 품질 요소를 분류하는 모델
+154,MVP(Minimum Viable Product),MA > 애자일 > MVP(Minimum Viable Product),"핵심 가치(기능), Build-Measure-Learn Loop(Iteration Cycle)","아빌배측데학(아이디어, 빌드, 배포, 측정, 데이터, 학습)",핵심 가치만 담아 빠르게 출시·검증하는 최소 기능 제품 전략
+155,(크로스보더 플랫폼이 주도하는) 플랫폼 경제,MG > 플랫폼(유형) > 플랫폼 경제,"매치메이커(match maker), 네트워크 효과(network effect), Cross subsidy), 다면플랫폼, 다 중플랫폼, 플랫폼의 플랫폼",면중플,이용자 그룹이 플랫폼 환경에서 거래·상호작용으로 활동하는 경제
+156,"ESG(Environment, Social, Governance)경영",MA > CSR > ESG 경영,"ESG(Environment, Social, Governance), 친환경, 사회적 책임, 지배구조, 지속가능성, 비재무적인 지표, 지속 가능한 발전",친사지,환경·사회·지배구조 비재무 요소를 고려하는 지속가능 경영 전략
+157,SOS랩(Solution in Our Society Lab),MA > 기타 > SOS랩,"조직화, 개념화, 구체화, 실체화, 공유화, 사업화, 공감","[조개구실공사] 조직화, 개념화, 구체화, 실체화, 공유화, 사업화",지역사회 문제 해결을 위해 SW·ICT를 활용하는 사회혁신 연구소
+158,비즈니스 모델 캔버스(Business Model Canvas),MA > 기획 분석,"고객, 가치제안, 채널, 고객관계, 수익원, 핵심활동, 핵심자원, 핵심 파트너쉽, 비용구조,",고채고수 가핵비,비즈니스 모델 핵심 구성요소를 한 장에 담은 전략 시각화 프레임워크
+159,데이터 분석 기획,MA,"데이터 사이언티스트(Data Scientist), 최적화, 솔루션, 통찰, 발견, 마스터플랜, 가용한데이 터, 유스케이스(Usecase), 위험관리",최솔통발,분석 수행 전 과제 정의와 결과 도출 방안을 사전 계획하는 일련의 활동
+160,"SCAMPER(Substitute, Combine, Adapt, Modify, Put to other uses, Eliminate, Reverse ) 기법",MG>전략수립도구,"Substitute(대체), Combine(결합), Adapt(응용), Modify(변형), Magnify(확대), Minify(축소), Put to Other Uses(다르게 활용), Eliminate(제거), Reverse(역순), Rearrange(재배열)",대결응변,대체·결합·적응·변형 등 7개 질문으로 아이디어를 발상하는 기법
+161,퀵 커머스(Quick Commerce),BS > 커머스,"1시간 이내 주문, 초고속 상거래, 라이프스타일 변화, MFC(Micro Fulfillment Center)",일배(1시간 이내 배송),도심 물류 거점에서 1시간 이내 즉시 배송하는 초근거리 상거래
+162,POP(Point of Production),MG,"생산시점 관리, 생산량 예측, 생산현황관리, 물류현황관리, 품질관리, 실시간 집계, 분석, 실적관리 위주 시스템",생물품기,현장에서 발생하는 데이터를 실시간 집계·분석·조회하는 생산 정보 시스템
+163,CoE(Center of Excellence),MG,"전문가 조직, 테크놀로지, 시장, 메커니즘, 목표 지향","메시테(메커니즘, 시장, 테크놀로지)",선진 기술·툴·배포 채널 접근을 위한 전문 조직 또는 협업체
+164,메타 커머스(Meta Commerce),IT 경영전략 > Commerce > 메타 커머스,"메타버스, 브랜드 체험형, 제품 구매형, 자체구축, 기존 플랫폼 활용, 객체탐지기술, 아바타 렌더링, 다중감각기술, 가상화 기술, 전자상거래 플랫폼, 메타버스 플랫폼",브구자플,메타버스 가상 공간에서 제품·서비스를 체험·구매하는 전자상거래
+165,사실상 표준(de facto standard)/ 공식적 표준(de jure standard),MG > 기타,"표준화, 규격",표규,공인기관 표준은 아니지만 시장 형성 과정에서 생성되는 사실상 표준
+166,전자정부 정보시스템 성과 측정지표,IT 경영전략 > 전자정부 정보시스템 성과 측정지표,"비용측면, 업무측면",비업,비용·업무 관점 성과측정으로 정보시스템 유지·폐기를 결정하는 지표

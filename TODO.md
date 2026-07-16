@@ -9,11 +9,11 @@
   - [x] `docs/answer-template-spec.md`: 1교시형/2교시형 섹션 슬롯 정의 (강정배 방법론 기반)
   - [x] 슬롯 인터페이스 확정: §7 프래그먼트 계약 (ans/def/gloss/diagram(.d7)/t3·t2·tcmp·texp/r2)
   - [x] `_ANSWER_TEMPLATE`·`render_answer` 줄 그리드(v1 연속 본문)로 교체, `_volume` 쪽·줄 기반 갱신, 데모 답안 새 계약 적용
-- [ ] **M2 — 라이브러리 데이터 모델·씨앗** (스펙 2-1, 2-2)
-  - [ ] `api/_library/schema.md` + 토픽 JSON 스키마 확정
-  - [ ] `scripts/seed_from_xlsx.py`: 경영전략_토픽 166건 → 뼈대 JSON (부품 보존 머지)
-  - [ ] `scripts/build_index.py`: 스키마 검증(+HTML 금칙어, 총량 5MB) → `index.json` 생성
-  - [ ] 대표 5토픽 풀부품 수작업: SLA/SLM/ITSM/BCP-DRS/SWOT (comparisons 상호참조 포함)
+- [x] **M2 — 라이브러리 데이터 모델·씨앗** (스펙 2-1, 2-2)
+  - [x] `api/_library/schema.md` + 토픽 JSON 스키마 확정
+  - [x] `scripts/seed_from_xlsx.py`: 경영전략_토픽 166건 → 뼈대 JSON (부품 보존 머지, 별칭 충돌 해소)
+  - [x] `scripts/build_index.py`: 스키마 검증(+HTML 금칙어, 총량 5MB, comparisons 참조 무결성) → `index.json` 생성
+  - [x] 대표 5토픽 풀부품 수작업: ITSM(MG-001)/SLA(MG-004)/SLM(MG-005)/DRS(MG-016)/SWOT(MG-024), SLA↔SLM 비교 상호참조
 - [ ] **M3 — 매칭 엔진** (스펙 2-3)
   - [ ] `api/_topic_library.py`: norm(초성/약어), 점수화, 확정 임계값, 복수 매칭(최대 3)
   - [ ] 모호 구간 LLM 1콜 (후보 목록 내 선택만 허용), 단위 테스트

@@ -1,0 +1,29 @@
+{
+  "id": "MG-083",
+  "name": "IT Governance",
+  "aliases": [],
+  "category": "MG > IT Governance",
+  "keywords": [
+    "전략과 목표달성",
+    "비즈니스와 IT 연계(Alignment)",
+    "지배/통제/관리",
+    "CobIT",
+    "전략적연계",
+    "가치제공",
+    "위험관리",
+    "자원관리",
+    "성과측정"
+  ],
+  "mnemonic": {
+    "word": "전가위자성",
+    "expansion": [
+      "전략과 목표달성",
+      "비즈니스와 IT 연계(Alignment)",
+      "지배/통제/관리",
+      "CobIT",
+      "전략적연계",
+      "가치제공"
+    ]
+  },
+  "definition": "기업 전략·목표 달성을 위해 IT 자원·프로세스를 통제·관리하는 체계"
+}

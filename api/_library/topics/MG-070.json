@@ -1,0 +1,30 @@
+{
+  "id": "MG-070",
+  "name": "SCM(Supply Chain Management)",
+  "aliases": [
+    "SCM",
+    "Supply Chain Management"
+  ],
+  "category": "경영전략 > 공급망관리 > SCM",
+  "keywords": [
+    "SCP",
+    "SCE",
+    "SCI",
+    "Value Chain",
+    "공급망 프로세스 관리",
+    "Bullwhip Effect",
+    "SCM2.0"
+  ],
+  "mnemonic": {
+    "word": "계실프(계획, 실행, 프로세스관리)",
+    "expansion": [
+      "SCP",
+      "SCE",
+      "SCI",
+      "Value Chain",
+      "공급망 프로세스 관리",
+      "Bullwhip Effect"
+    ]
+  },
+  "definition": "공급자에서 소비자까지 전체 공급망을 통합·최적화하는 경영 기법"
+}

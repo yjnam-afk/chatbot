@@ -1,0 +1,22 @@
+{
+  "id": "MG-045",
+  "name": "Cyclone Model",
+  "aliases": [],
+  "category": "MG > 실시간 기업 > Cyclone Mode",
+  "keywords": [
+    "Lead",
+    "Manage",
+    "Operate",
+    "cyclone(end-to-end process)"
+  ],
+  "mnemonic": {
+    "word": "지관운(지휘, 관리, 운영)",
+    "expansion": [
+      "Lead",
+      "Manage",
+      "Operate",
+      "cyclone(end-to-end process)"
+    ]
+  },
+  "definition": "지휘·관리·운영 프로세스로 기업의 End-to-End 응답을 통합 관리하는 모델"
+}

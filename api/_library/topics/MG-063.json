@@ -1,0 +1,25 @@
+{
+  "id": "MG-063",
+  "name": "BPM(Business Process Management)",
+  "aliases": [
+    "BPM",
+    "Business Process Management"
+  ],
+  "category": "경영전략 > 프로세스 관리",
+  "keywords": [
+    "프로세스 모델링",
+    "BPA",
+    "BRE",
+    "BAM"
+  ],
+  "mnemonic": {
+    "word": "알이엠(BPA, BRE, BAM)",
+    "expansion": [
+      "프로세스 모델링",
+      "BPA",
+      "BRE",
+      "BAM"
+    ]
+  },
+  "definition": "업무 프로세스 자동화·통합·최적화로 기업 가치를 향상시키는 경영 기법"
+}

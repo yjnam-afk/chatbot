@@ -1,0 +1,24 @@
+{
+  "id": "MG-165",
+  "name": "사실상 표준(de facto standard)/ 공식적 표준(de jure standard)",
+  "aliases": [
+    "사실상 표준 / 공식적 표준",
+    "de facto standard",
+    "de jure standard",
+    "사실상 표준",
+    "공식적 표준"
+  ],
+  "category": "MG > 기타",
+  "keywords": [
+    "표준화",
+    "규격"
+  ],
+  "mnemonic": {
+    "word": "표규",
+    "expansion": [
+      "표준화",
+      "규격"
+    ]
+  },
+  "definition": "공인기관 표준은 아니지만 시장 형성 과정에서 생성되는 사실상 표준"
+}

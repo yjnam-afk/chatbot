@@ -1,0 +1,19 @@
+{
+  "id": "MG-078",
+  "name": "eSCM(e –Sourcing Capability Model)",
+  "aliases": [
+    "eSCM",
+    "e –Sourcing Capability Model"
+  ],
+  "category": "MG > Outsourcing > eSCM",
+  "keywords": [
+    "e-Sourcing Capability Model. ISO20000"
+  ],
+  "mnemonic": {
+    "word": "조인사기지",
+    "expansion": [
+      "e-Sourcing Capability Model. ISO20000"
+    ]
+  },
+  "definition": "IT 아웃소싱 절차의 베스트 프랙티스를 체계화한 업무개선 지침 모델"
+}

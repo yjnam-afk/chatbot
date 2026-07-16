@@ -1,0 +1,29 @@
+{
+  "id": "MG-096",
+  "name": "더블 다이아몬드 모델 (Double Diamond Model)",
+  "aliases": [
+    "더블 다이아몬드 모델",
+    "Double Diamond Model"
+  ],
+  "category": "IT경영전략",
+  "keywords": [
+    "UX 디자인",
+    "Discover",
+    "Define",
+    "Develop",
+    "Deliver",
+    "디자인 싱킹"
+  ],
+  "mnemonic": {
+    "word": "탐솔(탐색, 솔루션)",
+    "expansion": [
+      "UX 디자인",
+      "Discover",
+      "Define",
+      "Develop",
+      "Deliver",
+      "디자인 싱킹"
+    ]
+  },
+  "definition": "발견-정의-개발-전달의 두 다이아몬드로 진행하는 서비스 디자인 모델"
+}

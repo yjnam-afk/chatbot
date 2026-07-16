@@ -1,0 +1,26 @@
+{
+  "id": "MG-040",
+  "name": "Composable ERP",
+  "aliases": [],
+  "category": "IT 경영전략 > 기간시스템 > ERP",
+  "keywords": [
+    "모듈화",
+    "SOA",
+    "MSA",
+    "느슨한 결합",
+    "확장성",
+    "유연성"
+  ],
+  "mnemonic": {
+    "word": "이컴통오유데(EPR, 컴포저블, 통합, 오케스트레이션, UI, Data)",
+    "expansion": [
+      "모듈화",
+      "SOA",
+      "MSA",
+      "느슨한 결합",
+      "확장성",
+      "유연성"
+    ]
+  },
+  "definition": "마이크로서비스를 통합·조립해 유연성과 확장성을 제공하는 차세대 ERP 시스템"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "MG-033",
+  "name": "PEST(Political, Economic, Social, Technological) 분석",
+  "aliases": [
+    "PEST 분석"
+  ],
+  "category": "경영전략 > 전략수립도구 > PEST 분석",
+  "keywords": [
+    "Political(정치)",
+    "Economic(경제)",
+    "Social(사회문화)",
+    "Technological(기술)"
+  ],
+  "mnemonic": {
+    "word": "정경사기",
+    "expansion": [
+      "Political(정치)",
+      "Economic(경제)",
+      "Social(사회문화)",
+      "Technological(기술)"
+    ]
+  },
+  "definition": "정치·경제·사회·기술의 거시환경 요인을 분석해 전략수립의 기초를 제공"
+}

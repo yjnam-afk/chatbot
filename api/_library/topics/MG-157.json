@@ -1,0 +1,30 @@
+{
+  "id": "MG-157",
+  "name": "SOS랩(Solution in Our Society Lab)",
+  "aliases": [
+    "SOS랩",
+    "Solution in Our Society Lab"
+  ],
+  "category": "MA > 기타 > SOS랩",
+  "keywords": [
+    "조직화",
+    "개념화",
+    "구체화",
+    "실체화",
+    "공유화",
+    "사업화",
+    "공감"
+  ],
+  "mnemonic": {
+    "word": "[조개구실공사] 조직화, 개념화, 구체화, 실체화, 공유화, 사업화",
+    "expansion": [
+      "조직화",
+      "개념화",
+      "구체화",
+      "실체화",
+      "공유화",
+      "사업화"
+    ]
+  },
+  "definition": "지역사회 문제 해결을 위해 SW·ICT를 활용하는 사회혁신 연구소"
+}

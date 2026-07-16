@@ -1,0 +1,20 @@
+{
+  "id": "MG-115",
+  "name": "표준특허, FRAND(Fair, Reasonable And Non-Discriminatory Terms) 특허",
+  "aliases": [
+    "표준특허, FRAND 특허"
+  ],
+  "category": "경영전략 > 특허 > 표준특허, FRAND 특허",
+  "keywords": [
+    "FRAND (Fair",
+    "Reasonable And Non-Discriminatory Terms)"
+  ],
+  "mnemonic": {
+    "word": "공타비",
+    "expansion": [
+      "FRAND (Fair",
+      "Reasonable And Non-Discriminatory Terms)"
+    ]
+  },
+  "definition": "표준이 된 특허에 대한 공정·합리·비차별 라이선싱을 보장하는 특허"
+}

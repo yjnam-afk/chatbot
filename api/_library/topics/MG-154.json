@@ -1,0 +1,21 @@
+{
+  "id": "MG-154",
+  "name": "MVP(Minimum Viable Product)",
+  "aliases": [
+    "MVP",
+    "Minimum Viable Product"
+  ],
+  "category": "MA > 애자일 > MVP(Minimum Viable Product)",
+  "keywords": [
+    "핵심 가치(기능)",
+    "Build-Measure-Learn Loop(Iteration Cycle)"
+  ],
+  "mnemonic": {
+    "word": "아빌배측데학(아이디어, 빌드, 배포, 측정, 데이터, 학습)",
+    "expansion": [
+      "핵심 가치(기능)",
+      "Build-Measure-Learn Loop(Iteration Cycle)"
+    ]
+  },
+  "definition": "핵심 가치만 담아 빠르게 출시·검증하는 최소 기능 제품 전략"
+}

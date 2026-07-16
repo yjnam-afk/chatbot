@@ -1,0 +1,30 @@
+{
+  "id": "MG-009",
+  "name": "웹 마이닝(WEB Mining)",
+  "aliases": [
+    "웹 마이닝",
+    "WEB Mining"
+  ],
+  "category": "MG > Mining 총론 > WEB Mining",
+  "keywords": [
+    "WWW",
+    "온톨로지",
+    "ONTEX",
+    "RDF",
+    "Semantic Web",
+    "REST",
+    "Web Log"
+  ],
+  "mnemonic": {
+    "word": "구내사(구조, 내용, 사용 마이닝)",
+    "expansion": [
+      "WWW",
+      "온톨로지",
+      "ONTEX",
+      "RDF",
+      "Semantic Web",
+      "REST"
+    ]
+  },
+  "definition": "웹상 사용자 데이터·로그 분석을 통해 가치 있는 정보를 추출하는 마이닝 기법"
+}

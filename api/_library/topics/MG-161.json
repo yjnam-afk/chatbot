@@ -1,0 +1,25 @@
+{
+  "id": "MG-161",
+  "name": "퀵 커머스(Quick Commerce)",
+  "aliases": [
+    "퀵 커머스",
+    "Quick Commerce"
+  ],
+  "category": "BS > 커머스",
+  "keywords": [
+    "1시간 이내 주문",
+    "초고속 상거래",
+    "라이프스타일 변화",
+    "MFC(Micro Fulfillment Center)"
+  ],
+  "mnemonic": {
+    "word": "일배(1시간 이내 배송)",
+    "expansion": [
+      "1시간 이내 주문",
+      "초고속 상거래",
+      "라이프스타일 변화",
+      "MFC(Micro Fulfillment Center)"
+    ]
+  },
+  "definition": "도심 물류 거점에서 1시간 이내 즉시 배송하는 초근거리 상거래"
+}

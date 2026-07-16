@@ -1,0 +1,32 @@
+{
+  "id": "MG-035",
+  "name": "ITIL(IT Infrastructure Library) / ITIL 3.0",
+  "aliases": [
+    "ITIL / ITIL 3.0",
+    "IT Infrastructure Library",
+    "ITIL",
+    "ITIL 3.0"
+  ],
+  "category": "IT 경영전략 > ITIL 3.0 > ITIL / ITIL 3.0",
+  "keywords": [
+    "절차 5개(서비스 전략",
+    "설계",
+    "이행",
+    "운영",
+    "개선)",
+    "Service Support",
+    "Service Delivery"
+  ],
+  "mnemonic": {
+    "word": "전설전운지",
+    "expansion": [
+      "절차 5개(서비스 전략",
+      "설계",
+      "이행",
+      "운영",
+      "개선)",
+      "Service Support"
+    ]
+  },
+  "definition": "안정적 서비스지원·이행·운영·인프라 관리의 베스트 프랙티스 모음집"
+}

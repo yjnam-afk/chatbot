@@ -1,0 +1,29 @@
+{
+  "id": "MG-041",
+  "name": "BI(Business Intelligence)2.0, 3.0",
+  "aliases": [
+    "BI 2.0, 3.0",
+    "Business Intelligence"
+  ],
+  "category": "IT 경영전략 > 의사판단시스템 > BI 2.0, 3.0",
+  "keywords": [
+    "운영BI",
+    "전략BI",
+    "분석BI",
+    "데이터분석",
+    "의사결정지원",
+    "BI 3.0 미래예측"
+  ],
+  "mnemonic": {
+    "word": "운전분정, 수분의표",
+    "expansion": [
+      "운영BI",
+      "전략BI",
+      "분석BI",
+      "데이터분석",
+      "의사결정지원",
+      "BI 3.0 미래예측"
+    ]
+  },
+  "definition": "DW를 기반으로 다양한 분석 도구를 활용한 의사결정 지원 시스템"
+}

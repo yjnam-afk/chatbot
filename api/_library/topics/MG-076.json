@@ -1,0 +1,29 @@
+{
+  "id": "MG-076",
+  "name": "Data Warehouse",
+  "aliases": [],
+  "category": "MG > Data Warehouse",
+  "keywords": [
+    "주체지향성",
+    "통합적",
+    "시계열적",
+    "비휘발성",
+    "ETL",
+    "Data mart",
+    "ODS",
+    "OLAP",
+    "메타데이터"
+  ],
+  "mnemonic": {
+    "word": "주통시비",
+    "expansion": [
+      "주체지향성",
+      "통합적",
+      "시계열적",
+      "비휘발성",
+      "ETL",
+      "Data mart"
+    ]
+  },
+  "definition": "의사결정 지원을 위한 통합·주제 지향·시간가변·비소멸성 데이터베이스"
+}

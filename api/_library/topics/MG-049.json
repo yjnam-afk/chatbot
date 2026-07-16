@@ -1,0 +1,25 @@
+{
+  "id": "MG-049",
+  "name": "BCG(BostonConsultingGroup) Matrix",
+  "aliases": [
+    "BCG Matrix",
+    "BostonConsultingGroup"
+  ],
+  "category": "경영전략(MG) > 전략 계획 > BCG Matrix",
+  "keywords": [
+    "Star",
+    "Cash Cow",
+    "Question Mark",
+    "Dog"
+  ],
+  "mnemonic": {
+    "word": "개소물별",
+    "expansion": [
+      "Star",
+      "Cash Cow",
+      "Question Mark",
+      "Dog"
+    ]
+  },
+  "definition": "시장성장률·점유율로 SBU를 4영역으로 구분해 사업 전략을 도출하는 매트릭스"
+}

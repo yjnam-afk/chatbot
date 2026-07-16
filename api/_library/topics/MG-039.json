@@ -1,0 +1,36 @@
+{
+  "id": "MG-039",
+  "name": "ERP(Enterprise Resource Planning)",
+  "aliases": [
+    "ERP",
+    "Enterprise Resource Planning"
+  ],
+  "category": "IT 경영전략 > 기간시스템 > ERP",
+  "keywords": [
+    "영업",
+    "생산",
+    "자재/구매",
+    "무역",
+    "원가",
+    "회계",
+    "인사",
+    "Bing Bang",
+    "기능/단계별",
+    "사업장별",
+    "BPR",
+    "XRP",
+    "ERP II"
+  ],
+  "mnemonic": {
+    "word": "빅기사(빅뱅, 기능별, 사업장별)",
+    "expansion": [
+      "영업",
+      "생산",
+      "자재/구매",
+      "무역",
+      "원가",
+      "회계"
+    ]
+  },
+  "definition": "기업의 경영자원·정보자원을 통합 관리해 경쟁력을 극대화하는 자원관리시스템"
+}

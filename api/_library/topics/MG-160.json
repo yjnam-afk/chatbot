@@ -1,0 +1,32 @@
+{
+  "id": "MG-160",
+  "name": "SCAMPER(Substitute, Combine, Adapt, Modify, Put to other uses, Eliminate, Reverse ) 기법",
+  "aliases": [
+    "SCAMPER 기법"
+  ],
+  "category": "MG>전략수립도구",
+  "keywords": [
+    "Substitute(대체)",
+    "Combine(결합)",
+    "Adapt(응용)",
+    "Modify(변형)",
+    "Magnify(확대)",
+    "Minify(축소)",
+    "Put to Other Uses(다르게 활용)",
+    "Eliminate(제거)",
+    "Reverse(역순)",
+    "Rearrange(재배열)"
+  ],
+  "mnemonic": {
+    "word": "대결응변",
+    "expansion": [
+      "Substitute(대체)",
+      "Combine(결합)",
+      "Adapt(응용)",
+      "Modify(변형)",
+      "Magnify(확대)",
+      "Minify(축소)"
+    ]
+  },
+  "definition": "대체·결합·적응·변형 등 7개 질문으로 아이디어를 발상하는 기법"
+}

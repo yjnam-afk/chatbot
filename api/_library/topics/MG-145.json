@@ -1,0 +1,23 @@
+{
+  "id": "MG-145",
+  "name": "구독 경제 (Subscription Economy)",
+  "aliases": [
+    "구독 경제",
+    "Subscription Economy"
+  ],
+  "category": "경영 > 기타 > 구독 경제",
+  "keywords": [
+    "무제한 이용모델",
+    "정기배송 모델",
+    "랜털 모델"
+  ],
+  "mnemonic": {
+    "word": "무정랜",
+    "expansion": [
+      "무제한 이용모델",
+      "정기배송 모델",
+      "랜털 모델"
+    ]
+  },
+  "definition": "정기 구독으로 상품·서비스를 정기 배송·이용하는 소비자 중심 경제"
+}

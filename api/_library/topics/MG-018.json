@@ -1,0 +1,21 @@
+{
+  "id": "MG-018",
+  "name": "DRP(Disaster Recovery Plan)",
+  "aliases": [
+    "DRP",
+    "Disaster Recovery Plan"
+  ],
+  "category": "MG > BCP > DRP",
+  "keywords": [
+    "Disaster Recovery Plan",
+    "정기/비정기 훈련"
+  ],
+  "mnemonic": {
+    "word": "디복훈(DRS, 복구계획서, 훈련계획서)",
+    "expansion": [
+      "Disaster Recovery Plan",
+      "정기/비정기 훈련"
+    ]
+  },
+  "definition": "재해 발생 시 체계적 업무복구를 위한 절차와 문서를 수립한 재해복구계획"
+}

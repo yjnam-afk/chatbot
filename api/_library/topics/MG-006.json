@@ -1,0 +1,27 @@
+{
+  "id": "MG-006",
+  "name": "Data Mining",
+  "aliases": [],
+  "category": "MG > Mining 총론 > Data Mining",
+  "keywords": [
+    "연관성기법(지지도/신뢰도/리프트)",
+    "연속성",
+    "분류",
+    "군집화(Clustering)",
+    "Machine Learning(기 계학습 연계)",
+    "특성화",
+    "의사결정트리"
+  ],
+  "mnemonic": {
+    "word": "AS 분데특신의",
+    "expansion": [
+      "연관성기법(지지도/신뢰도/리프트)",
+      "연속성",
+      "분류",
+      "군집화(Clustering)",
+      "Machine Learning(기 계학습 연계)",
+      "특성화"
+    ]
+  },
+  "definition": "대량 데이터에 통계·모델링 기법을 적용해 숨겨진 패턴·관계를 도출하는 기법"
+}

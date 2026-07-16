@@ -1,0 +1,26 @@
+{
+  "id": "MG-152",
+  "name": "OKR(Objective, Key Result)",
+  "aliases": [
+    "OKR"
+  ],
+  "category": "MG > 기타",
+  "keywords": [
+    "목표설정",
+    "집중",
+    "정렬",
+    "추적",
+    "도전"
+  ],
+  "mnemonic": {
+    "word": "목집정추도",
+    "expansion": [
+      "목표설정",
+      "집중",
+      "정렬",
+      "추적",
+      "도전"
+    ]
+  },
+  "definition": "목표와 핵심결과로 협력해 목표를 세우는 성과관리 규약"
+}

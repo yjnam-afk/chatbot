@@ -1,0 +1,28 @@
+{
+  "id": "MG-084",
+  "name": "COBIT5(Control OBjectives for Information and related Technology 5.0)",
+  "aliases": [
+    "COBIT5"
+  ],
+  "category": "경영전략 > IT-Governance > COBIT5",
+  "keywords": [
+    "COBIT 4.1",
+    "Val IT",
+    "Risk IT",
+    "5가지 원칙",
+    "7가지 Enabler",
+    "주요 프로세스"
+  ],
+  "mnemonic": {
+    "word": "5원칙 : 통이비이거, 7Enabler : 원프조문 정서인 프로세스 : 애들아빠바이댄스미(EDm, APo, BAi, DSs, MEa)",
+    "expansion": [
+      "COBIT 4.1",
+      "Val IT",
+      "Risk IT",
+      "5가지 원칙",
+      "7가지 Enabler",
+      "주요 프로세스"
+    ]
+  },
+  "definition": "IT 거버넌스와 관리 목적 달성을 지원하는 5가지 원칙 기반 프레임워크"
+}

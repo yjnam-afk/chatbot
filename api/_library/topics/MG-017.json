@@ -1,0 +1,35 @@
+{
+  "id": "MG-017",
+  "name": "RTO(Recovery Time Objective)/RPO(Recovery Point Objective)",
+  "aliases": [
+    "RTO /RPO",
+    "Recovery Time Objective",
+    "Recovery Point Objective",
+    "RTO",
+    "RPO"
+  ],
+  "category": "MG > BCP/BCM > RTO, RPO",
+  "keywords": [
+    "재해복구",
+    "업무복구",
+    "업무재계",
+    "비상계획",
+    "RTO",
+    "RPO",
+    "RCO",
+    "RSO",
+    "BCO"
+  ],
+  "mnemonic": {
+    "word": "MHWC",
+    "expansion": [
+      "재해복구",
+      "업무복구",
+      "업무재계",
+      "비상계획",
+      "RTO",
+      "RPO"
+    ]
+  },
+  "definition": "RTO는 서비스 복구 허용시간, RPO는 데이터 손실 허용시점을 나타내는 지표"
+}

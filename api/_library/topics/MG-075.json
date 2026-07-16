@@ -1,0 +1,32 @@
+{
+  "id": "MG-075",
+  "name": "EIP(Enterprise Information Portal)",
+  "aliases": [
+    "EIP",
+    "Enterprise Information Portal"
+  ],
+  "category": "MG > EIP",
+  "keywords": [
+    "EIP",
+    "EP(Enterprise Portal)",
+    "단일창구",
+    "SSO",
+    "Personalization(개인화)",
+    "EKP",
+    "KMS",
+    "DW",
+    "기업 포털"
+  ],
+  "mnemonic": {
+    "word": "정포인모(정보시스템, 포털, 인트라넷, 인터넷 모듈)",
+    "expansion": [
+      "EIP",
+      "EP(Enterprise Portal)",
+      "단일창구",
+      "SSO",
+      "Personalization(개인화)",
+      "EKP"
+    ]
+  },
+  "definition": "단일 웹 게이트웨이로 사내외 정보를 통합해 맞춤 정보를 제공하는 포털"
+}

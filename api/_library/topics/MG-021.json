@@ -1,0 +1,30 @@
+{
+  "id": "MG-021",
+  "name": "UPS(Uninterruptible Power Supply)",
+  "aliases": [
+    "UPS",
+    "Uninterruptible Power Supply"
+  ],
+  "category": "경영전략/디지털서비스",
+  "keywords": [
+    "무정전 전원공급",
+    "전원 품질보장",
+    "시스템 보호",
+    "정류기",
+    "인버터",
+    "축전지",
+    "동기절체 스위치"
+  ],
+  "mnemonic": {
+    "word": "정축동유아(정류기, 축전지, 동기절체, 유지보수, AVR)",
+    "expansion": [
+      "무정전 전원공급",
+      "전원 품질보장",
+      "시스템 보호",
+      "정류기",
+      "인버터",
+      "축전지"
+    ]
+  },
+  "definition": "전원 장애를 극복해 안정된 교류 전력을 공급하는 무정전 전원공급 장치"
+}

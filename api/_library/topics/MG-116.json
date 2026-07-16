@@ -1,0 +1,16 @@
+{
+  "id": "MG-116",
+  "name": "지식재산권",
+  "aliases": [],
+  "category": "MG > 특허 > 지식재산권",
+  "keywords": [
+    "소프트웨어 지식재산권(SW Intellectual Property Rights)보호"
+  ],
+  "mnemonic": {
+    "word": "산저신",
+    "expansion": [
+      "소프트웨어 지식재산권(SW Intellectual Property Rights)보호"
+    ]
+  },
+  "definition": "창조적 활동·발견으로 창출한 지식·정보·기술 등에 대한 권리"
+}
