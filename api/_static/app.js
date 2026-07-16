@@ -61,12 +61,12 @@ function artifactBlobUrl(art) {
 function downloadArtifact(art) {
   const a = document.createElement("a");
   a.href = artifactBlobUrl(art);
-  a.download = (art.title || "작업물").replace(/[\\/:*?"<>|]/g, "_") + ".html";
+  a.download = (art.title || "답안지").replace(/[\\/:*?"<>|]/g, "_") + ".html";
   a.click();
 }
 
 function openPreview(art) {
-  pmTitle.textContent = "🎁 " + (art.title || "미리보기");
+  pmTitle.textContent = "📄 " + (art.title || "답안지");
   pmFrame.srcdoc = art.html;
   pmModal.hidden = false;
   document.getElementById("pm-open").onclick = () => window.open(artifactBlobUrl(art));
@@ -86,12 +86,12 @@ function addArtifactCard(art) {
   div.className = "msg bot artifact";
   const title = document.createElement("div");
   title.className = "art-title";
-  title.textContent = "🎁 " + (art.title || "작업물") + " 완성!";
+  title.textContent = "📄 답안지 완성 — " + (art.title || "답안지");
   const actions = document.createElement("div");
   actions.className = "art-actions";
   const bPrev = document.createElement("button");
   bPrev.className = "art-btn";
-  bPrev.textContent = "▶ 미리보기";
+  bPrev.textContent = "📄 답안지 보기";
   bPrev.onclick = () => openPreview(art);
   const bOpen = document.createElement("button");
   bOpen.className = "art-btn secondary";
@@ -138,8 +138,12 @@ function handleEvent(ev, ui) {
   } else if (ev.type === "reply") {
     ui.typing.remove();
     let meta = "";
-    if (ev.plan && ev.plan.type === "build") meta = `기획: ${ev.plan.title || "-"}`;
-    if (ev.review) meta += (meta ? " · " : "") + `QA: ${ev.review.approved ? "통과" : "이슈 있음"}`;
+    if (ev.exam) meta = `${ev.exam.kind} ${ev.exam.points}점`;
+    if (ev.review && typeof ev.review.score === "number") {
+      meta += (meta ? " · " : "") + `채점 ${ev.review.score}점`;
+      if (ev.review.rounds > 0) meta += ` (보완 ${ev.review.rounds}회)`;
+      if (ev.review.score < 85) meta += " · 기준 미달";
+    }
     addMessage("bot", ev.reply, meta || null);
     if (ev.artifact && ev.artifact.html) addArtifactCard(ev.artifact);
     history.push({ role: "assistant", content: ev.reply });
@@ -154,7 +158,7 @@ formEl.addEventListener("submit", async (e) => {
   inputEl.value = "";
   sendBtn.disabled = true;
   addMessage("user", text);
-  const ui = { typing: addMessage("bot typing", "메이커 팀이 작업 중이에요") };
+  const ui = { typing: addMessage("bot typing", "답안 팀이 작성 중이에요") };
 
   try {
     const res = await fetch("/api/chat", {
@@ -191,8 +195,11 @@ formEl.addEventListener("submit", async (e) => {
 
 addMessage(
   "bot",
-  "어서 오세요! 저희는 의뢰를 받으면 진짜 동작하는 웹앱을 만들어드리는 5인 AI 팀이에요.\n" +
-    "위 팀 보드에서 누가 무엇을 하고 있는지 실시간으로 보실 수 있어요.\n\n" +
-    '예시: "테트리스 게임 만들어줘" · "뽀모도로 타이머 만들어줘" · "고양이 카페 랜딩페이지 만들어줘"\n' +
-    "일반 질문도 얼마든지 환영이에요!"
+  "어서 오세요, 기술사 답안 사무소입니다.\n" +
+    "문제를 입력하시면 팀이 출제 의도 분석 → 답안 설계 → 작성 → 채점(85점 미만 시 1회 보완)을 거쳐 인쇄 가능한 답안지를 만들어 드려요.\n" +
+    "누리(출제 의도 분석) · 다인(답안 구조 설계) · 로운(답안 작성) · 세아(채점위원), 진행은 간사 코디가 맡습니다.\n\n" +
+    "예시:\n" +
+    '"OAuth 2.0에 대하여 설명하시오 (용어형 10점)"\n' +
+    '"제로 트러스트 보안 모델의 개념, 구성요소, 도입 시 고려사항에 대하여 설명하시오 (서술형 25점)"\n' +
+    '"데이터베이스 정규화와 반정규화를 비교하고 적용 기준을 설명하시오 (서술형 25점)"'
 );

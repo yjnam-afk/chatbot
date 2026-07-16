@@ -1,4 +1,4 @@
-"""픽셀 오피스 챗봇 API (Vercel 서버리스 / 로컬 겸용).
+"""기술사 답안 사무소 챗봇 API (Vercel 서버리스 / 로컬 겸용).
 
 - POST /api/chat   : NDJSON 스트림 — 에이전트 상태 이벤트 후 최종 답변
 - GET  /api/agents : 에이전트 명단 + 모드 정보
@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 
 from _agents import AGENTS, provider, run_pipeline
 
-app = FastAPI(title="Pixel Office Chatbot")
+app = FastAPI(title="기술사 답안 사무소")
 
 
 class ChatRequest(BaseModel):

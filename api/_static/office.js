@@ -5,11 +5,11 @@ const Office = (() => {
   const board = document.getElementById("team-board");
 
   const EMOJI = {
-    orchestrator: "🐶",
-    nlu: "🐱",
-    designer: "🐰",
-    writer: "🐸",
-    reviewer: "🐻",
+    orchestrator: "🗂️",
+    nlu: "🔍",
+    designer: "📐",
+    writer: "✍️",
+    reviewer: "⚖️",
   };
   const STATE_KO = { idle: "대기", thinking: "생각 중", working: "작업 중", done: "완료", error: "오류" };
   const FLOW = ["nlu", "designer", "writer", "reviewer"];
