@@ -1,11 +1,12 @@
 """기술사 답안 사무소 — 멀티 에이전트 답안 작성 파이프라인 (Vercel 서버리스 + 무료 LLM 대응).
 
-harness-100 패턴의 5인 팀이 기술사 시험 답안지를 만든다:
-진행 간사(코디) → 출제 의도 분석(누리) → 답안 구조 설계(다인) → 답안 작성(로운) → 채점위원(세아)
+5인 팀이 기술사 시험 답안지를 만든다 (역할 = 라이브러리 파이프라인 코드 단계와 1:1):
+접수(코디, 0콜) → 토픽 검색(누리, 0~1콜) → 답안 편집(다인, 0콜) → 집필(로운, 0~n콜) → 검증(세아, 0~1콜)
 
-- 시험 문제면: 분석 → 설계 → 작성 → 채점 → (85점 미만 시 보완 1회 + 재채점) → 답안지 HTML 전달
-- 일반 질문/대화면: 누리가 판별 후 로운(수험 멘토)이 바로 답변 (호출 2회)
-- LLM 호출은 최대 6회 (분석1 + 설계1 + 초안1 + 채점1 + 보완1 + 재채점1)
+- 시험 문제 + 라이브러리 적중: 부품 조립 — LLM 0~2콜, 키 없이도 실답안 (3초 목표)
+- 시험 문제 + 미적중: 라이브 파이프라인 폴백 — 설계→초안→채점(85점 미만/형식 위반 시
+  보완 1회+재채점), 최대 5콜. 키 없으면 데모 시나리오
+- 일반 질문: 로운(수험 멘토)이 바로 답변 (1콜)
 
 OpenAI 호환 chat/completions API 사용. 키 환경변수로 공급자 자동 인식:
   GROQ_API_KEY / GEMINI_API_KEY / (LLM_API_KEY + LLM_BASE_URL + LLM_MODEL)
@@ -30,12 +31,14 @@ import httpx
 import _topic_library as _library
 from _assembler import assemble, short_name, split_subjects
 
+# 역할은 라이브러리 파이프라인의 실제 코드 단계와 1:1 (docs/library-spec.md 2-5).
+# 프런트 표기의 단일 출처 — progress.js는 role 문자열을 하드코딩하지 않는다.
 AGENTS = [
-    {"id": "orchestrator", "name": "코디", "role": "진행 간사", "color": "#f2b544"},
-    {"id": "nlu", "name": "누리", "role": "출제 의도 분석", "color": "#5bc8f5"},
-    {"id": "designer", "name": "다인", "role": "답안 구조 설계", "color": "#b78ef0"},
-    {"id": "writer", "name": "로운", "role": "답안 작성", "color": "#6fd88a"},
-    {"id": "reviewer", "name": "세아", "role": "채점위원", "color": "#f28ba8"},
+    {"id": "orchestrator", "name": "코디", "role": "접수", "color": "#f2b544"},
+    {"id": "nlu", "name": "누리", "role": "토픽 검색", "color": "#5bc8f5"},
+    {"id": "designer", "name": "다인", "role": "답안 편집", "color": "#b78ef0"},
+    {"id": "writer", "name": "로운", "role": "집필", "color": "#6fd88a"},
+    {"id": "reviewer", "name": "세아", "role": "검증", "color": "#f28ba8"},
 ]
 
 PASS_SCORE = 85

@@ -12,42 +12,103 @@
       <span class="logo">🖋️</span>
       <div>
         <h1>기술사 답안 사무소</h1>
-        <p>문제를 붙여넣으면 답안지를 완성하는 5인 AI 팀</p>
+        <p>문제를 붙여넣으면 답안지가 채워집니다</p>
       </div>
     </div>
+    <span></span>
     <span id="mode-badge" class="badge">connecting…</span>
+    <form class="ask" id="chat-form">
+      <input id="chat-input" type="text" placeholder="문제를 입력하세요 · 예: SLA에 대하여 설명하시오 (25점)" autocomplete="off" />
+      <button type="submit" id="ask-btn">작성</button>
+    </form>
+    <div class="askmeta">
+      <div class="kinds" id="kind-chips">
+        <button type="button" class="kchip on" data-kind="">자동 판별</button>
+        <button type="button" class="kchip" data-kind="1교시형">1교시형</button>
+        <button type="button" class="kchip" data-kind="2교시형">2교시형</button>
+      </div>
+      <span id="result-line" class="resultline"></span>
+    </div>
   </header>
 
-  <main>
-    <section id="office-panel">
-      <div id="team-board"></div>
-      <div class="feed-head">팀 대화</div>
-      <div id="activity-log"></div>
-    </section>
+  <main class="workbench">
+    <!-- ==================== 좌측 레일 ==================== -->
+    <aside class="rail">
+      <div class="rail-tabs">
+        <button type="button" id="tab-progress" class="on">진행</button>
+        <button type="button" id="tab-drawer">토픽 서랍</button>
+      </div>
 
-    <section id="chat-panel">
-      <div id="messages"></div>
-      <form id="chat-form">
-        <input id="chat-input" type="text" placeholder="문제를 입력하세요 · 예: 데이터베이스 정규화에 대하여 설명하시오" autocomplete="off" />
-        <button type="submit">보내기</button>
-      </form>
+      <!-- 탭 ① 진행 -->
+      <div id="pane-progress" class="pane">
+        <div class="step" data-step="1">
+          <div class="top"><span>🔍</span><span class="name">토픽 검색</span><span class="st">대기</span></div>
+          <div class="cap">문제를 입력하면 시작됩니다 <span class="t"></span></div>
+        </div>
+        <div class="step" data-step="2">
+          <div class="top"><span>📄</span><span class="name">조립</span><span class="st">대기</span></div>
+          <div class="cap">&nbsp;<span class="t"></span></div>
+        </div>
+        <div class="step" data-step="3">
+          <div class="top"><span>✅</span><span class="name">검증</span><span class="st">대기</span></div>
+          <div class="cap">&nbsp;<span class="t"></span></div>
+        </div>
+        <div class="gauge">
+          <h4>분량</h4>
+          <div class="gbar"><i id="gauge-fill"></i></div>
+          <div class="gv" id="gauge-text">답안지 없음</div>
+        </div>
+        <div class="exports">
+          <button type="button" id="ex-print" class="pri" disabled>🖨️ 인쇄</button>
+          <button type="button" id="ex-pdf" disabled title="인쇄 다이얼로그에서 '대상: PDF로 저장'을 선택하세요">PDF</button>
+          <button type="button" id="ex-html" disabled>HTML</button>
+          <button type="button" id="ex-tab" disabled>새 탭</button>
+        </div>
+      </div>
+
+      <!-- 탭 ② 토픽 서랍 -->
+      <div id="pane-drawer" class="pane drawer" hidden>
+        <input id="drawer-search" class="dsearch" type="text" placeholder="토픽 검색 (이름·두문자·정의)" autocomplete="off" />
+        <div id="drawer-folders"></div>
+        <div id="drawer-list"></div>
+      </div>
+    </aside>
+
+    <!-- ==================== 무대: 답안지 ==================== -->
+    <section class="stage" id="stage">
+      <div id="stage-empty" class="stage-empty">
+        <div class="empty-sheet">
+          <div class="empty-note">
+            <p class="en-title">문제를 입력하면 이 용지에 답안이 채워집니다</p>
+            <p class="en-sub">라이브러리 적중 시 LLM 키 없이도 3초 안에 조립돼요</p>
+            <div class="examples">
+              <button type="button" class="ex-btn">SLA에 대하여 설명하시오 (25점)</button>
+              <button type="button" class="ex-btn">SLA와 SLM을 비교하여 설명하시오 (25점)</button>
+              <button type="button" class="ex-btn">SWOT 분석에 대하여 설명하시오 (10점)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="stage-wrap" hidden>
+        <div id="stage-overlay" class="stage-overlay" hidden><span id="overlay-cap">작성 중…</span></div>
+        <iframe id="sheet-frame" sandbox="allow-same-origin allow-modals" title="답안지"></iframe>
+      </div>
     </section>
   </main>
 
-  <div id="preview-modal" hidden>
-    <div class="pm-box">
-      <div class="pm-bar">
-        <span id="pm-title">미리보기</span>
-        <span class="pm-sp"></span>
-        <button id="pm-open">새 탭에서 열기</button>
-        <button id="pm-down">다운로드</button>
-        <button id="pm-close">닫기</button>
-      </div>
-      <iframe id="pm-frame" sandbox="allow-scripts"></iframe>
+  <!-- ==================== 대화 도크 ==================== -->
+  <div class="dock" id="dock">
+    <button type="button" class="dock-pill" id="dock-open">💬 대화 <span class="bdg" id="dock-badge" hidden>0</span></button>
+    <div class="dock-panel">
+      <div class="dock-head">일반 질문 대화 <button type="button" id="dock-close">✕</button></div>
+      <div class="dock-msgs" id="dock-msgs"></div>
+      <div class="dock-hint">질문은 상단 입력창에 입력하세요 — 시험 문제는 답안지로, 일반 질문은 여기로 답합니다.</div>
     </div>
   </div>
 
-  <script src="office.js"></script>
+  <script src="progress.js"></script>
+  <script src="stage.js"></script>
+  <script src="drawer.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

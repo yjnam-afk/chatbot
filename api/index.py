@@ -20,6 +20,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from _agents import AGENTS, provider, run_pipeline
+from _topic_library import load_index, stats as library_stats
 
 app = FastAPI(title="기술사 답안 사무소")
 
@@ -60,6 +61,12 @@ async def get_agents():
         "provider": p["name"] if p else None,
         "model": p["model"] if p else None,
     }
+
+
+@app.get("/api/library")
+async def get_library():
+    """토픽 라이브러리 통계 + 서랍용 목록 (id → {name, category, mn, def, full})."""
+    return {**library_stats(), "items": load_index().get("topics") or {}}
 
 
 @app.post("/api/chat")

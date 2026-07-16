@@ -1,125 +1,26 @@
-/* 채팅 UI — /api/chat NDJSON 스트림에서 에이전트 상태/대화 + 최종 결과(작업물) 수신.
+/* 글루 — 폼 제출, NDJSON 스트림 파싱 → Progress/Stage/대화 도크, 결과 메타 라인.
    (서버리스 대응: 이벤트 채널과 대화 이력을 모두 클라이언트가 관리) */
 
-const messagesEl = document.getElementById("messages");
 const formEl = document.getElementById("chat-form");
 const inputEl = document.getElementById("chat-input");
-const sendBtn = formEl.querySelector("button");
+const askBtn = document.getElementById("ask-btn");
 const badgeEl = document.getElementById("mode-badge");
-const logEl = document.getElementById("activity-log");
+const resultLine = document.getElementById("result-line");
 
-const pmModal = document.getElementById("preview-modal");
-const pmTitle = document.getElementById("pm-title");
-const pmFrame = document.getElementById("pm-frame");
+const dockEl = document.getElementById("dock");
+const dockMsgs = document.getElementById("dock-msgs");
+const dockBadge = document.getElementById("dock-badge");
 
 const history = []; // [{role, content}] — 클라이언트가 유지
-let agentNames = {};
-let agentColors = {};
-
-function addMessage(role, text, meta) {
-  const div = document.createElement("div");
-  div.className = `msg ${role}`;
-  div.textContent = text;
-  if (meta) {
-    const m = document.createElement("span");
-    m.className = "meta";
-    m.textContent = meta;
-    div.appendChild(m);
-  }
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-  return div;
-}
-
-function pushLog(line) {
-  logEl.appendChild(line);
-  while (logEl.children.length > 80) logEl.removeChild(logEl.firstChild);
-  logEl.scrollTop = logEl.scrollHeight;
-}
-
-function addLog(agentId, state, activity) {
-  const line = document.createElement("div");
-  line.className = "log-status";
-  const stateKo = Office.STATE_KO[state] || state;
-  line.innerHTML = `<b style="color:${agentColors[agentId] || "#8a745c"}">${agentNames[agentId] || agentId}</b> · ${stateKo}${activity ? " — " + activity : ""}`;
-  pushLog(line);
-}
-
-function addTalk(agentId, text) {
-  const line = document.createElement("div");
-  line.className = "log-talk";
-  line.innerHTML = `<b style="color:${agentColors[agentId] || "#5a4632"}">${agentNames[agentId] || agentId}</b> 💬 <span></span>`;
-  line.querySelector("span").textContent = text;
-  pushLog(line);
-}
-
-// ---------------------------------------------------------- 작업물(artifact)
-function artifactBlobUrl(art) {
-  return URL.createObjectURL(new Blob([art.html], { type: "text/html" }));
-}
-
-function downloadArtifact(art) {
-  const a = document.createElement("a");
-  a.href = artifactBlobUrl(art);
-  a.download = (art.title || "답안지").replace(/[\\/:*?"<>|]/g, "_") + ".html";
-  a.click();
-}
-
-function openPreview(art) {
-  pmTitle.textContent = "📄 " + (art.title || "답안지");
-  pmFrame.srcdoc = art.html;
-  pmModal.hidden = false;
-  document.getElementById("pm-open").onclick = () => window.open(artifactBlobUrl(art));
-  document.getElementById("pm-down").onclick = () => downloadArtifact(art);
-}
-
-document.getElementById("pm-close").onclick = () => {
-  pmModal.hidden = true;
-  pmFrame.srcdoc = "";
-};
-pmModal.addEventListener("click", (e) => {
-  if (e.target === pmModal) document.getElementById("pm-close").onclick();
-});
-
-function addArtifactCard(art) {
-  const div = document.createElement("div");
-  div.className = "msg bot artifact";
-  const title = document.createElement("div");
-  title.className = "art-title";
-  title.textContent = "📄 답안지 완성 — " + (art.title || "답안지");
-  const actions = document.createElement("div");
-  actions.className = "art-actions";
-  const bPrev = document.createElement("button");
-  bPrev.className = "art-btn";
-  bPrev.textContent = "📄 답안지 보기";
-  bPrev.onclick = () => openPreview(art);
-  const bOpen = document.createElement("button");
-  bOpen.className = "art-btn secondary";
-  bOpen.textContent = "새 탭";
-  bOpen.onclick = () => window.open(artifactBlobUrl(art));
-  const bDown = document.createElement("button");
-  bDown.className = "art-btn secondary";
-  bDown.textContent = "다운로드";
-  bDown.onclick = () => downloadArtifact(art);
-  actions.append(bPrev, bOpen, bDown);
-  div.append(title, actions);
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-  // 완성되면 자동으로 미리보기를 열어준다
-  openPreview(art);
-}
+let kindHint = ""; // 교시형 칩 수동 선택 ("" = 자동 판별)
+let unread = 0;
 
 // ---------------------------------------------------------- 초기화
 fetch("/api/agents")
   .then((r) => r.json())
   .then((data) => {
-    Office.setAgents(data.agents);
-    for (const a of data.agents) {
-      agentNames[a.id] = a.name;
-      agentColors[a.id] = a.color;
-    }
     if (data.demo) {
-      badgeEl.textContent = "데모 모드 (LLM 키 없음)";
+      badgeEl.textContent = "데모 모드 (라이브러리 적중은 실답안)";
       badgeEl.className = "badge demo";
     } else {
       badgeEl.textContent = `LIVE · ${data.provider} · ${data.model}`;
@@ -128,45 +29,158 @@ fetch("/api/agents")
   })
   .catch(() => { badgeEl.textContent = "서버 연결 실패"; });
 
-function handleEvent(ev, ui) {
-  if (ev.type === "agent") {
-    Office.setState(ev.agent, ev.state, ev.activity);
-    addLog(ev.agent, ev.state, ev.activity);
-  } else if (ev.type === "talk") {
-    Office.say(ev.agent, ev.text);
-    addTalk(ev.agent, ev.text);
-  } else if (ev.type === "reply") {
-    ui.typing.remove();
-    let meta = "";
-    if (ev.exam) meta = `${ev.exam.kind} ${ev.exam.points}점`;
-    if (ev.review && typeof ev.review.score === "number") {
-      meta += (meta ? " · " : "") + `채점 ${ev.review.score}점`;
-      if (ev.review.rounds > 0) meta += ` (보완 ${ev.review.rounds}회)`;
-      if (ev.review.score < 85) meta += " · 기준 미달";
-      if (ev.review.volume && typeof ev.review.volume.pages === "number")
-        meta += ` · 분량 약 ${ev.review.volume.pages}매`;
-    }
-    addMessage("bot", ev.reply, meta || null);
-    if (ev.artifact && ev.artifact.html) addArtifactCard(ev.artifact);
-    history.push({ role: "assistant", content: ev.reply });
-    if (history.length > 30) history.splice(0, history.length - 30);
+Drawer.load();
+
+// ---------------------------------------------------------- 레일 탭
+const tabProgress = document.getElementById("tab-progress");
+const tabDrawer = document.getElementById("tab-drawer");
+const paneProgress = document.getElementById("pane-progress");
+const paneDrawer = document.getElementById("pane-drawer");
+
+function showProgressTab() {
+  tabProgress.classList.add("on");
+  tabDrawer.classList.remove("on");
+  paneProgress.hidden = false;
+  paneDrawer.hidden = true;
+}
+tabProgress.onclick = showProgressTab;
+tabDrawer.onclick = () => {
+  tabDrawer.classList.add("on");
+  tabProgress.classList.remove("on");
+  paneDrawer.hidden = false;
+  paneProgress.hidden = true;
+};
+
+// ---------------------------------------------------------- 교시형 칩
+document.querySelectorAll(".kchip").forEach((chip) => {
+  chip.onclick = () => {
+    document.querySelectorAll(".kchip").forEach((c) => c.classList.remove("on"));
+    chip.classList.add("on");
+    kindHint = chip.dataset.kind || "";
+  };
+});
+
+// ---------------------------------------------------------- 대화 도크
+function openDock() {
+  dockEl.classList.add("open");
+  unread = 0;
+  dockBadge.hidden = true;
+}
+function closeDock() {
+  dockEl.classList.remove("open");
+}
+document.getElementById("dock-open").onclick = openDock;
+document.getElementById("dock-close").onclick = closeDock;
+
+function notifyDock() {
+  if (dockEl.classList.contains("open")) return;
+  unread += 1;
+  dockBadge.textContent = unread;
+  dockBadge.hidden = false;
+  const pill = document.getElementById("dock-open");
+  pill.classList.remove("bounce");
+  void pill.offsetWidth;
+  pill.classList.add("bounce");
+}
+
+function addDockMsg(role, text) {
+  const div = document.createElement("div");
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  dockMsgs.appendChild(div);
+  dockMsgs.scrollTop = dockMsgs.scrollHeight;
+  return div;
+}
+
+addDockMsg(
+  "bot",
+  "어서 오세요, 기술사 답안 사무소입니다.\n" +
+    "시험 문제를 입력하면 토픽 라이브러리에서 부품을 찾아 실물 답안지를 즉시 조립해 드려요 " +
+    "(적중 시 3초 이내, 미적중은 AI 팀이 작성·채점).\n" +
+    "일반 질문은 여기 대화 도크에서 답합니다."
+);
+
+// ---------------------------------------------------------- 결과 메타 라인
+function buildMeta(ev, secs) {
+  const parts = [];
+  if (ev.exam) parts.push(`${ev.exam.kind} ${ev.exam.points}점`);
+  if (ev.library === true && Array.isArray(ev.matched)) {
+    const names = ev.matched.map((id) => Drawer.name(id)).join(", ");
+    parts.push(`라이브러리 적중 ${ev.matched.length}건 (${names})`);
+  } else if (ev.library === false) {
+    parts.push(ev.demo ? "미적중 · 데모 답안" : "미적중 · 라이브 작성");
   }
+  if (ev.review && typeof ev.review.score === "number") {
+    let s = `채점 ${ev.review.score}점`;
+    if (ev.review.rounds > 0) s += ` (보완 ${ev.review.rounds}회)`;
+    if (ev.review.score < 85) s += " · 기준 미달";
+    parts.push(s);
+  }
+  if (ev.review && ev.review.warnings && ev.review.warnings.length) {
+    parts.push(`검증 경고 ${ev.review.warnings.length}건`);
+  }
+  if (typeof ev.llm_calls === "number") parts.push(`LLM ${ev.llm_calls}콜`);
+  parts.push(`${secs}초`);
+  return parts.join(" · ");
+}
+
+// ---------------------------------------------------------- 제출 + 스트림
+let t0 = 0;
+let typingEl = null;
+
+function handleEvent(ev) {
+  if (ev.type === "agent" || ev.type === "talk") {
+    Progress.onEvent(ev);
+    if (ev.type === "talk") Stage.setOverlayCaption(ev.text);
+    return;
+  }
+  if (ev.type !== "reply") return;
+  const secs = ((performance.now() - t0) / 1000).toFixed(1);
+  if (typingEl) { typingEl.remove(); typingEl = null; }
+
+  if (ev.artifact && ev.artifact.html) {
+    Progress.finishAll();
+    Stage.hideOverlay();
+    Stage.render(ev.artifact);
+    Stage.gauge(ev.sheet);
+    resultLine.textContent = buildMeta(ev, secs);
+    const kindLabel = ev.exam ? ` (${ev.exam.kind} ${ev.exam.points}점)` : "";
+    addDockMsg("sys", `📄 답안지 작성됨 — ${ev.artifact.title || "답안지"}${kindLabel}`);
+    notifyDock();
+    showProgressTab();
+  } else {
+    // 일반 답변 → 도크
+    Progress.reset();
+    Stage.hideOverlay();
+    addDockMsg("bot", ev.reply || "");
+    if (!dockEl.classList.contains("open")) openDock();
+  }
+  history.push({ role: "assistant", content: ev.reply || "" });
+  if (history.length > 30) history.splice(0, history.length - 30);
 }
 
 formEl.addEventListener("submit", async (e) => {
   e.preventDefault();
   const text = inputEl.value.trim();
-  if (!text) return;
+  if (!text || askBtn.disabled) return;
   inputEl.value = "";
-  sendBtn.disabled = true;
-  addMessage("user", text);
-  const ui = { typing: addMessage("bot typing", "답안 팀이 작성 중이에요") };
+  askBtn.disabled = true;
+  askBtn.textContent = "작성 중…";
+  resultLine.textContent = "";
+  Progress.reset();
+  Stage.showOverlay("접수 중…");
+  addDockMsg("user", text);
+  typingEl = addDockMsg("bot typing", "답안 팀이 작성 중이에요");
+  showProgressTab();
+  t0 = performance.now();
 
   try {
+    const body = { message: text, history: history.slice() };
+    if (kindHint) body.kind = kindHint;
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text, history: history.slice() }),
+      body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error("HTTP " + res.status);
     history.push({ role: "user", content: text });
@@ -182,26 +196,40 @@ formEl.addEventListener("submit", async (e) => {
       while ((idx = buf.indexOf("\n")) >= 0) {
         const line = buf.slice(0, idx).trim();
         buf = buf.slice(idx + 1);
-        if (line) handleEvent(JSON.parse(line), ui);
+        if (line) handleEvent(JSON.parse(line));
       }
     }
-    if (buf.trim()) handleEvent(JSON.parse(buf.trim()), ui);
+    if (buf.trim()) handleEvent(JSON.parse(buf.trim()));
   } catch (err) {
-    ui.typing.remove();
-    addMessage("bot", "서버 오류가 발생했어요: " + err.message);
+    if (typingEl) { typingEl.remove(); typingEl = null; }
+    Progress.failActive();
+    Stage.hideOverlay();
+    addDockMsg("bot", "서버 오류가 발생했어요: " + err.message);
+    openDock();
   } finally {
-    sendBtn.disabled = false;
+    askBtn.disabled = false;
+    askBtn.textContent = "작성";
     inputEl.focus();
   }
 });
 
-addMessage(
-  "bot",
-  "어서 오세요, 기술사 답안 사무소입니다.\n" +
-    "문제를 입력하시면 팀이 출제 의도 분석 → 답안 설계 → 작성 → 채점(85점 미만 시 1회 보완)을 거쳐 인쇄 가능한 답안지를 만들어 드려요.\n" +
-    "누리(출제 의도 분석) · 다인(답안 구조 설계) · 로운(답안 작성) · 세아(채점위원), 진행은 간사 코디가 맡습니다.\n\n" +
-    "예시:\n" +
-    '"OAuth 2.0에 대하여 설명하시오 (용어형 10점)"\n' +
-    '"제로 트러스트 보안 모델의 개념, 구성요소, 도입 시 고려사항에 대하여 설명하시오 (서술형 25점)"\n' +
-    '"데이터베이스 정규화와 반정규화를 비교하고 적용 기준을 설명하시오 (서술형 25점)"'
-);
+// ---------------------------------------------------------- 예시 버튼 · 단축키 · 전역
+document.querySelectorAll(".ex-btn").forEach((b) => {
+  b.onclick = () => window.App.ask(b.textContent);
+});
+
+window.addEventListener("keydown", (e) => {
+  if (e.key === "/" && document.activeElement !== inputEl &&
+      !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
+    e.preventDefault();
+    inputEl.focus();
+  }
+});
+
+window.App = {
+  ask(text) {
+    inputEl.value = text;
+    showProgressTab();
+    formEl.requestSubmit();
+  },
+};
