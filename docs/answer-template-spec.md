@@ -165,6 +165,7 @@ p class="ans"          첫 줄 "답)" 1회
 p class="def"          2줄 문단(정의·특징·마무리 설명). 공백 포함 70자 이내
 p class="gloss"        간글 1줄, "– "로 시작, 40자 이내
 u                      키워드 밑줄(섹션당 1~3개), 강조 인용은 "쌍따옴표" 텍스트로
+br                     줄바꿈 — 표 셀·d-box 내부 전용 (r2 행의 2줄 표기 등. 본 샘플도 사용)
 table class="t3|t2|tcmp|texp" + thead/tbody/tr/th/td, 2줄 행은 tr class="r2"
 div class="diagram"    개념도 6줄 컨테이너 (답안 전체 1~2개, 일도일표)
 div class="diagram d7" 2교시 서론 로드맵 전용 7줄 컨테이너 (서론에 1개만)

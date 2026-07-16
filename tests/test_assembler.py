@@ -106,6 +106,38 @@ def test_skeleton_hit_without_key_keeps_warning():
     assert any("Ⅱ단락 생략" in w for w in r["review"]["warnings"]), r["review"]["warnings"]
 
 
+def test_composite_with_skeleton_no_wasted_call():
+    """복합 적중에 뼈대 토픽이 섞여도 보강 콜을 쓰지 않는다 — 복합 조립기는 core를
+    사용하지 않으므로 콜이 낭비되고 로운 talk이 허위가 되던 문제 (세아 반려 3)."""
+    import httpx
+    import _agents
+
+    os.environ["GEMINI_API_KEY"] = "test-key"
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        return httpx.Response(200, json={"choices": [{"message": {"content": _MOCK_CORE}}]})
+
+    orig = httpx.AsyncClient
+    _agents.httpx.AsyncClient = lambda **kw: orig(transport=httpx.MockTransport(handler))
+    try:
+        async def run():
+            # PDCA(MG-069, 뼈대) + SWOT(MG-024, 풀부품) 복합
+            return [e async for e in _agents.run_pipeline(
+                [], "PDCA와 SWOT 분석을 비교하여 설명하시오 (25점)")]
+        evs = asyncio.run(run())
+    finally:
+        _agents.httpx.AsyncClient = orig
+        os.environ.pop("GEMINI_API_KEY", None)
+
+    r = evs[-1]
+    assert sorted(r["matched"]) == ["MG-024", "MG-069"], r.get("matched")
+    assert r["llm_calls"] == 0 and not calls, (r.get("llm_calls"), calls)  # 콜 낭비 없음
+    writer_talks = [e["text"] for e in evs if e.get("type") == "talk" and e.get("agent") == "writer"]
+    assert not any("핵심 섹션" in t and "집필했어요" in t for t in writer_talks), writer_talks  # talk 진실성
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for fn in fns:

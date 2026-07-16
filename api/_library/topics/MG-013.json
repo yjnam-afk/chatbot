@@ -3,7 +3,9 @@
   "name": "시스템 다이내믹스(System Dynamics)",
   "aliases": [
     "시스템 다이내믹스",
-    "System Dynamics"
+    "System Dynamics",
+    "SD",
+    "인과루프 분석"
   ],
   "category": "데이터 · 인텔리전스 > Mining 총론 > 시스템 다이내믹스(System Dynamics)",
   "keywords": [
@@ -17,13 +19,100 @@
   "mnemonic": {
     "word": "시인피레(시스템, 인과관계, 피드백, 레벨)",
     "expansion": [
+      "시스템(요소 집합)",
+      "인과관계(+/-)",
       "피드백 루프",
-      "+",
-      "- 기호의 의미",
-      "인과관계",
-      "Level",
-      "Rate"
+      "레벨·레이트"
     ]
   },
-  "definition": "동태적·순환적 인과관계 시각으로 현상을 이해·시뮬레이션하는 방법론"
+  "definition": "동태적·순환적 인과관계 시각으로 현상을 이해·시뮬레이션하는 방법론",
+  "definition_long": "동태적·순환적 인과관계의 시각으로 현상을 이해·설명하고 컴퓨터로 시뮬레이션하는 방법론이자 현상 분석 프레임워크",
+  "background": "선형·정태적 분석으로는 사회·경영 현상의 순환 구조 설명 불가 — 피드백 관점 필요",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">요소 A<small>원인 변수</small></div><div class=\"d-box\">요소 B<small>결과 변수</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">피드백 루프<small>강화(R) · 균형(B)</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">인과지도<small>CLD, +/- 표기</small></div><div class=\"d-box soft\">SFD<small>Level · Rate 시뮬레이션</small></div></div></div>",
+  "diagram_gloss": "– 인과지도(CLD)로 구조를 그리고 SFD(저량·유량)로 시뮬레이션",
+  "features": [
+    {
+      "item": "상호 영향 집중",
+      "desc": "종속·독립변수 구분 없이 변수 간 영향관계 분석"
+    },
+    {
+      "item": "순환 인과",
+      "desc": "단방향이 아닌 피드백 루프 기반 인과 구조"
+    },
+    {
+      "item": "동태 분석",
+      "desc": "시간 흐름에 따른 시스템 변화 시뮬레이션"
+    }
+  ],
+  "components": [
+    {
+      "role": "시스템",
+      "name": "요소 집합",
+      "detail": "목표를 공유하며 상호교류하는 요소들"
+    },
+    {
+      "role": "인과관계",
+      "name": "인과지도(CLD)",
+      "detail": "양(+)·음(−) 관계를 화살표로 표기함"
+    },
+    {
+      "role": "피드백",
+      "name": "강화·균형 루프",
+      "detail": "Reinforcing·Balancing 루프가 동적 움직임 유발"
+    },
+    {
+      "role": "시뮬레이션",
+      "name": "Level · Rate",
+      "detail": "저량(존재량)·유량(흐름량)의 SFD 모델링"
+    }
+  ],
+  "components_gloss": "– \"시인피레\" — 시스템 · 인과관계 · 피드백 · 레벨의 두문자",
+  "comparisons": [
+    {
+      "vs": "MG-006",
+      "vs_name": "Data Mining",
+      "axes": [
+        {
+          "axis": "접근",
+          "a": "구조·인과 모델 기반 시뮬레이션",
+          "b": "데이터 기반 패턴 발견"
+        },
+        {
+          "axis": "입력",
+          "a": "변수 간 인과 가설(인과지도)",
+          "b": "대량 축적 데이터"
+        },
+        {
+          "axis": "산출",
+          "a": "시나리오별 동태 거동 예측",
+          "b": "규칙 · 분류 · 군집 모델"
+        }
+      ]
+    }
+  ],
+  "usage": [
+    {
+      "item": "정책 실험",
+      "desc": "정책·전략 대안의 파급효과 사전 시뮬레이션"
+    },
+    {
+      "item": "확산 분석",
+      "desc": "입소문 기반 신제품 매출 확산 등 성장 루프 설명"
+    },
+    {
+      "item": "리스크 구조화",
+      "desc": "악순환(강화 루프) 식별과 개입 지점 도출"
+    }
+  ],
+  "conclusion": "시스템 다이내믹스의 요체는 인과지도의 품질 — 루프 식별(R/B) 후 SFD 시뮬레이션으로 검증",
+  "exam_points": [
+    "인과루프 다이어그램(CLD) 작성 — +/-, R/B 루프",
+    "Level·Rate와 SFD",
+    "입소문 매출 확산 사례(96회 기출)"
+  ],
+  "related": [
+    "MG-006",
+    "MG-030",
+    "MG-142"
+  ]
 }

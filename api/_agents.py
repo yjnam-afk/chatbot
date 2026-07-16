@@ -810,8 +810,11 @@ async def _assembly_path(message: str, kind: str, points: int,
     # 로운 — 접합부/미등록 소단락/뼈대 보강 (기본 0콜, 필요 시 콜당 예산 llm_calls<=2)
     yield _ev("writer", "working", "집필 중…")
     # 뼈대 적중(핵심 부품 없음) + 키 있으면 Ⅱ단락(구성도·구성요소) LLM 1콜 보강 (스펙 2-1)
+    # 단일 토픽 경로 한정 — 복합 조립은 core_sections를 사용하지 않으므로 콜을 아예 안 쓴다
+    # (복합에서 콜을 쓰면 결과가 사장되고 로운 talk이 허위가 됨 — 세아 반려 2026-07)
     core: dict[str, str] = {}
-    skeleton = [t for t in topics if not (t.get("components") or t.get("diagram_html"))]
+    skeleton = ([t for t in topics if not (t.get("components") or t.get("diagram_html"))]
+                if len(topics) == 1 else [])
     if skeleton and provider() is not None and llm_calls < 2:
         llm_calls += 1
         try:

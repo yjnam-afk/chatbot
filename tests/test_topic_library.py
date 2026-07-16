@@ -77,7 +77,29 @@ def test_pick_from_candidates_blocks_hallucination():
 
 def test_stats():
     s = stats()
-    assert s["topics"] >= 166 and s["terms"] >= 500 and s["full_parts"] >= 5, s
+    assert s["topics"] >= 166 and s["terms"] >= 500 and s["full_parts"] >= 21, s
+
+
+def test_full_topics_bare_name_hit():
+    """풀부품 전건이 '맨 이름 + ~에 대하여 설명하시오' 자연어 질의로 적중해야 한다
+    (별칭 누락 예방 스모크 — 세아 반려 1)."""
+    from _topic_library import load_index
+    fulls = {tid: m for tid, m in load_index()["topics"].items() if m.get("full")}
+    assert len(fulls) >= 21, len(fulls)
+    misses = []
+    for tid, meta in sorted(fulls.items()):
+        q = f"{meta['name']}에 대하여 설명하시오 (25점)"
+        r = match(q)
+        if r["status"] != "hit" or tid not in r["matched"]:
+            misses.append((tid, meta["name"], r["status"], r["matched"]))
+    assert not misses, misses
+
+
+def test_bare_aliases_hit():
+    """반려 재현 케이스: 축약 별칭 단독 질의."""
+    assert match("아웃소싱에 대하여 설명하시오 (25점)")["matched"] == ["MG-002"]
+    assert match("7S에 대하여 설명하시오 (25점)")["matched"] == ["MG-023"]
+    assert match("시스템 다이내믹스에 대하여 설명하시오 (25점)")["matched"] == ["MG-013"]
 
 
 if __name__ == "__main__":
