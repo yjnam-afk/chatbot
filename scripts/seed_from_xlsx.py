@@ -30,6 +30,54 @@ from _topic_library import norm  # noqa: E402
 
 TOPICS_DIR = ROOT / "api" / "_library" / "topics"
 
+# ---------------------------------------------------------------- 분류 정규화
+# xlsx의 category 1단계가 도메인 별칭 파편(MG/경영전략/IT 경영전략/경영전략(MG) 등 16종)이라
+# 서랍 폴더가 무의미 — 1단계를 아래 8개 대분류로 통합한다. (category+name 키워드 룰,
+# 순서 = 우선순위. 예: CRISP-DM은 "isp" 오매칭 방지를 위해 데이터 그룹을 전략 그룹보다 앞에)
+_CATEGORY_GROUPS = [
+    ("ITSM · 아웃소싱", (
+        "itsm", "itil", "sla", "slm", "sow", "outsourcing", "아웃소싱",
+        "escm", "iso20000", "msp", "mro")),
+    ("BCP · 재해복구", (
+        "bcp", "bcm", "drs", "drp", "bia", "rto", "rpo", "재해",
+        "iso22301", "무정전", "uninterruptible")),
+    ("데이터 · 인텔리전스", (
+        "mining", "마이닝", "crisp", "신경망", "다이내믹스", "datawarehouse",
+        "businessintelligence", "olap", "데이터분석", "의사판단")),
+    ("거버넌스 · 컴플라이언스", (
+        "governance", "거버넌스", "cobit", "valit", "38500", "iso31000",
+        "compliance", "ifrs", "규제", "특허", "지식재산", "csr", "iso26000",
+        "iso14000", "iso14001", "defacto", "샌드박스")),
+    ("프로세스 · 품질 · 성과", (
+        "프로세스", "bpm", "bpr", "bam", "bre", "pdca", "sigma", "품질",
+        "iso9000", "sem", "vbm", "bsc", "okr", "성과", "투자평가", "경제성",
+        "카노", "제약")),
+    ("커머스 · 플랫폼 · 핀테크", (
+        "commerce", "커머스", "마케팅", "광고", "o2o", "o4o", "핀테크",
+        "인터넷전문은행", "오픈뱅킹", "ipo", "ico", "crowd", "펀딩", "플랫폼",
+        "marketplace", "소셜", "구독", "긱이코노미", "programmatic", "테크")),
+    ("전략 기획 · 분석도구", (
+        "전략수립도구", "전략계획", "외부환경", "ismp", "isp", "babok", "swot",
+        "5force", "7s", "mece", "liss", "triz", "decisiontree", "cpnd", "stp",
+        "pest", "ahp", "bcg", "valuechain", "캐즘", "악마의강", "flywheel",
+        "tamsam", "스타트업", "backcasting", "smart", "mvp", "scamper", "캔버스",
+        "이슈탐색", "고객여정", "기획", "가치평가", "기술경영")),
+]
+_FALLBACK_GROUP = "경영 일반 · 디지털"
+
+
+def normalize_category(raw_category: str, name: str) -> str:
+    """도메인 별칭 1단계를 대분류로 교체: '<대분류> > <원본 2단계 이후 경로>'."""
+    hay = norm(raw_category) + norm(name)
+    parts = [s.strip() for s in (raw_category or "").split(">") if s.strip()]
+    rest = parts[1:]
+    group = _FALLBACK_GROUP
+    for g, keys in _CATEGORY_GROUPS:
+        if any(k in hay for k in keys):
+            group = g
+            break
+    return " > ".join([group] + rest) if rest else group
+
 
 def short_base(name: str) -> str:
     """괄호를 제거한 짧은 이름."""
@@ -105,7 +153,7 @@ def main() -> int:
         # 뼈대 필드 갱신 (풀부품 필드는 그대로 보존)
         data["id"] = tid
         data["name"] = name
-        data["category"] = category
+        data["category"] = normalize_category(category, name)
         data["keywords"] = keywords
         data["definition"] = definition
         mn = data.get("mnemonic") or {}

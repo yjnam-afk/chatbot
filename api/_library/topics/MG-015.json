@@ -2,7 +2,7 @@
   "id": "MG-015",
   "name": "ISO 22301",
   "aliases": [],
-  "category": "MG > BCM > ISO22301",
+  "category": "BCP · 재해복구 > BCM > ISO22301",
   "keywords": [
     "BCM 표준",
     "PDCA 사이클 적용"
