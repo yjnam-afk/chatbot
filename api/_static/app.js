@@ -143,6 +143,8 @@ function handleEvent(ev, ui) {
       meta += (meta ? " · " : "") + `채점 ${ev.review.score}점`;
       if (ev.review.rounds > 0) meta += ` (보완 ${ev.review.rounds}회)`;
       if (ev.review.score < 85) meta += " · 기준 미달";
+      if (ev.review.volume && typeof ev.review.volume.pages === "number")
+        meta += ` · 분량 약 ${ev.review.volume.pages}매`;
     }
     addMessage("bot", ev.reply, meta || null);
     if (ev.artifact && ev.artifact.html) addArtifactCard(ev.artifact);

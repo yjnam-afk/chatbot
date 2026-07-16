@@ -21,9 +21,11 @@
 
 | 공급자 | 발급처 | 환경변수 | 기본 모델 | 비고 |
 |---|---|---|---|---|
-| **Groq** (추천) | [console.groq.com](https://console.groq.com) → API Keys | `GROQ_API_KEY` | `llama-3.3-70b-versatile` | 무료, 카드 등록 불필요, 매우 빠름 |
-| **Google Gemini** | [aistudio.google.com](https://aistudio.google.com/apikey) | `GEMINI_API_KEY` | `gemini-2.5-flash` | 무료 티어, 한국어 품질 좋음 |
+| **Google Gemini** (추천) | [aistudio.google.com](https://aistudio.google.com/apikey) | `GEMINI_API_KEY` | `gemini-2.5-flash` | 무료 티어 TPM(분당 토큰)이 커서 답안 파이프라인(호출 4~6회, 긴 출력)에 여유, 한국어 품질 좋음 |
+| **Groq** | [console.groq.com](https://console.groq.com) → API Keys | `GROQ_API_KEY` | `llama-3.3-70b-versatile` | 무료, 매우 빠름. 단 무료 TPM이 작아 답안 생성 중 429(Too Many Requests) 가능 |
 | 기타 OpenAI 호환 | — | `LLM_API_KEY` + `LLM_BASE_URL` + `LLM_MODEL` | — | OpenRouter 등 |
+
+둘 다 설정된 경우 우선순위는 custom > **Gemini** > Groq 입니다.
 
 키를 하나도 설정하지 않으면 **데모 모드**로 동작합니다(LLM 호출 없이 파이프라인·시각화만 재현).
 모델을 바꾸려면 `LLM_MODEL` 환경변수를 함께 설정하세요.
