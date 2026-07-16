@@ -155,13 +155,23 @@ body {
 .tcmp th:nth-child(1) { width: 20%; }
 .tcmp th:nth-child(2) { width: 40%; }
 
-/* ---------- 개념도 (6줄 고정) ---------- */
+/* ---------- 개념도 (6줄 고정 · 서론 로드맵은 7줄 허용) ---------- */
 .diagram {
   height: calc(6 * var(--lh));
   border: 1.5px solid var(--ink);
   display: flex; align-items: center; justify-content: center;
   gap: 22px; padding: 0 12px; overflow: hidden;
 }
+.diagram.d7 { height: calc(7 * var(--lh)); }
+/* 서론 Intro: 등장배경 원형 + 3단 구분 점선 [답안작성론 Intro, 2교시 42~43/71] */
+.d-circle {
+  width: 60px; height: 60px; border-radius: 50%;
+  border: 1.5px solid var(--ink); background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; font-size: 10.5px; font-weight: 400; line-height: 1.25;
+  padding: 4px;
+}
+.d-sep { align-self: stretch; border-left: 1px dashed var(--ink); margin: 10px 0; }
 .d-col { display: flex; flex-direction: column; gap: 16px; }
 .d-row { display: flex; align-items: center; gap: 14px; }
 .d-box {
@@ -227,31 +237,32 @@ body {
   <div class="body" style="--body:17">
     <div class="content p2">
       <p class="ans">답)</p>
-      <h2>성공적인 IT 서비스 제공을 위한 ITSM의 개요</h2>
-      <h3>ITSM(IT Service Management)의 정의</h3>
-      <p class="def">IT 서비스 제공에 있어 고객 요구사항에 맞게 <u>SLA 기반</u>의 "고품질 서비스"를 제공하는 <u>관리 체계</u></p>
-      <h3>ITSM의 필요성</h3>
-      <table class="t2">
-        <tbody>
-          <tr><td>고품질 서비스</td><td>IT의 고품질 서비스를 고객에게 제공</td></tr>
-          <tr><td>고객 만족</td><td>서비스를 통한 고객 요구사항 만족</td></tr>
-        </tbody>
-      </table>
-      <h2>ITSM의 구성도 및 구성요소</h2>
-      <h3>ITSM의 구성도 (검토 모델)</h3>
-      <div class="diagram">
+      <h2>고품질 IT 서비스 제공을 위한 ITSM의 개요</h2>
+      <!-- 서론 Type IV(로드맵): 물어본 항목(검토 모델·구축 요건)을 하나의 그림으로,
+           등장배경 3원 + 3단 구분 점선. 7줄 [2교시 42~43/71, 답안작성론 Intro] -->
+      <div class="diagram d7">
         <div class="d-col">
-          <div class="d-box">평가·인증<small>eSCM · ISO 20000</small></div>
-          <div class="d-box">서비스수준<small>SOW · SLA</small></div>
+          <div class="d-circle">IT 품질<br>요구 증대</div>
+          <div class="d-circle">운영 표준<br>부재</div>
+          <div class="d-circle">고객 요구<br>다양화</div>
+        </div>
+        <span class="d-sep"></span>
+        <span class="d-arrow">→</span>
+        <div class="d-col">
+          <div class="d-box d-hub">ITSM 도입</div>
+          <div class="d-box soft">검토 모델 4종 (Ⅱ)</div>
+          <div class="d-box soft">성공 구축 요건 (Ⅲ)</div>
         </div>
         <span class="d-arrow">→</span>
-        <div class="d-box d-hub">ITSM<small>고품질 IT 서비스 관리체계</small></div>
-        <span class="d-arrow">←</span>
-        <div class="d-col">
-          <div class="d-box">품질인증<small>CMMI</small></div>
-          <div class="d-box">Best Practice<small>ITIL</small></div>
-        </div>
+        <span class="d-sep"></span>
+        <div class="d-box">고품질 IT 서비스<small>고객 만족</small></div>
       </div>
+      <p class="def">(정의) IT 서비스 제공에 있어 고객 요구사항에 맞게 <u>SLA 기반</u>의 "고품질 서비스"를 제공하는 <u>관리 체계</u></p>
+      <p class="def">(필요성) 서비스 <u>품질의 정량 관리</u>, 표준 프로세스 기반의 안정적 운영, 고객 만족 확보</p>
+      <!-- 단락 간 1줄은 CSS 자동(.p2 h2 margin-top) -->
+      <h2>ITSM의 구성도 및 구성요소</h2>
+      <h3>ITSM의 구성도 (검토 모델)</h3>
+      <!-- 구성도 6줄은 다음 쪽으로 이월 — 남은 1줄은 빈 괘선(실답안 관행) -->
     </div>
   </div>
 </div>
@@ -266,6 +277,19 @@ body {
   <div class="body">
     <!-- 페이지 분할 유의: h3 카운터가 앞 쪽에서 이어지므로 시드(sub 1)를 넘긴다 -->
     <div class="content p2" style="counter-reset: sub 1;">
+      <div class="diagram">
+        <div class="d-col">
+          <div class="d-box">평가·인증<small>eSCM · ISO 20000</small></div>
+          <div class="d-box">서비스수준<small>SOW · SLA</small></div>
+        </div>
+        <span class="d-arrow">→</span>
+        <div class="d-box d-hub">ITSM<small>고품질 IT 서비스 관리체계</small></div>
+        <span class="d-arrow">←</span>
+        <div class="d-col">
+          <div class="d-box">품질인증<small>CMMI</small></div>
+          <div class="d-box">Best Practice<small>ITIL</small></div>
+        </div>
+      </div>
       <p class="gloss">– ITIL, SOW, eSCM, CMMI 등 4가지 범위의 구축 모델 검토</p>
       <h3>ITSM의 구성요소 (검토 모델 특징)</h3>
       <table class="t3">
@@ -282,18 +306,7 @@ body {
       <p class="def">"평가·인증, 품질, 서비스수준, BP"의 4가지 범위에서 서비스 구축을 위한 <u>검토 모델</u>로 활용</p>
       <div class="gap"></div><!-- 2교시형 단락 간 1줄 (페이지 첫 h2라 CSS 자동 여백 미적용) -->
       <h2>성공적인 ITSM 구축을 위한 요건</h2>
-      <table class="t3">
-        <thead>
-          <tr><th>구분</th><th>요건</th><th>설명</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>관리적 측면</td><td>신기술 적용</td><td>원활하고 안정적인 서비스 제공 체계</td></tr>
-          <tr><td>기술적 측면</td><td>기술 호환성</td><td>이전 시스템과의 호환, 오류 최소화</td></tr>
-          <tr><td>서비스 측면</td><td>업무 효율성</td><td>요구사항에 맞는 다양한 서비스·편의성</td></tr>
-          <tr><td>비즈니스 측면</td><td>비용 절감</td><td>업무 적용을 통한 생산성 향상</td></tr>
-          <tr><td>품질·고객 측면</td><td>품질 안정</td><td>일정한 품질 서비스로 고객 요구 만족</td></tr>
-        </tbody>
-      </table>
+      <!-- 요건표(6줄)는 다음 쪽 — 제목 뒤 페이지 넘김(실답안 관행) -->
     </div>
   </div>
 </div>
@@ -307,6 +320,19 @@ body {
   </div>
   <div class="body">
     <div class="content p2">
+      <table class="t3">
+        <thead>
+          <tr><th>구분</th><th>요건</th><th>설명</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>관리적 측면</td><td>신기술 적용</td><td>원활하고 안정적인 서비스 제공 체계</td></tr>
+          <tr><td>기술적 측면</td><td>기술 호환성</td><td>이전 시스템과의 호환, 오류 최소화</td></tr>
+          <tr><td>서비스 측면</td><td>업무 효율성</td><td>요구사항에 맞는 다양한 서비스·편의성</td></tr>
+          <tr><td>비즈니스 측면</td><td>비용 절감</td><td>업무 적용을 통한 생산성 향상</td></tr>
+          <tr><td>품질·고객 측면</td><td>품질 안정</td><td>일정한 품질 서비스로 고객 요구 만족</td></tr>
+        </tbody>
+      </table>
+      <div class="gap"></div><!-- 단락 간 1줄 (페이지 첫 h2라 자동 여백 미적용) -->
       <h2>ITSM 도입 시 기대효과 및 결론</h2>
       <table class="t2">
         <thead>
