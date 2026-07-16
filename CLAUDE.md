@@ -1,6 +1,6 @@
 # 기술사 답안 사무소 — 답안 작성 팀
 
-멀티 에이전트 답안 작성 팀(harness-100 패턴): 기술사 시험 문제를 입력하면 출제 의도 분석→답안 구조 설계→작성→채점(85점 미만 시 1회 보완+재채점)을 거쳐 인쇄 가능한 답안지 HTML(artifact)을 만들어준다. 과정은 팀 보드 UI(카드/상태 칩/말풍선/진행선)로 실시간 시각화. Vercel 서버리스 배포 대상.
+기술사 시험 문제를 입력하면 **토픽 라이브러리 우선**으로 실물 답안지(줄 그리드 HTML, artifact)를 만들어주는 멀티 에이전트 서비스: 접수(규칙 판별) → 토픽 검색(무LLM 매칭) → 답안 편집(부품 조립) → 집필(접합부) → 검증(형식 린트). 라이브러리 적중 시 **LLM 0~2콜·3초 이내, 키 없이도 실답안**. 미적중만 라이브 파이프라인 폴백(설계→작성→채점, 85점 미만/형식 위반 시 1회 보완+재채점, 최대 5콜). 과정은 진행 3단계 레일로 시각화. Vercel 서버리스 배포 대상.
 
 ## 자율 개발 팀으로 쓰기 (Claude Code)
 
@@ -22,17 +22,23 @@ pip install -r requirements.txt
 uvicorn api.index:app --port 8000
 ```
 
-LLM 키(`GROQ_API_KEY` / `GEMINI_API_KEY` / `LLM_API_KEY`+`LLM_BASE_URL`+`LLM_MODEL`) 없으면 데모 모드. OpenAI 호환 chat/completions API 사용.
+LLM 키(`GEMINI_API_KEY`(권장) / `GROQ_API_KEY` / `LLM_API_KEY`+`LLM_BASE_URL`+`LLM_MODEL`) 없으면 폴백 경로만 데모 모드 — **라이브러리 적중 경로는 키 없이도 실답안**. OpenAI 호환 chat/completions API 사용.
 
 ## 구조
 
-- `api/_agents.py` — 5-에이전트 파이프라인. `run_pipeline(history, message)`은 **async generator**: `{type:"agent", agent, state, activity}` 이벤트들을 yield하고 마지막에 `{type:"reply", ...}` yield. 상태값: `idle|thinking|working|done|error`.
-- `api/index.py` — FastAPI. `/api/chat`이 파이프라인 출력을 NDJSON으로 스트리밍. Vercel에서는 이 파일 하나가 서버리스 함수(vercel.json rewrites 참고), 로컬에서는 api/_static/도 마운트.
-- `api/_static/office.js` — 팀 보드 렌더러(DOM). EMOJI/FLOW의 에이전트 id가 `_agents.py`의 AGENTS id와 일치해야 함.
-- `api/_static/app.js` — 채팅 + NDJSON 스트림 파싱. 대화 이력은 클라이언트가 유지(서버리스라 서버 세션 없음).
+- `api/_agents.py` — 파이프라인. `run_pipeline(history, message, kind_hint)`은 **async generator**: `{type:"agent", agent, state, activity}`/`{type:"talk"}` 이벤트를 yield하고 마지막에 `{type:"reply", library, matched, llm_calls, sheet, ...}` yield. 답안지 줄 그리드 템플릿(`_ANSWER_TEMPLATE`·`render_answer`, docs/answer-template-spec.md)과 분량 모델(`_volume` — 쪽·줄), 형식 린터(`_lint_format`)도 여기.
+- `api/_topic_library.py` — 토픽 라이브러리: 정규화(norm/초성), 무LLM 매칭 점수제(docs/library-spec.md 2-3), index/topics 정적 로딩(콜드스타트 캐시 — 읽기 전용이라 무상태 원칙과 무충돌).
+- `api/_assembler.py` — 부품→답안 본문 조립기(슬롯 배치, 단일/복합/부분적중, 자동 대비표).
+- `api/_library/` — `topics/MG-*.json`(토픽 부품, 스키마는 `schema.md`) + `index.json`(**빌드 산출물** — 직접 수정 금지).
+- `scripts/seed_from_xlsx.py`(뼈대 생성, 부품 보존 머지) / `scripts/build_index.py`(스키마 검증+인덱스 재생성 — **토픽 수정 커밋 전 반드시 실행**, 실패 시 exit 1).
+- `api/index.py` — FastAPI. `/api/chat`(NDJSON 스트림), `/api/agents`, `/api/library`(통계+서랍 목록). Vercel에서는 이 파일 하나가 서버리스 함수, 로컬에서는 api/_static/도 마운트.
+- `api/_static/` — `progress.js`(이벤트→진행 3단계 매핑), `stage.js`(iframe 답안지·게이지·인쇄), `drawer.js`(토픽 서랍), `app.js`(스트림 파싱·대화 도크). 대화 이력은 클라이언트가 유지.
+- `tests/test_topic_library.py` — 매칭 엔진 단위 테스트 (LLM 없이 `python3 tests/test_topic_library.py`).
 
 ## 주의
 
-- **서버 측 인메모리 상태 금지** — Vercel 함수는 호출 간 메모리를 공유하지 않는다. 이벤트는 응답 스트림에, 이력은 클라이언트에.
-- 에이전트를 추가/변경할 때 `AGENTS`(_agents.py)와 `DESKS`(office.js) 양쪽을 함께 수정.
+- **서버 측 인메모리 상태 금지** — Vercel 함수는 호출 간 메모리를 공유하지 않는다. 이벤트는 응답 스트림에, 이력은 클라이언트에. (라이브러리 로딩은 읽기 전용 콜드스타트 캐시라 예외)
+- 에이전트를 추가/변경할 때 `AGENTS`(_agents.py)와 `progress.js`의 `AGENT2STEP`을 함께 수정. 역할 표기는 `/api/agents`의 role이 단일 출처 — 프런트에 role 문자열 하드코딩 금지.
+- 토픽 JSON을 수정하면 `python3 scripts/build_index.py`로 검증+인덱스 재생성 후 함께 커밋. HTML 부품에 `<script>`/외부 URL 금지(빌드가 차단).
 - `api/` 안에서 라우트로 노출되면 안 되는 모듈은 `_` 접두사 유지.
+- 답안 본문은 줄 그리드 계약(docs/answer-template-spec.md §7)을 따른다 — 허용 태그·클래스 밖 마크업 금지.
