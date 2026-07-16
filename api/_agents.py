@@ -126,7 +126,7 @@ def _talk(agent: str, text: str) -> dict:
     return {"type": "talk", "agent": agent, "text": str(text)[:120]}
 
 
-EXAM_WORDS = ("하시오", "설명하", "기술하", "논하", "서술하", "비교", "점)", "정의")
+EXAM_WORDS = ("하시오", "설명하", "기술하", "논하", "서술하", "점)")
 
 
 # ---------------------------------------------------------------- 답안지 템플릿
@@ -144,6 +144,7 @@ _ANSWER_TEMPLATE = """<!DOCTYPE html>
   --paper: #fffefb; --tint: #f5f3ec; --navy: #2c4a6e;
 }
 html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+@counter-style ganada { system: fixed; symbols: "가" "나" "다" "라" "마" "바" "사"; suffix: ". "; }
 body {
   background: #e8e7e2; color: var(--ink);
   font-family: "Noto Serif KR", "Noto Serif CJK KR", "Nanum Myeongjo", "Source Han Serif K", Batang, AppleMyungjo, serif;
@@ -163,15 +164,16 @@ h1 { font-size: 21px; font-weight: 700; line-height: 1.45; margin: 10px 0 16px; 
 .q-label { flex: none; font-weight: 700; font-size: 13px; color: var(--navy); }
 .q-text { font-size: 14px; white-space: pre-wrap; }
 .answer { counter-reset: sec; padding: 26px 2px 8px; min-height: 280px; }
-.answer h2 { counter-increment: sec; font-size: 16px; font-weight: 700; margin: 26px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
-.answer h2::before { content: counter(sec) ". "; color: var(--navy); }
+.answer h2 { counter-increment: sec; counter-reset: sub; font-size: 16px; font-weight: 700; margin: 26px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+.answer h2::before { content: counter(sec, upper-roman) ". "; color: var(--navy); }
 .answer h2:first-child { margin-top: 0; }
-.answer h3 { font-size: 14.5px; font-weight: 700; margin: 16px 0 6px; }
-.answer h3::before { content: "○ "; font-size: 12px; color: var(--sub); }
+.answer h3 { counter-increment: sub; font-size: 14.5px; font-weight: 700; margin: 16px 0 6px; }
+.answer h3::before { content: counter(sub, ganada) ". "; color: var(--navy); }
 .answer p { margin: 6px 0 10px; }
 .answer ul, .answer ol { margin: 4px 0 12px 22px; }
 .answer li { margin: 3px 0; }
 .answer .keyword { font-weight: 700; border-bottom: 2px solid var(--navy); }
+.answer .gangul { font-size: 12.5px; color: var(--sub); margin: -8px 0 14px; }
 .answer table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 13px; }
 .answer th, .answer td { border: 1px solid var(--rule); padding: 7px 10px; text-align: left; vertical-align: top; line-height: 1.6; }
 .answer th { background: var(--tint); font-weight: 700; white-space: nowrap; }
@@ -215,7 +217,7 @@ h1 { font-size: 21px; font-weight: 700; line-height: 1.45; margin: 10px 0 16px; 
   <main class="answer">
 {body}
   </main>
-  <p class="end-mark">— 끝 —</p>
+  <p class="end-mark">끝</p>
   <footer class="mnemonic">
     <div class="mn-label">두문자 암기 포인트</div>
     {mnemonic_html}
@@ -230,18 +232,20 @@ def render_answer(question: str, title: str, kind: str, points: int | str,
                   body: str, mnemonic_html: str) -> str:
     """답안지 템플릿에 내용을 채워 완성 HTML을 만든다.
 
-    CSS 중괄호 때문에 str.format() 대신 .replace() 체인을 쓴다.
+    CSS 중괄호 때문에 str.format() 금지. 입력값에 "{body}" 같은 리터럴
+    플레이스홀더가 있어도 재치환되지 않도록 단일 패스 re.sub로 치환한다.
     question/title/kind/points는 escape, body/mnemonic_html은 이미 HTML.
     """
-    return (
-        _ANSWER_TEMPLATE
-        .replace("{title}", html_mod.escape(str(title)))
-        .replace("{kind}", html_mod.escape(str(kind)))
-        .replace("{points}", html_mod.escape(str(points)))
-        .replace("{question}", html_mod.escape(str(question)))
-        .replace("{body}", body)
-        .replace("{mnemonic_html}", mnemonic_html)
-    )
+    parts = {
+        "title": html_mod.escape(str(title)),
+        "kind": html_mod.escape(str(kind)),
+        "points": html_mod.escape(str(points)),
+        "question": html_mod.escape(str(question)),
+        "body": body,
+        "mnemonic_html": mnemonic_html,
+    }
+    return re.sub(r"\{(title|kind|points|question|body|mnemonic_html)\}",
+                  lambda m: parts[m.group(1)], _ANSWER_TEMPLATE)
 
 
 def _mnemonic_html(mn: dict | None) -> str:
@@ -258,12 +262,26 @@ def _mnemonic_html(mn: dict | None) -> str:
 
 # ---------------------------------------------------------------- 프롬프트
 
-_BODY_RULES = """[답안 본문 HTML 규칙]
+_BODY_RULES = """[답안 본문 HTML 규칙 — ITPE 기술사 답안 문법]
 - HTML 프래그먼트만 출력. <html>/<head>/<body>/<style>/<script>/외부 리소스/인라인 style 금지.
-- 허용 태그: h2, h3, p, ul, ol, li, b, strong, table, thead, tbody, tr, th, td, span class="keyword", div class="diagram"(내부: d-row, d-col, d-box, d-arrow, d-title).
-- 첫 요소는 <h2>. h2에 번호를 붙이지 말 것(자동 번호 매김).
+- 허용 태그: h2, h3, p, ul, ol, li, b, strong, table, thead, tbody, tr, th, td, span class="keyword", p class="gangul", div class="diagram"(내부: d-row, d-col, d-box, d-arrow, d-title).
+- 첫 요소는 <h2>. h2/h3에 번호를 직접 붙이지 말 것 — h2는 로마 숫자(Ⅰ. Ⅱ. Ⅲ. Ⅳ.), h3는 가나다(가. 나. 다.)가 자동으로 매겨짐.
+- 서술 문체는 개조식: 모든 문장을 "~임", "~함", "~됨"으로 종결. 만연체 금지.
+- 표는 기본 3단(구분/항목/설명) 구성, th 첫 행 + 3~5행. 개념도(div.diagram)는 1~2개 포함.
+- 개념도·표 바로 아래에는 간글 1줄을 붙임: <p class="gangul">상기 구성도는 ○○의 ~를 도식화한 것임</p>
 - 핵심 용어는 섹션당 1~3개를 <span class="keyword">용어</span>로 강조.
-- 표는 th 첫 행 + 3~5행으로 구성. 개념도(div.diagram)는 1~2개 포함.
+
+[서술형(25점) 목차 — 4단락 고정]
+1) <h2>○○의 개요</h2> (서론) — 리드문 1문장(p) → <h3>정의</h3> 2줄 이내 → <h3>필요성</h3>(또는 등장배경) 개조식 목록 또는 간단 표
+2) <h2>○○의 구성도 및 구성요소</h2> (본론) — <h3>구성도</h3> div.diagram + 바로 아래 간글 1줄 → <h3>구성요소</h3> 3단표(구분/구성요소/설명)
+3) <h2>문제가 직접 요구한 사항</h2> — h2 제목은 문제의 요구(예: "도입 시 고려사항", "○○와의 비교")로 짓고, 세부 요구별로 h3 분리. 비교 요구 시 비교표 활용
+4) <h2>결론 및 전망</h2> — 고려사항/전망/제언 등 차별화 포인트, 0.5단락 분량
+
+[용어형(10점) 목차 — 3단락]
+1) <h2>○○의 정의</h2> — 리드문 + 정의 2줄
+2) <h2>○○의 개념도 및 구성요소</h2> — <h3>개념도</h3> div.diagram + 간글 → <h3>구성요소</h3> 3단표
+3) <h2>활용방안</h2> 또는 고려사항
+
 - 개념도 예시 1 (가로 흐름형):
 <div class="diagram"><div class="d-row"><div class="d-box">클라이언트</div><span class="d-arrow">→</span><div class="d-box">API 게이트웨이<small>인증·라우팅</small></div><span class="d-arrow">→</span><div class="d-box soft">데이터 저장소</div></div><div class="d-title">[그림 1] 요청 처리 흐름</div></div>
 - 개념도 예시 2 (세로 계층형):
@@ -275,65 +293,61 @@ _BODY_RULES = """[답안 본문 HTML 규칙]
 _DEMO_QUESTION = ("제로 트러스트 보안 모델의 개념, 구성요소, "
                   "도입 시 고려사항에 대하여 설명하시오 (25점)")
 
-_DEMO_BODY = """<h2>제로 트러스트 보안 모델의 정의 및 개요</h2>
-<p><span class="keyword">제로 트러스트(Zero Trust)</span>는 "절대 신뢰하지 말고, 항상 검증하라(Never Trust, Always Verify)"는 원칙 아래 네트워크 내·외부를 구분하지 않고 모든 접근 요청을 <span class="keyword">지속 검증</span>하는 보안 모델이다.</p>
-<h3>등장 배경</h3>
+_DEMO_BODY = """<h2>제로 트러스트 보안 모델의 개요</h2>
+<p>경계 기반 보안의 한계를 극복하기 위해 모든 접근 요청을 상시 검증하는 <span class="keyword">제로 트러스트(Zero Trust)</span> 보안 모델의 대두.</p>
+<h3>제로 트러스트의 정의</h3>
+<p>네트워크 내·외부를 구분하지 않고 "절대 신뢰하지 말고, 항상 검증하라(Never Trust, Always Verify)" 원칙에 따라 모든 접근 요청을 <span class="keyword">지속 검증</span>하는 보안 모델임.</p>
+<h3>제로 트러스트의 필요성</h3>
 <ul>
-  <li>클라우드·원격근무 확산으로 전통적 네트워크 경계(Perimeter)의 소멸</li>
-  <li>내부자 위협과 측면 이동(Lateral Movement) 공격의 증가</li>
-  <li>경계 방어 중심(성곽형) 보안 모델의 구조적 한계 노출</li>
+  <li>클라우드·원격근무 확산으로 전통적 네트워크 경계(Perimeter) 소멸됨</li>
+  <li>내부자 위협과 측면 이동(Lateral Movement) 공격 증가함</li>
+  <li>경계 방어 중심(성곽형) 보안 모델의 구조적 한계 노출됨</li>
 </ul>
 
-<h2>제로 트러스트의 핵심 원칙 및 구성요소</h2>
-<h3>핵심 원칙 (NIST SP 800-207)</h3>
+<h2>제로 트러스트의 구성도 및 구성요소</h2>
+<h3>제로 트러스트 구성도</h3>
+<div class="diagram"><div class="d-col"><div class="d-box wide">정책 결정 지점(PDP) <small>정책 엔진 · 접근 여부 판단</small></div><span class="d-arrow">↓</span><div class="d-row"><div class="d-box">주체<small>사용자·기기</small></div><span class="d-arrow">→</span><div class="d-box">정책 시행 지점(PEP)<small>세션 생성·차단</small></div><span class="d-arrow">→</span><div class="d-box soft">보호 자원<small>데이터·시스템</small></div></div></div><div class="d-title">[그림 1] 제로 트러스트 접근 제어 구성도 (NIST SP 800-207)</div></div>
+<p class="gangul">상기 구성도는 PDP의 동적 접근 판단과 PEP의 세션 통제로 자원을 보호하는 구조를 도식화한 것임</p>
+<h3>제로 트러스트의 구성요소</h3>
 <table>
-  <thead><tr><th>원칙</th><th>설명</th></tr></thead>
+  <thead><tr><th>구분</th><th>구성요소</th><th>설명</th></tr></thead>
   <tbody>
-    <tr><td>명시적 검증</td><td>사용자·기기·위치·행위 등 가용한 모든 신호를 근거로 인증·인가</td></tr>
-    <tr><td>최소 권한</td><td>JIT/JEA 기반으로 필요한 시점·범위에 한정해 권한 부여</td></tr>
-    <tr><td>침해 가정</td><td>이미 침해되었다고 가정하고 세분화·암호화·상시 모니터링 수행</td></tr>
+    <tr><td>제어부</td><td>정책 결정 지점(PDP)</td><td>정책 엔진·정책 관리자가 접근 허용 여부를 동적으로 결정함</td></tr>
+    <tr><td>실행부</td><td>정책 시행 지점(PEP)</td><td>결정된 정책에 따라 세션 생성·유지·차단을 시행함</td></tr>
+    <tr><td>입력부</td><td>신뢰도 평가 입력</td><td>ID·기기 상태·위협 인텔리전스·행위 로그를 지속 평가함</td></tr>
+    <tr><td>격리부</td><td><span class="keyword">마이크로 세그멘테이션</span></td><td>자원 단위로 네트워크를 분할해 측면 이동을 차단함</td></tr>
   </tbody>
 </table>
-<h3>구성요소</h3>
-<table>
-  <thead><tr><th>구성요소</th><th>역할</th></tr></thead>
-  <tbody>
-    <tr><td>정책 결정 지점(PDP)</td><td>정책 엔진·정책 관리자가 접근 허용 여부를 동적으로 결정</td></tr>
-    <tr><td>정책 시행 지점(PEP)</td><td>결정된 정책에 따라 세션 생성·유지·차단을 시행</td></tr>
-    <tr><td>신뢰도 평가 입력</td><td>ID 관리, 기기 상태, 위협 인텔리전스, 행위 로그의 지속 평가</td></tr>
-    <tr><td><span class="keyword">마이크로 세그멘테이션</span></td><td>자원 단위로 네트워크를 분할해 측면 이동을 차단</td></tr>
-  </tbody>
-</table>
-<div class="diagram"><div class="d-col"><div class="d-box wide">정책 결정 지점(PDP) <small>정책 엔진 · 접근 여부 판단</small></div><span class="d-arrow">↓</span><div class="d-row"><div class="d-box">주체<small>사용자·기기</small></div><span class="d-arrow">→</span><div class="d-box">정책 시행 지점(PEP)<small>세션 생성·차단</small></div><span class="d-arrow">→</span><div class="d-box soft">보호 자원<small>데이터·시스템</small></div></div></div><div class="d-title">[그림 1] 제로 트러스트 접근 제어 구조 (NIST SP 800-207)</div></div>
+<p class="gangul">상기 구성요소는 3대 원칙(명시적 검증·최소 권한·침해 가정)을 구현하는 기능 단위임</p>
 
-<h2>기존 경계 보안 모델과의 비교</h2>
+<h2>도입 시 고려사항</h2>
+<h3>기존 경계 보안 모델과의 비교</h3>
 <table>
   <thead><tr><th>구분</th><th>경계 보안 모델</th><th>제로 트러스트 모델</th></tr></thead>
   <tbody>
-    <tr><td>신뢰 기준</td><td>내부 네트워크는 암묵적 신뢰</td><td>위치 무관, 모든 요청 검증</td></tr>
+    <tr><td>신뢰 기준</td><td>내부 네트워크 암묵적 신뢰</td><td>위치 무관, 모든 요청 검증</td></tr>
     <tr><td>방어 지점</td><td>네트워크 경계(방화벽 중심)</td><td>자원 단위(ID·기기·데이터)</td></tr>
-    <tr><td>검증 시점</td><td>최초 접속 시 1회</td><td>세션 전체에 걸친 <span class="keyword">지속 인증</span></td></tr>
+    <tr><td>검증 시점</td><td>최초 접속 시 1회</td><td>세션 전체 <span class="keyword">지속 인증</span></td></tr>
     <tr><td>권한 부여</td><td>광범위한 내부 접근 허용</td><td>최소 권한·마이크로 세그멘테이션</td></tr>
   </tbody>
 </table>
-
-<h2>도입 시 고려사항 및 결론</h2>
 <h3>도입 시 고려사항</h3>
 <ul>
-  <li>자산·데이터 흐름 식별 등 현황 분석 선행, 중요 자원부터 단계적 적용</li>
-  <li><span class="keyword">IAM</span>·MFA 등 식별·인증 체계 고도화가 전제 조건</li>
-  <li>레거시 시스템 호환성과 사용자 경험(UX) 저하의 균형 고려</li>
-  <li>지속 모니터링·자동화(SOAR) 운영 체계와 조직 문화 변화 병행</li>
+  <li>자산·데이터 흐름 식별 등 현황 분석 선행, 중요 자원부터 단계적 적용 필요함</li>
+  <li><span class="keyword">IAM</span>·MFA 등 식별·인증 체계 고도화가 전제 조건임</li>
+  <li>레거시 시스템 호환성과 사용자 경험(UX) 저하 간 균형 고려해야 함</li>
+  <li>지속 모니터링·자동화(SOAR) 운영 체계와 조직 문화 변화 병행 필요함</li>
 </ul>
-<h3>결론 및 전망</h3>
-<p>제로 트러스트는 일회성 솔루션 도입이 아닌 <span class="keyword">보안 아키텍처 전환 여정</span>이다. 클라우드·원격근무 정착과 함께 공공·금융 분야의 도입 지침 수립이 확산되고 있어, 성숙도 모델 기반의 단계적 전환 전략이 요구된다.</p>"""
+
+<h2>결론 및 전망</h2>
+<p>제로 트러스트는 일회성 솔루션 도입이 아닌 <span class="keyword">보안 아키텍처 전환 여정</span>임. 공공·금융 분야 도입 지침 수립이 확산되고 있어 성숙도 모델 기반의 단계적 전환 전략 수립이 요구됨.</p>"""
 
 _DEMO_MNEMONIC = (
     '<p><b>명·최·침</b> — <b>명</b>시적 검증 · <b>최</b>소 권한 · <b>침</b>해 가정 (제로 트러스트 3원칙)</p>\n'
     '    <p><b>Never Trust, Always Verify</b> — 신뢰하지 말고 항상 검증하라</p>'
 )
 
-_DEMO_WEAK = ["개념도 구성 빈약", "도입 시 고려사항 구체성 부족", "두문자 등 차별화 요소 미흡"]
+_DEMO_WEAK = ["구성도 아래 간글 누락", "개조식 문체 미준수 문장 존재", "Ⅳ단락(결론) 차별화 요소 미흡"]
 
 
 async def _demo(message: str) -> AsyncIterator[dict]:
@@ -369,8 +383,8 @@ async def _demo(message: str) -> AsyncIterator[dict]:
 
     yield _ev("designer", "thinking", "답안 구조 설계 중…")
     await asyncio.sleep(0.8)
-    yield _ev("designer", "done", "목차 4개 섹션")
-    yield _talk("designer", "정의→구성요소(표·개념도)→비교→고려사항·결론 구조로 설계했어요. 로운님, 부탁해요!")
+    yield _ev("designer", "done", "ITPE 4단락")
+    yield _talk("designer", "Ⅰ.개요→Ⅱ.구성도·구성요소→Ⅲ.고려사항→Ⅳ.결론, 가나다 소제목으로 설계했어요. 로운님!")
 
     yield _ev("writer", "working", "답안 작성 중…")
     await asyncio.sleep(1.2)
@@ -380,17 +394,17 @@ async def _demo(message: str) -> AsyncIterator[dict]:
     yield _ev("reviewer", "thinking", "채점 중…")
     await asyncio.sleep(0.9)
     yield _ev("reviewer", "working", "72점 · 보완 요청")
-    yield _talk("reviewer", "1차 채점 72점. 개념도가 빈약하고 도입 시 고려사항·두문자 차별화가 미흡해요. 보완해 주세요.")
+    yield _talk("reviewer", "1차 채점 72점. 구성도 간글이 빠졌고 개조식 문체와 Ⅳ단락 차별화가 미흡해요. 보완해 주세요.")
 
     yield _ev("writer", "working", "답안 보완 중…")
     await asyncio.sleep(1.1)
     yield _ev("writer", "done", "보완 완료")
-    yield _talk("writer", "지적사항 반영해서 개념도·고려사항을 보강했어요. 재채점 부탁해요!")
+    yield _talk("writer", "간글 추가하고 개조식으로 다듬고 결론 단락 보강했어요. 재채점 부탁해요!")
 
     yield _ev("reviewer", "thinking", "재채점 중…")
     await asyncio.sleep(0.9)
     yield _ev("reviewer", "done", "91점")
-    yield _talk("reviewer", "재채점 91점, 합격권이에요. 목차 완결성과 개념도 활용이 좋아졌어요 ✅")
+    yield _talk("reviewer", "재채점 91점, 합격권이에요. ITPE 목차 완결성과 간글·개조식 가독성이 좋아졌어요 ✅")
 
     yield _ev("orchestrator", "done", "납품 완료")
     yield _talk("orchestrator", "답안지 납품 완료! 다들 수고했어요 ☕")
@@ -434,7 +448,7 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
 
         # ---- 1. 출제 의도 분석 (누리)
         yield _ev("nlu", "thinking", "출제 의도 분석 중…")
-        recent = " / ".join(m.get("content", "")[:60] for m in history[-4:])
+        recent = " / ".join(str(m.get("content") or "")[:60] for m in history[-4:])
         llm_calls += 1
         plan = _parse_json(
             await _chat(
@@ -491,9 +505,11 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
         design = _parse_json(
             await _chat(
                 "당신은 기술사 답안 팀의 답안 구조 설계자 '다인'입니다. 문제와 출제 의도를 보고 "
-                "답안 목차를 JSON만으로 설계하세요.\n"
-                "- 서술형: 정의·개요 → 구성요소/기술요소(표·개념도 활용) → 비교/고려사항 → 결론·전망 순 3~4개 섹션.\n"
-                "- 용어형: 정의 → 특징/구성 → 활용 순 2~3개 섹션.\n"
+                "답안 목차를 JSON만으로 설계하세요. ITPE 기술사 답안 문법을 따릅니다.\n"
+                "- 서술형(4단락 고정): Ⅰ.○○의 개요(리드문+정의+필요성) → Ⅱ.○○의 구성도 및 구성요소(개념도+간글+3단표) → "
+                "Ⅲ.문제가 직접 요구한 사항(비교/고려사항 등, 요구별 소제목) → Ⅳ.결론 및 전망(차별화 포인트) 4개 섹션.\n"
+                "- 용어형(3단락): Ⅰ.정의 → Ⅱ.개념도 및 구성요소 → Ⅲ.활용방안/고려사항 3개 섹션.\n"
+                "- 각 섹션의 points는 가나다(가. 나. 다.) 소제목 단위로 작성.\n"
                 "형식: {\"outline\": [{\"section\": \"섹션명\", \"points\": [\"다룰 내용\", ...]}, ...], "
                 "\"mnemonic\": {\"word\": \"핵심 키워드 두문자\", \"expansion\": [\"두문자 풀이\", ...]}, "
                 "\"diagram_idea\": \"개념도 구성 아이디어\", "
@@ -535,7 +551,8 @@ async def run_pipeline(history: list[dict], message: str) -> AsyncIterator[dict]
         # ---- 4. 채점 (세아)
         reviewer_system = (
             "당신은 기술사 시험 채점위원 '세아'입니다. 답안 본문 HTML을 검토해 JSON만 출력하세요.\n"
-            "채점 기준: ① 목차 완결성(출제 의도 커버) ② 기술 정확성 ③ 표·개념도 활용 ④ 차별화 요소(키워드 강조 등).\n"
+            "채점 기준: ① 출제 의도 부합 ② ITPE 목차 완결성(서술형 Ⅰ~Ⅳ 4단락, 가나다 소제목) "
+            "③ 3단표·개념도·간글 활용 ④ 개조식 문체·키워드 가독성 ⑤ 차별화 요소(결론 단락의 알파).\n"
             f"{PASS_SCORE}점 이상이면 verdict를 pass, 미만이면 revise로 판정합니다.\n"
             "형식: {\"score\": 0~100 정수, \"verdict\": \"pass|revise\", "
             "\"weak_points\": [\"미흡 항목\", ...], "
