@@ -1,18 +1,95 @@
 {
-  "id": "MG-166",
-  "name": "전자정부 정보시스템 성과 측정지표",
-  "aliases": [],
-  "category": "프로세스 · 품질 · 성과 > 전자정부 정보시스템 성과 측정지표",
-  "keywords": [
-    "비용측면",
-    "업무측면"
-  ],
-  "mnemonic": {
-    "word": "비업",
-    "expansion": [
-      "비용측면",
-      "업무측면"
-    ]
+ "id": "MG-166",
+ "name": "전자정부 정보시스템 성과 측정지표",
+ "aliases": [
+  "정보시스템 성과측정 지표",
+  "성과측정 지표",
+  "운영 성과측정 지표",
+  "정보시스템 운영 성과측정 지표",
+  "성과 측정지표"
+ ],
+ "category": "프로세스 · 품질 · 성과 > 전자정부 정보시스템 성과 측정지표",
+ "keywords": [
+  "비용측면",
+  "업무측면"
+ ],
+ "mnemonic": {
+  "word": "비업",
+  "expansion": [
+   "비용측면",
+   "업무측면"
+  ]
+ },
+ "definition": "비용·업무 관점 성과측정으로 정보시스템 유지·폐기를 결정하는 지표",
+ "definition_long": "운영 정보시스템을 비용·업무 측면에서 측정해 유지·폐기를 판단하는 지표 체계",
+ "background": "노후 시스템 방치로 운영비 증가 — 정량 근거 기반 처분 판단 필요",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-vs\"><div class=\"d-zone\"><div class=\"d-zt\">비용측면</div><div class=\"d-box\">운영비 절감</div><div class=\"d-box soft\">TCO 분석</div></div><div class=\"d-link\"><span class=\"d-arrow\">↔</span>종합 평가<br>유지·폐기</div><div class=\"d-zone\"><div class=\"d-zt\">업무측면</div><div class=\"d-box\">업무 효율</div><div class=\"d-box soft\">활용도·만족도</div></div></div></div>",
+ "diagram_gloss": "– 비용·업무 양 측면 종합 판정",
+ "components": [
+  {
+   "role": "비용측면",
+   "name": "운영비용",
+   "detail": [
+    "- 유지보수비 추이",
+    "- 절감률 측정"
+   ]
   },
-  "definition": "비용·업무 관점 성과측정으로 정보시스템 유지·폐기를 결정하는 지표"
+  {
+   "role": "비용측면",
+   "name": "TCO",
+   "detail": "총소유비용 환산 비교"
+  },
+  {
+   "role": "업무측면",
+   "name": "업무 효율",
+   "detail": [
+    "- 처리시간 단축",
+    "- 오류율 감소"
+   ]
+  },
+  {
+   "role": "업무측면",
+   "name": "활용도",
+   "detail": [
+    "- 이용률·가용성",
+    "- 사용자 만족도"
+   ]
+  }
+ ],
+ "components_gloss": "– 측면별 지표로 정량 판단",
+ "features": [
+  {
+   "item": "정량 평가",
+   "desc": "지표 기반 객관 측정"
+  },
+  {
+   "item": "수명 연계",
+   "desc": "유지·폐기 의사결정 근거"
+  },
+  {
+   "item": "환류 체계",
+   "desc": "예산·개선 계획에 반영"
+  }
+ ],
+ "usage": [
+  {
+   "item": "처분 판단",
+   "desc": "재개발·폐기 결정 근거"
+  },
+  {
+   "item": "예산 편성",
+   "desc": "운영예산 산정 기초자료"
+  },
+  {
+   "item": "운영 개선",
+   "desc": "저성과 시스템 개선 도출"
+  }
+ ],
+ "conclusion": "성과측정은 EA·예산 프로세스와 연계될 때 실효성 확보됨",
+ "exam_points": [
+  "비용·업무 측면 지표",
+  "측정 결과 환류",
+  "노후 시스템 처분 판단"
+ ],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">노후 IS<br>누적</div><div class=\"d-circle\">운영비<br>증가</div><div class=\"d-circle\">처분 근거<br>부재</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">성과 측정지표</div><div class=\"d-box soft\">측정 체계 (Ⅱ)</div><div class=\"d-box soft\">측면별 지표 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">합리적 처분<small>유지 · 폐기</small></div></div>"
 }

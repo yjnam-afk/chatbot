@@ -104,26 +104,29 @@ def test_explicit_demo_only():
 
 
 def test_stub_sheet_notice_first():
-    """뼈대 적중+무키 반쪽 답안은 reply 첫 줄에 요약본 경고."""
-    r = _run_pipeline("PDCA에 대하여 설명하시오 (25점)")[-1]
+    """뼈대 적중+무키 반쪽 답안은 reply 첫 줄에 요약본 경고.
+
+    (픽스처 토픽: TRIZ(MG-028) — 종전 PDCA(MG-069)는 M10에서 풀부품 승격)
+    """
+    r = _run_pipeline("TRIZ에 대하여 설명하시오 (25점)")[-1]
     assert r["reply"].startswith("⚠️"), r["reply"][:60]
     assert "요약본" in r["reply"].splitlines()[0]
 
 
 _MOCK_CORE = (
-    "<h2>PDCA의 구성도 및 구성요소</h2>"
-    "<h3>PDCA의 구성도</h3>"
-    '<div class="diagram"><div class="d-box">Plan</div><span class="d-arrow">→</span>'
-    '<div class="d-box d-hub">Do</div><span class="d-arrow">→</span>'
-    '<div class="d-box">Check</div><span class="d-arrow">→</span>'
-    '<div class="d-box soft">Act</div></div>'
-    '<p class="gloss">– 계획-실행-평가-개선의 순환 사이클임</p>'
-    "<h3>PDCA의 구성요소</h3>"
+    "<h2>TRIZ의 구성도 및 구성요소</h2>"
+    "<h3>TRIZ의 구성도</h3>"
+    '<div class="diagram"><div class="d-box">모순 정의</div><span class="d-arrow">→</span>'
+    '<div class="d-box d-hub">40 발명원리</div><span class="d-arrow">→</span>'
+    '<div class="d-box">해결안</div><span class="d-arrow">→</span>'
+    '<div class="d-box soft">검증</div></div>'
+    '<p class="gloss">– 모순을 원리로 해소하는 절차임</p>'
+    "<h3>TRIZ의 구성요소</h3>"
     '<table class="t3"><thead><tr><th>구분</th><th>구성요소</th><th>설명</th></tr></thead>'
-    '<tbody><tr class="r2"><td>계획</td><td>Plan</td><td>목표·프로세스 수립함</td></tr>'
-    '<tr class="r2"><td>실행</td><td>Do</td><td>계획 이행·데이터 수집함</td></tr>'
-    '<tr class="r2"><td>평가</td><td>Check</td><td>결과 측정·목표 대비 분석함</td></tr>'
-    '<tr class="r2"><td>개선</td><td>Act</td><td>표준화·차기 계획 반영함</td></tr></tbody></table>'
+    '<tbody><tr class="r2"><td>분석</td><td>모순 행렬</td><td>기술 모순 유형화함</td></tr>'
+    '<tr class="r2"><td>원리</td><td>발명원리</td><td>40개 해결 원리 적용함</td></tr>'
+    '<tr class="r2"><td>진화</td><td>진화 법칙</td><td>시스템 발전 방향 예측함</td></tr>'
+    '<tr class="r2"><td>도구</td><td>ARIZ</td><td>복합 문제 해결 알고리즘</td></tr></tbody></table>'
 )
 
 
@@ -143,25 +146,25 @@ def test_skeleton_hit_llm_enrichment_mock():
     _agents.httpx.AsyncClient = lambda **kw: orig(transport=httpx.MockTransport(handler))
     try:
         async def run():
-            return [e async for e in _agents.run_pipeline([], "PDCA에 대하여 설명하시오 (25점)")]
+            return [e async for e in _agents.run_pipeline([], "TRIZ에 대하여 설명하시오 (25점)")]
         evs = asyncio.run(run())
     finally:
         _agents.httpx.AsyncClient = orig
         os.environ.pop("GEMINI_API_KEY", None)
 
     r = evs[-1]
-    assert r["matched"] == ["MG-069"], r.get("matched")
+    assert r["matched"] == ["MG-028"], r.get("matched")
     assert r["llm_calls"] == 1 and len(calls) == 1, (r.get("llm_calls"), calls)
     art = r["artifact"]["html"]
-    assert "PDCA의 구성도 및 구성요소" in art and "d-hub" in art
+    assert "TRIZ의 구성도 및 구성요소" in art and "d-hub" in art
     assert not any("Ⅱ단락 생략" in w for w in r["review"]["warnings"]), r["review"]["warnings"]
 
 
 def test_skeleton_hit_without_key_keeps_warning():
     """뼈대 토픽 적중 + 키 없음 → 현행 유지 (Ⅱ단락 생략 경고)."""
-    evs = _run_pipeline("PDCA에 대하여 설명하시오 (25점)")
+    evs = _run_pipeline("TRIZ에 대하여 설명하시오 (25점)")
     r = evs[-1]
-    assert r["matched"] == ["MG-069"] and r["llm_calls"] == 0
+    assert r["matched"] == ["MG-028"] and r["llm_calls"] == 0
     assert any("Ⅱ단락 생략" in w for w in r["review"]["warnings"]), r["review"]["warnings"]
 
 
@@ -182,16 +185,16 @@ def test_composite_with_skeleton_no_wasted_call():
     _agents.httpx.AsyncClient = lambda **kw: orig(transport=httpx.MockTransport(handler))
     try:
         async def run():
-            # PDCA(MG-069, 뼈대) + SWOT(MG-024, 풀부품) 복합
+            # TRIZ(MG-028, 뼈대) + SWOT(MG-024, 풀부품) 복합
             return [e async for e in _agents.run_pipeline(
-                [], "PDCA와 SWOT 분석을 비교하여 설명하시오 (25점)")]
+                [], "TRIZ와 SWOT 분석을 비교하여 설명하시오 (25점)")]
         evs = asyncio.run(run())
     finally:
         _agents.httpx.AsyncClient = orig
         os.environ.pop("GEMINI_API_KEY", None)
 
     r = evs[-1]
-    assert sorted(r["matched"]) == ["MG-024", "MG-069"], r.get("matched")
+    assert sorted(r["matched"]) == ["MG-024", "MG-028"], r.get("matched")
     assert r["llm_calls"] == 0 and not calls, (r.get("llm_calls"), calls)  # 콜 낭비 없음
     writer_talks = [e["text"] for e in evs if e.get("type") == "talk" and e.get("agent") == "writer"]
     assert not any("핵심 섹션" in t and "집필했어요" in t for t in writer_talks), writer_talks  # talk 진실성

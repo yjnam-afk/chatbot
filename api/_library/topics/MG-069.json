@@ -1,15 +1,100 @@
 {
-  "id": "MG-069",
-  "name": "PDCA(Plan Do Check Action)",
-  "aliases": [
-    "PDCA",
-    "Plan Do Check Action"
-  ],
-  "category": "프로세스 · 품질 · 성과 > 프로세스 혁신 > PDCA",
-  "keywords": [],
-  "mnemonic": {
-    "word": "계실점조",
-    "expansion": []
+ "id": "MG-069",
+ "name": "PDCA(Plan Do Check Action)",
+ "aliases": [
+  "PDCA",
+  "Plan Do Check Action"
+ ],
+ "category": "프로세스 · 품질 · 성과 > 프로세스 혁신 > PDCA",
+ "keywords": [
+  "Plan",
+  "Do",
+  "Check",
+  "Act",
+  "지속 개선"
+ ],
+ "mnemonic": {
+  "word": "계실점조",
+  "expansion": [
+   "계획(Plan)",
+   "실행(Do)",
+   "점검(Check)",
+   "조치(Act)"
+  ]
+ },
+ "definition": "계획-실행-평가-개선의 사이클로 품질·생산을 관리하는 방법론",
+ "definition_long": "계획-실행-점검-조치의 반복 사이클로 품질·프로세스를 지속 개선하는 관리 기법",
+ "background": "일회성 개선의 한계 극복 — 반복 사이클로 개선을 체계화할 필요",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-cycle\"><span class=\"d-turn\">↑</span><div class=\"d-box\">Plan<small>목표·계획</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">Do<small>실행</small></div><span class=\"d-turn\">↓</span><div class=\"d-box\">Act<small>표준화·조치</small></div><span class=\"d-arrow\">←</span><div class=\"d-box\">Check<small>점검·평가</small></div></div></div>",
+ "diagram_gloss": "– 4단계 순환으로 지속 개선 실현",
+ "components": [
+  {
+   "role": "계획",
+   "name": "Plan",
+   "detail": [
+    "- 목표·지표 설정",
+    "- 실행계획 수립"
+   ]
   },
-  "definition": "계획-실행-평가-개선의 사이클로 품질·생산을 관리하는 방법론"
+  {
+   "role": "실행",
+   "name": "Do",
+   "detail": [
+    "- 계획 이행",
+    "- 실적 기록"
+   ]
+  },
+  {
+   "role": "점검",
+   "name": "Check",
+   "detail": [
+    "- 목표 대비 평가",
+    "- 편차 분석"
+   ]
+  },
+  {
+   "role": "조치",
+   "name": "Act",
+   "detail": [
+    "- 표준화·정착",
+    "- 차기 계획 반영"
+   ]
+  }
+ ],
+ "components_gloss": "– 사이클 반복이 개선의 핵심",
+ "features": [
+  {
+   "item": "반복성",
+   "desc": "사이클 순환으로 누적 개선"
+  },
+  {
+   "item": "범용성",
+   "desc": "품질·보안·BCP에 공통 적용"
+  },
+  {
+   "item": "표준 기반",
+   "desc": "ISO 관리체계 공통 모델"
+  }
+ ],
+ "usage": [
+  {
+   "item": "BCP 운영",
+   "desc": "ISO 22301 운영 사이클"
+  },
+  {
+   "item": "ISMS",
+   "desc": "정보보호 관리과정 골격"
+  },
+  {
+   "item": "품질경영",
+   "desc": "공정 개선 반복 적용"
+  }
+ ],
+ "conclusion": "PDCA는 ISO 관리체계 표준의 공통 운영 모델로 정착됨",
+ "exam_points": [
+  "BCP·ISMS 관리과정 적용",
+  "단계별 활동",
+  "지속 개선 체계"
+ ],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">일회성<br>개선</div><div class=\"d-circle\">품질<br>편차</div><div class=\"d-circle\">관리<br>비체계</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">PDCA 사이클</div><div class=\"d-box soft\">4단계 구성 (Ⅱ)</div><div class=\"d-box soft\">적용 방안 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">지속 개선<small>관리체계 정착</small></div></div>"
 }

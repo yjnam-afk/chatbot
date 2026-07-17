@@ -84,15 +84,16 @@ def _detail_cell(detail, kws=None, compact: bool = False) -> tuple[str, int]:
 
 
 def _t3(rows: list[dict], r2: bool = True, headers=("구분", "구성요소", "설명"),
-        kws=None) -> str:
+        kws=None, max_rows: int | None = None) -> str:
     """구성요소 3단표 — 행 높이 자동 선택 + 1열 rowspan 병합 + 셀 개조식 (T3~T6).
 
     - 행 단위 r1/r2 자동: detail이 개조식 2항목 또는 29자 이상일 때만 2줄 행
       (환산 기준: 설명열 폭 60% ≈ 30자/줄 — "내용 1구절 r2" 반려 방지)
     - 연속 행의 role이 같으면 1열(구분)을 rowspan 병합 (실물 카테고리 병합 22~28%)
     - r2=False는 축약 모드(복합/1교시): 전행 1줄, detail은 1줄 분량으로 절삭
+    - max_rows: 행 수 상한 재정의 (절차표 5단계 등 — 기본값은 현행 4/6 유지)
     """
-    rows = rows[: 4 if r2 else 6]
+    rows = rows[: max_rows or (4 if r2 else 6)]
     spans: list[int] = []  # 병합 시작 행이면 span 수, 병합 꼬리 행이면 0
     i = 0
     while i < len(rows):
@@ -136,12 +137,13 @@ def _t2(rows: list[dict], headers=("구분", "설명"), kws=None) -> str:
 
 def _tcmp(axes: list[dict], a_name: str, b_name: str, auto_r2: bool = False,
           max_rows: int = 4) -> str:
-    """비교표. auto_r2=True(요구 조립 경로 전용)면 셀이 손글씨 한 줄(환산 8자)을
-    넘는 행을 2줄 행(r2)으로 — 기존 호출(기본값)은 렌더 불변."""
+    """비교표. auto_r2=True(요구 조립 경로 전용)면 셀이 손글씨 1줄분(환산 11자)을
+    넘는 행을 2줄 행(r2)으로 — 임계값은 밀도 린터의 r2 미달 기준(≤11)과 정합.
+    기존 호출(기본값)은 렌더 불변."""
     trs = []
     for r in axes[:max_rows]:
         a, b = str(r.get("a") or ""), str(r.get("b") or "")
-        cls = ' class="r2"' if auto_r2 and max(_wlen(a), _wlen(b)) > 8 else ""
+        cls = ' class="r2"' if auto_r2 and max(_wlen(a), _wlen(b)) > 11 else ""
         trs.append(f"<tr{cls}><td>{_esc(r.get('axis'))}</td>"
                    f"<td>{_esc(a)}</td><td>{_esc(b)}</td></tr>")
     return (f'<table class="tcmp"><thead><tr><th>구분</th><th>{_esc(a_name)}</th>'
@@ -483,7 +485,8 @@ def _proc_table(proc: list[dict], kws=None, max_rows: int = 5) -> str:
     """절차표 (t3 변형) — 구분열 'N단계' + 절차명 + 수행 내용 (스키마 v1.1)."""
     rows = [{"role": f"{p.get('step')}단계", "name": p.get("name"),
              "detail": p.get("desc")} for p in proc[:max_rows]]
-    return _t3(rows, r2=True, headers=("단계", "절차", "수행 내용"), kws=kws)
+    return _t3(rows, r2=True, headers=("단계", "절차", "수행 내용"), kws=kws,
+               max_rows=max_rows)
 
 
 def _sub_point_rows(rows: list[dict], sub_points: list[str], key: str = "role"):
@@ -599,10 +602,16 @@ def _req_section(r: dict, ts: list[dict], primary: dict, bounds: tuple[int, int]
             a, b = primary, a  # 지문에 한쪽만 언급 → 주 토픽과 짝
         cmp_done = False
         if b is not None:
-            # b가 이 답안 첫 등장이면 정의 1건 먼저 (지문 어구 아래 근거)
+            # b가 이 답안 첫 등장이면 정의 1건 먼저 (지문 어구 아래 근거) —
+            # 접두 포함 2줄 문단 상한(40) 안에 드는 정의를 선택 (밀도 규격)
             if first_of.get(b.get("id")) == r.get("label"):
-                add_def(ctx.take(b, "definition_long") or b.get("definition"),
-                        f"({_esc(short_name(b))} 정의) ")
+                tok = (short_name(b).split() or [short_name(b)])[0][:8]
+                for field in ("definition_long", "definition"):
+                    cand = b.get(field)
+                    if cand and _wlen(f"({tok}) {cand}") <= 40:
+                        ctx.take(b, field)
+                        add_def(cand, f"({_esc(tok)}) ")
+                        break
             mutual = _mutual_comparison([a, b])
             if mutual:
                 base_t, c = mutual
@@ -611,11 +620,10 @@ def _req_section(r: dict, ts: list[dict], primary: dict, bounds: tuple[int, int]
                 cmp_done = add(_tcmp(c.get("axes") or [], short_name(base_t),
                                      short_name(other), auto_r2=True))
             else:
+                # 상호 comparisons 부재 → features 자동 대비표 (2-4: 대체 강등은 경고 없이)
                 add(f"<h3>{_esc(short_name(a))}와 {_esc(short_name(b))}의 비교</h3>")
                 cmp_done = add(_tcmp(_auto_compare_axes(a, b), short_name(a),
                                      short_name(b), auto_r2=True))
-                warnings.append(f"{short_name(a)}·{short_name(b)} 상호 비교 부품 없음 — "
-                                "features 자동 대비표 사용")
         else:
             cmp0 = (t.get("comparisons") or [None])[0]
             if cmp0:
@@ -678,20 +686,24 @@ def _req_section(r: dict, ts: list[dict], primary: dict, bounds: tuple[int, int]
         lines += 3
         warnings.append(f"요구 '{req_title(r)[:16]}' 부품 없음 — 플레이스홀더")
 
-    # ---- 분량 미달 시 미사용 부품으로 보강 (문서 순서 고정 풀)
+    # ---- 분량 미달 시 미사용 부품으로 보강 (내용 근접도 순 고정 풀 —
+    #      구성도는 정의·설명형 요구에만: 방안·적용 단락에 구성도는 동문서답)
     if not deficit:
         pads = [
             lambda: add_def(ctx.take(t, "definition_long")
                             or (None if (t.get("id"), "definition_long") in ctx.used
                                 else ctx.take(t, "definition")), "(정의) ", quote=True),
+            lambda: add_t3(ctx.take(t, "components") or [], f"{s}의 구성요소"),
+            lambda: (add_diagram(t) if r.get("verb") in ("define", "explain") else False),
             lambda: add_t2(ctx.take(t, "features") or [], ("구분", "특징"),
                            h3=f"{s}의 주요 특징"),
-            lambda: add_diagram(t),
-            lambda: add_t3(ctx.take(t, "components") or [], f"{s}의 구성요소"),
             lambda: add_def(ctx.take(t, "background"), "(필요성) "),
             lambda: add_t2(ctx.take(t, "usage") or [], ("기대효과", "설명"),
                            h3=f"{s}의 기대효과"),
             lambda: add_def(ctx.take(t, "components_gloss")),
+            lambda: add_t2([{"item": f"포인트{i + 1}", "desc": p}
+                            for i, p in enumerate((ctx.take(t, "exam_points") or [])[:3])],
+                           ("구분", "출제 포인트")),
         ]
         for pad in pads:
             if lines >= bmin:
@@ -702,8 +714,14 @@ def _req_section(r: dict, ts: list[dict], primary: dict, bounds: tuple[int, int]
             "deficit": deficit, "label": r.get("label")}
 
 
-def _dyn_intro(primary: dict, hub: str, labels: list[str], warnings: list) -> list[str]:
-    """서론 동적 로드맵 (Type IV, 2-3) — d-box 라벨 = 요구 단락 제목 요약(12자 절삭)."""
+def _dyn_intro(primary: dict, hub: str, labels: list[str], warnings: list,
+               ctx: _Ctx) -> list[str]:
+    """서론 동적 로드맵 (Type IV, 2-3) — d-box 라벨 = 요구 단락 제목 요약(12자 절삭).
+
+    서론 정의는 짧은 definition을 소비(ctx 마킹)하고 definition_long은 본론 정의
+    요구에 보존한다 — 서론·본론 중복 렌더 방지. 뼈대 토픽(definition뿐)은 마킹
+    없이 사용해 본론이 플레이스홀더로 강등되지 않게 한다.
+    """
     s = short_name(primary)
     cat = str(primary.get("category") or "")
     if "보안" in cat or "sec" in cat.lower():
@@ -723,13 +741,21 @@ def _dyn_intro(primary: dict, hub: str, labels: list[str], warnings: list) -> li
           f"</div>")
     parts = [f"<h2>{_esc(h2)}</h2>", d7]
     kws = primary.get("keywords") or []
-    d = primary.get("definition_long") or primary.get("definition")
+    short_def, long_def = primary.get("definition"), primary.get("definition_long")
+    if long_def and short_def:
+        ctx.take(primary, "definition")
+        d = short_def  # 긴 정의는 본론(정의 요구)에 보존
+    elif long_def:
+        d = ctx.take(primary, "definition_long")
+    else:
+        d = short_def  # 뼈대 토픽 — 마킹 없이 사용
     if d:
         parts.append(f'<p class="def">(정의) {_emph(d, kws, quote=True)}</p>')
     else:
         warnings.append("서론 정의 부품 없음")
-    if primary.get("background"):
-        parts.append(f'<p class="def">(필요성) {_emph(primary["background"], kws, limit=1)}</p>')
+    bg = ctx.take(primary, "background")
+    if bg:
+        parts.append(f'<p class="def">(필요성) {_emph(bg, kws, limit=1)}</p>')
     return parts
 
 
@@ -765,15 +791,23 @@ def assemble_requirements(question: str, kind: str, points: int, parsed: dict,
         for t in ts or []:
             first_of.setdefault(t.get("id"), r.get("label"))
 
-    # 서론 로드맵 허브: 리드 주제어(시나리오·리드에 담긴 물음 대상)가 짧으면 그것, 아니면 주 토픽
+    # 서론 로드맵 허브: 리드 주제어(문두의 물음 대상)가 짧으면 그것, 아니면 주 토픽
     hub = short_name(primary)
-    m = re.match(r"\s*([A-Za-z0-9·\s가-힣]{2,12})(?:에\s*대(?:하여|해)|의|을|를|은|는)\s",
-                 question or "")
-    if m and not re.search(r"다음|아래", m.group(1)):
-        hub = m.group(1).strip() or hub
+    for pat in (r"^\s*([A-Za-z0-9·\s가-힣]{2,12}?)에\s*대(?:하여|해)",
+                r"^\s*([A-Za-z0-9·\s가-힣]{2,12}?)(?:의|을|를|은|는)\s"):
+        m = re.match(pat, question or "")
+        if m and not re.search(r"다음|아래", m.group(1)) and len(m.group(1).strip()) >= 2:
+            hub = m.group(1).strip()
+            break
 
     bounds = _REQ_BOUNDS.get(n, _REQ_BOUNDS[5])
     bounds = (max(bounds[0], 7), bounds[1])  # 요구당 최소 7줄 보장
+
+    # ---- 서론 (요구 단락보다 먼저 조립 — 짧은 정의·필요성을 서론이 먼저 소비해
+    #      본론 중복 렌더를 막는다. 라벨은 단락 제목을 미리 계산: 박스 텍스트 ⊂ h2)
+    titles = [_req_h2_title(r, ((ts or [primary])[0])) for r, ts in zip(reqs, assignments)]
+    labels = [clip_label(t) for t in titles]
+    intro_parts = _dyn_intro(primary, hub, labels, warnings, ctx)
 
     # ---- 요구 단락들
     sections: list[dict] = []
@@ -811,10 +845,8 @@ def assemble_requirements(question: str, kind: str, points: int, parsed: dict,
             f'<p class="def">{_emph(concl_t["conclusion"], concl_t.get("keywords"), limit=1)}</p>')
         sections[-1]["lines"] += 2
 
-    # ---- 서론 (요구 단락 제목 확정 후 로드맵 라벨 생성 — 박스 텍스트 ⊂ h2 제목)
-    labels = [clip_label(sec["title"]) for sec in sections[:n]]
     parts: list[str] = ['<p class="ans">답)</p>']
-    parts.extend(_dyn_intro(primary, hub, labels, warnings))
+    parts.extend(intro_parts)
     for sec in sections:
         parts.extend(sec["blocks"])
 

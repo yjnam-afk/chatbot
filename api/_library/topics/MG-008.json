@@ -1,22 +1,96 @@
 {
-  "id": "MG-008",
-  "name": "Process Mining",
-  "aliases": [],
-  "category": "데이터 · 인텔리전스 > Mining 총론 > Process Mining",
-  "keywords": [
-    "모델링",
-    "조직성과",
-    "정보시스템 로그",
-    "현실세계"
-  ],
-  "mnemonic": {
-    "word": "모조정로",
-    "expansion": [
-      "모델링",
-      "조직성과",
-      "정보시스템 로그",
-      "현실세계"
-    ]
+ "id": "MG-008",
+ "name": "Process Mining",
+ "aliases": [
+  "Process Mining",
+  "프로세스 마이닝"
+ ],
+ "category": "데이터 · 인텔리전스 > Mining 총론 > Process Mining",
+ "keywords": [
+  "이벤트 로그",
+  "프로세스 발견",
+  "적합성 검사",
+  "프로세스 향상"
+ ],
+ "mnemonic": {
+  "word": "모조정로",
+  "expansion": [
+   "모델링",
+   "조직성과",
+   "정보시스템 로그",
+   "현실세계"
+  ]
+ },
+ "definition": "정보시스템 로그 분석을 통해 업무 프로세스를 도출하고 개선하는 분석 기법",
+ "definition_long": "정보시스템 이벤트 로그를 분석해 실제 프로세스를 발견·검증·개선하는 기법",
+ "background": "설계 프로세스와 실제 수행의 괴리 — 로그 기반 객관 진단 필요",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-flow\"><div class=\"d-box\">이벤트 로그<small>IS 기록</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">발견<small>모델 도출</small></div><div class=\"d-box\">적합성<small>모델 대사</small></div><div class=\"d-box\">향상<small>개선 반영</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">프로세스 혁신</div></div></div>",
+ "diagram_gloss": "– 로그 기반 3대 분석 활동",
+ "components": [
+  {
+   "role": "입력",
+   "name": "이벤트 로그",
+   "detail": [
+    "- 케이스·활동·시각",
+    "- IS 수행 기록"
+   ]
   },
-  "definition": "정보시스템 로그 분석을 통해 업무 프로세스를 도출하고 개선하는 분석 기법"
+  {
+   "role": "분석",
+   "name": "발견",
+   "detail": "로그로 실제 모델 도출"
+  },
+  {
+   "role": "분석",
+   "name": "적합성",
+   "detail": [
+    "- 설계 모델과 대사",
+    "- 편차 검출"
+   ]
+  },
+  {
+   "role": "분석",
+   "name": "향상",
+   "detail": [
+    "- 병목·재작업 진단",
+    "- 모델 개선"
+   ]
+  }
+ ],
+ "components_gloss": "– 발견·적합성·향상 3활동",
+ "features": [
+  {
+   "item": "사실 기반",
+   "desc": "실제 로그로 객관 진단"
+  },
+  {
+   "item": "가시화",
+   "desc": "숨은 프로세스 모델화"
+  },
+  {
+   "item": "상시성",
+   "desc": "지속 모니터링 가능"
+  }
+ ],
+ "usage": [
+  {
+   "item": "업무 혁신",
+   "desc": "병목·우회 경로 제거"
+  },
+  {
+   "item": "감사·준법",
+   "desc": "규정 위반 흐름 적발"
+  },
+  {
+   "item": "RPA 연계",
+   "desc": "자동화 대상 선별"
+  }
+ ],
+ "conclusion": "프로세스 마이닝은 BPM·RPA와 결합해 상시 혁신 체계로 발전함",
+ "exam_points": [
+  "발견·적합성·향상",
+  "이벤트 로그 요건",
+  "RPA 연계 활용"
+ ],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">설계·실행<br>괴리</div><div class=\"d-circle\">병목<br>미파악</div><div class=\"d-circle\">로그<br>미활용</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">프로세스 마이닝</div><div class=\"d-box soft\">분석 체계 (Ⅱ)</div><div class=\"d-box soft\">활용 방안 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">프로세스 혁신<small>병목 제거</small></div></div>"
 }

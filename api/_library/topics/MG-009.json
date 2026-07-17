@@ -1,30 +1,93 @@
 {
-  "id": "MG-009",
-  "name": "웹 마이닝(WEB Mining)",
-  "aliases": [
-    "웹 마이닝",
-    "WEB Mining"
-  ],
-  "category": "데이터 · 인텔리전스 > Mining 총론 > WEB Mining",
-  "keywords": [
-    "WWW",
-    "온톨로지",
-    "ONTEX",
-    "RDF",
-    "Semantic Web",
-    "REST",
-    "Web Log"
-  ],
-  "mnemonic": {
-    "word": "구내사(구조, 내용, 사용 마이닝)",
-    "expansion": [
-      "WWW",
-      "온톨로지",
-      "ONTEX",
-      "RDF",
-      "Semantic Web",
-      "REST"
-    ]
+ "id": "MG-009",
+ "name": "웹 마이닝(WEB Mining)",
+ "aliases": [
+  "웹 마이닝",
+  "WEB Mining"
+ ],
+ "category": "데이터 · 인텔리전스 > Mining 총론 > WEB Mining",
+ "keywords": [
+  "콘텐츠 마이닝",
+  "구조 마이닝",
+  "사용 마이닝",
+  "웹 로그"
+ ],
+ "mnemonic": {
+  "word": "구내사(구조, 내용, 사용 마이닝)",
+  "expansion": [
+   "WWW",
+   "온톨로지",
+   "ONTEX",
+   "RDF",
+   "Semantic Web",
+   "REST"
+  ]
+ },
+ "definition": "웹상 사용자 데이터·로그 분석을 통해 가치 있는 정보를 추출하는 마이닝 기법",
+ "definition_long": "웹 문서·구조·사용 로그를 분석해 가치 있는 패턴과 정보를 추출하는 마이닝 기법",
+ "background": "웹 데이터 폭증 — 콘텐츠·이용 행태의 체계적 분석 필요",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-tree\"><div class=\"d-bar\">웹 마이닝<small>Web Mining</small></div><div class=\"d-stem\"></div><div class=\"d-branch\"></div><div class=\"d-row\"><div class=\"d-box\">콘텐츠<small>문서·미디어</small></div><div class=\"d-box\">구조<small>링크 분석</small></div><div class=\"d-box\">사용<small>로그·행태</small></div></div></div></div>",
+ "diagram_gloss": "– 대상별 3개 유형으로 분류",
+ "components": [
+  {
+   "role": "콘텐츠",
+   "name": "문서 분석",
+   "detail": [
+    "- 웹 문서·미디어",
+    "- 주제 추출"
+   ]
   },
-  "definition": "웹상 사용자 데이터·로그 분석을 통해 가치 있는 정보를 추출하는 마이닝 기법"
+  {
+   "role": "구조",
+   "name": "링크 분석",
+   "detail": [
+    "- 하이퍼링크 구조",
+    "- 페이지 중요도"
+   ]
+  },
+  {
+   "role": "사용",
+   "name": "로그 분석",
+   "detail": [
+    "- 방문·클릭 행태",
+    "- 이용 패턴"
+   ]
+  }
+ ],
+ "components_gloss": "– 분석 대상에 따른 3유형",
+ "features": [
+  {
+   "item": "대상 특화",
+   "desc": "웹 자원 전용 마이닝"
+  },
+  {
+   "item": "행태 분석",
+   "desc": "사용 로그 기반 개인화"
+  },
+  {
+   "item": "구조 활용",
+   "desc": "링크로 신뢰도 평가"
+  }
+ ],
+ "usage": [
+  {
+   "item": "추천 시스템",
+   "desc": "행태 기반 개인화 추천"
+  },
+  {
+   "item": "검색 랭킹",
+   "desc": "링크 분석 순위화"
+  },
+  {
+   "item": "UX 개선",
+   "desc": "이동 경로 최적화"
+  }
+ ],
+ "conclusion": "웹 마이닝은 개인정보 보호와 균형 있는 활용 설계가 요구됨",
+ "exam_points": [
+  "3개 유형 분류",
+  "사용 마이닝 활용",
+  "텍스트 마이닝과 구분"
+ ],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">웹 자원<br>폭증</div><div class=\"d-circle\">행태 파악<br>수요</div><div class=\"d-circle\">개인화<br>경쟁</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">웹 마이닝</div><div class=\"d-box soft\">유형 체계 (Ⅱ)</div><div class=\"d-box soft\">활용 방안 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">웹 가치 추출<small>추천 · 최적화</small></div></div>"
 }

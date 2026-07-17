@@ -1,27 +1,138 @@
 {
-  "id": "MG-047",
-  "name": "ISP(Information Strategy Plan)",
-  "aliases": [
-    "ISP",
-    "Information Strategy Plan"
-  ],
-  "category": "전략 기획 · 분석도구 > 전략계획 > ISP(Information Strategy Plan)",
-  "keywords": [
-    "환경분석",
-    "현황분석",
-    "정보화 비전 및 전략 수립",
-    "목표모델 설계",
-    "통합 이행 계획"
-  ],
-  "mnemonic": {
-    "word": "환형정목통",
-    "expansion": [
-      "환경분석",
-      "현황분석",
-      "정보화 비전 및 전략 수립",
-      "목표모델 설계",
-      "통합 이행 계획"
-    ]
+ "id": "MG-047",
+ "name": "ISP(Information Strategy Plan)",
+ "aliases": [
+  "ISP",
+  "Information Strategy Plan",
+  "정보화 전략 계획",
+  "정보전략계획"
+ ],
+ "category": "전략 기획 · 분석도구 > 전략계획 > ISP(Information Strategy Plan)",
+ "keywords": [
+  "환경분석",
+  "현황분석",
+  "정보화 비전 및 전략 수립",
+  "목표모델 설계",
+  "통합 이행 계획"
+ ],
+ "mnemonic": {
+  "word": "환형정목통",
+  "expansion": [
+   "환경분석",
+   "현황분석",
+   "정보화 비전 및 전략 수립",
+   "목표모델 설계",
+   "통합 이행 계획"
+  ]
+ },
+ "definition": "조직 목표 달성을 위한 정보화 전략·비전과 IT 사업·로드맵을 수립하는 활동",
+ "definition_long": "조직 비전 달성을 위한 정보화 전략과 IT 과제·이행 로드맵을 수립하는 최상위 기획 활동",
+ "background": "경영전략과 IT 정렬, 정보화 투자 중복·부실 방지 근거 확보 필요",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-flow\"><div class=\"d-box\">환경분석<small>외부 동향</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">현황분석<small>As-Is</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">비전·전략</div><span class=\"d-arrow\">→</span><div class=\"d-box\">목표모델<small>To-Be</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">이행계획<small>로드맵</small></div></div></div>",
+ "diagram_gloss": "– 분석에서 이행까지 5단계 체계",
+ "procedure": [
+  {
+   "step": 1,
+   "name": "환경분석",
+   "desc": [
+    "- 외부 환경·동향",
+    "- 선진사례 벤치마킹"
+   ]
   },
-  "definition": "조직 목표 달성을 위한 정보화 전략·비전과 IT 사업·로드맵을 수립하는 활동"
+  {
+   "step": 2,
+   "name": "현황분석",
+   "desc": [
+    "- As-Is 업무·IT",
+    "- 격차(GAP) 도출"
+   ]
+  },
+  {
+   "step": 3,
+   "name": "비전·전략",
+   "desc": [
+    "- 정보화 비전 수립",
+    "- 추진전략 정의"
+   ]
+  },
+  {
+   "step": 4,
+   "name": "목표모델",
+   "desc": [
+    "- To-Be 설계",
+    "- 과제 도출"
+   ]
+  },
+  {
+   "step": 5,
+   "name": "이행계획",
+   "desc": [
+    "- 우선순위·로드맵",
+    "- 소요예산 산정"
+   ]
+  }
+ ],
+ "features": [
+  {
+   "item": "전사 관점",
+   "desc": "조직 전체 IT 방향성 정의"
+  },
+  {
+   "item": "전략 연계",
+   "desc": "경영전략과 IT 전략 정렬"
+  },
+  {
+   "item": "이행 중심",
+   "desc": "과제·로드맵으로 실행 담보"
+  }
+ ],
+ "usage": [
+  {
+   "item": "공공 발주",
+   "desc": "정보화 사업 예산 확보 근거"
+  },
+  {
+   "item": "ISMP 연계",
+   "desc": "사업별 상세계획으로 구체화"
+  },
+  {
+   "item": "투자 판단",
+   "desc": "IT 과제 우선순위 결정"
+  }
+ ],
+ "comparisons": [
+  {
+   "vs": "MG-048",
+   "vs_name": "ISMP",
+   "axes": [
+    {
+     "axis": "목적",
+     "a": "정보화 전략 수립",
+     "b": "RFP 요건 상세화"
+    },
+    {
+     "axis": "범위",
+     "a": "전사 IT 전반",
+     "b": "특정 SW 사업 단위"
+    },
+    {
+     "axis": "산출물",
+     "a": "비전·이행 로드맵",
+     "b": "명세·기능점수"
+    },
+    {
+     "axis": "시점",
+     "a": "중장기 계획 단계",
+     "b": "사업 발주 직전"
+    }
+   ]
+  }
+ ],
+ "conclusion": "ISP는 ISMP·EA와 연계 운영될 때 실행력과 투자 효과가 확보됨",
+ "exam_points": [
+  "ISP 절차 5단계",
+  "ISP와 ISMP 비교",
+  "공공 SW사업 발주 연계"
+ ],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 투자<br>중복</div><div class=\"d-circle\">전략·IT<br>불일치</div><div class=\"d-circle\">발주 근거<br>부재</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">ISP 수립</div><div class=\"d-box soft\">수행 절차 (Ⅱ)</div><div class=\"d-box soft\">ISMP 연계 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">정보화 실행력<small>전략-IT 정렬</small></div></div>"
 }

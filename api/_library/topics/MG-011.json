@@ -1,19 +1,97 @@
 {
-  "id": "MG-011",
-  "name": "텍스트 마이닝(Text Mining)",
-  "aliases": [
-    "텍스트 마이닝",
-    "Text Mining"
-  ],
-  "category": "데이터 · 인텔리전스 > Mining 총론 > Text Mining",
-  "keywords": [
-    "형태소 분석"
-  ],
-  "mnemonic": {
-    "word": "분요군(분류, 요약, 군집화)",
-    "expansion": [
-      "형태소 분석"
-    ]
+ "id": "MG-011",
+ "name": "텍스트 마이닝(Text Mining)",
+ "aliases": [
+  "텍스트 마이닝",
+  "Text Mining"
+ ],
+ "category": "데이터 · 인텔리전스 > Mining 총론 > Text Mining",
+ "keywords": [
+  "형태소 분석",
+  "TDM",
+  "감성 분석",
+  "분류",
+  "군집화"
+ ],
+ "mnemonic": {
+  "word": "분요군(분류, 요약, 군집화)",
+  "expansion": [
+   "형태소 분석"
+  ]
+ },
+ "definition": "비정형 텍스트 집단에서 자동으로 정보를 추출해 새 정보를 발견하는 기술",
+ "definition_long": "비정형 텍스트에서 언어처리 기반으로 의미 있는 정보를 추출·발견하는 마이닝 기술",
+ "background": "비정형 텍스트 데이터 급증 — 자동 분석·활용 체계 필요",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-flow\"><div class=\"d-box\">수집<small>문서·SNS</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">전처리<small>형태소</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">분석<small>분류·군집</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">활용<small>인사이트</small></div></div></div>",
+ "diagram_gloss": "– 전처리 후 분류·군집 분석 수행",
+ "components": [
+  {
+   "role": "전처리",
+   "name": "형태소",
+   "detail": [
+    "- 토큰화·품사 부착",
+    "- 불용어 제거"
+   ]
   },
-  "definition": "비정형 텍스트 집단에서 자동으로 정보를 추출해 새 정보를 발견하는 기술"
+  {
+   "role": "표현",
+   "name": "TDM",
+   "detail": [
+    "- 단어-문서 행렬",
+    "- 가중치(TF-IDF)"
+   ]
+  },
+  {
+   "role": "분석",
+   "name": "분류·군집",
+   "detail": [
+    "- 주제 분류·요약",
+    "- 유사 문서 군집"
+   ]
+  },
+  {
+   "role": "응용",
+   "name": "감성 분석",
+   "detail": [
+    "- 긍·부정 판별",
+    "- 여론 파악"
+   ]
+  }
+ ],
+ "components_gloss": "– 언어처리와 통계 기법의 결합",
+ "features": [
+  {
+   "item": "비정형",
+   "desc": "자연어 문서 직접 분석"
+  },
+  {
+   "item": "자동화",
+   "desc": "대량 문서 요약·분류"
+  },
+  {
+   "item": "확장성",
+   "desc": "오피니언 마이닝 기반"
+  }
+ ],
+ "usage": [
+  {
+   "item": "VOC 분석",
+   "desc": "고객 불만 자동 분류"
+  },
+  {
+   "item": "여론 분석",
+   "desc": "SNS 감성·트렌드 파악"
+  },
+  {
+   "item": "지식 관리",
+   "desc": "문서 검색·요약 고도화"
+  }
+ ],
+ "conclusion": "텍스트 마이닝은 LLM 발전으로 정확도·적용 범위가 확대됨",
+ "exam_points": [
+  "형태소 분석 절차",
+  "감성 분석 적용",
+  "웹·프로세스 마이닝 비교"
+ ],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">비정형<br>급증</div><div class=\"d-circle\">수작업<br>한계</div><div class=\"d-circle\">여론 파악<br>수요</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">텍스트 마이닝</div><div class=\"d-box soft\">처리 체계 (Ⅱ)</div><div class=\"d-box soft\">분석 기법 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">텍스트 가치화<small>인사이트 발굴</small></div></div>"
 }
