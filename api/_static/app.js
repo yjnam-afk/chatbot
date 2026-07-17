@@ -1,5 +1,6 @@
-/* 글루 — 폼 제출, NDJSON 스트림 파싱 → Progress/Stage/대화 도크, 결과 메타 라인.
-   (서버리스 대응: 이벤트 채널과 대화 이력을 모두 클라이언트가 관리) */
+/* 글루 — 문항 제출, NDJSON 스트림 파싱 → Progress/Stage/답변 카드, 결과 메타 라인.
+   (서버리스 대응: 이벤트 채널과 대화 이력을 모두 클라이언트가 관리)
+   대화 도크는 발주자 지시로 UI에서 제거(2026-07) — 일반 질문 답변은 무대의 답변 카드로. */
 
 const formEl = document.getElementById("chat-form");
 const inputEl = document.getElementById("chat-input");
@@ -7,13 +8,12 @@ const askBtn = document.getElementById("ask-btn");
 const badgeEl = document.getElementById("mode-badge");
 const resultLine = document.getElementById("result-line");
 
-const dockEl = document.getElementById("dock");
-const dockMsgs = document.getElementById("dock-msgs");
-const dockBadge = document.getElementById("dock-badge");
+const chatCard = document.getElementById("chat-card");
+const ccBody = document.getElementById("cc-body");
+const stageScroll = document.getElementById("stage");
 
-const history = []; // [{role, content}] — 클라이언트가 유지
+const history = []; // [{role, content}] — 클라이언트가 유지 (서버 채팅 컨텍스트용)
 let kindHint = ""; // 교시형 칩 수동 선택 ("" = 자동 판별)
-let unread = 0;
 
 // ---------------------------------------------------------- 초기화
 fetch("/api/agents")
@@ -60,34 +60,27 @@ document.querySelectorAll(".kchip").forEach((chip) => {
   };
 });
 
-// ---------------------------------------------------------- 대화 도크
-function openDock() {
-  dockEl.classList.add("open");
-  unread = 0;
-  dockBadge.hidden = true;
+// ---------------------------------------------------------- 문항 입력 (textarea 3~8줄 자동 높이)
+function autosize() {
+  inputEl.style.height = "auto";
+  inputEl.style.height = inputEl.scrollHeight + 3 + "px"; // 상한은 CSS max-height가 제한
 }
-function closeDock() {
-  dockEl.classList.remove("open");
-}
-document.getElementById("dock-open").onclick = openDock;
-document.getElementById("dock-close").onclick = closeDock;
+inputEl.addEventListener("input", autosize);
+inputEl.addEventListener("keydown", (e) => {
+  // Enter는 줄바꿈(문항의 가/나/다 소문항 입력용), 제출은 버튼 또는 Ctrl/Cmd+Enter
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+    e.preventDefault();
+    formEl.requestSubmit();
+  }
+});
 
-function addDockMsg(role, text) {
-  const div = document.createElement("div");
-  div.className = `msg ${role}`;
-  div.textContent = text;
-  dockMsgs.appendChild(div);
-  dockMsgs.scrollTop = dockMsgs.scrollHeight;
-  return div;
+// ---------------------------------------------------------- 답변 카드 (일반 질문 → 무대 표시)
+function showChatCard(text) {
+  ccBody.textContent = text;
+  chatCard.hidden = false;
+  stageScroll.scrollTop = 0;
 }
-
-addDockMsg(
-  "bot",
-  "어서 오세요, 기술사 답안 사무소입니다.\n" +
-    "시험 문제를 입력하면 토픽 라이브러리에서 부품을 찾아 실물 답안지를 즉시 조립해 드려요 " +
-    "(적중 시 3초 이내, 미적중은 AI 팀이 작성·채점).\n" +
-    "일반 질문은 여기 대화 도크에서 답합니다."
-);
+document.getElementById("cc-close").onclick = () => { chatCard.hidden = true; };
 
 // ---------------------------------------------------------- 결과 메타 라인
 function buildMeta(ev, secs) {
@@ -116,7 +109,7 @@ function buildMeta(ev, secs) {
 
 // ---------------------------------------------------------- 제출 + 스트림
 let t0 = 0;
-let typingEl = null;
+let busy = false;
 
 function handleEvent(ev) {
   if (ev.type === "agent" || ev.type === "talk") {
@@ -126,11 +119,9 @@ function handleEvent(ev) {
   }
   if (ev.type !== "reply") return;
   const secs = ((performance.now() - t0) / 1000).toFixed(1);
-  if (typingEl) { typingEl.remove(); typingEl = null; }
 
   if (ev.artifact && ev.artifact.html) {
-    // 답안지 흐름은 도크를 건드리지 않는다 — 무대·게이지·메타 라인이 전담
-    // (발주자 피드백 2026-07: 시험 문제 흐름에서 도크 존재감이 혼란 유발)
+    chatCard.hidden = true;
     Progress.finishAll();
     Stage.hideOverlay();
     Stage.render(ev.artifact);
@@ -138,7 +129,7 @@ function handleEvent(ev) {
     resultLine.textContent = buildMeta(ev, secs);
     showProgressTab();
   } else {
-    // 일반 답변/미적중 안내 → 도크
+    // 일반 답변/미적중 안내 → 무대의 답변 카드
     if (ev.library === false) {
       // 라이브러리 미적중 안내: 진행 레일은 검색 단계 '미적중' 상태를 유지한다
       resultLine.textContent = buildMeta(ev, secs);
@@ -146,25 +137,19 @@ function handleEvent(ev) {
       Progress.reset();
     }
     Stage.hideOverlay();
-    addDockMsg("bot", ev.reply || "");
-    if (!dockEl.classList.contains("open")) openDock();
+    showChatCard(ev.reply || "");
   }
   history.push({ role: "assistant", content: ev.reply || "" });
   if (history.length > 30) history.splice(0, history.length - 30);
 }
 
-formEl.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const text = inputEl.value.trim();
-  if (!text || askBtn.disabled) return;
-  inputEl.value = "";
+async function send(text) {
+  if (!text || busy) return;
+  busy = true;
   askBtn.disabled = true;
-  askBtn.textContent = "작성 중…";
   resultLine.textContent = "";
   Progress.reset();
   Stage.showOverlay("접수 중…");
-  addDockMsg("user", text);
-  typingEl = addDockMsg("bot typing", "답안 팀이 작성 중이에요");
   showProgressTab();
   t0 = performance.now();
 
@@ -195,16 +180,23 @@ formEl.addEventListener("submit", async (e) => {
     }
     if (buf.trim()) handleEvent(JSON.parse(buf.trim()));
   } catch (err) {
-    if (typingEl) { typingEl.remove(); typingEl = null; }
     Progress.failActive();
     Stage.hideOverlay();
-    addDockMsg("bot", "서버 오류가 발생했어요: " + err.message);
-    openDock();
+    showChatCard("서버 오류가 발생했어요: " + err.message);
   } finally {
+    busy = false;
     askBtn.disabled = false;
-    askBtn.textContent = "작성";
     inputEl.focus();
   }
+}
+
+formEl.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const text = inputEl.value.trim();
+  if (!text) return;
+  inputEl.value = "";
+  autosize();
+  send(text);
 });
 
 // ---------------------------------------------------------- 예시 버튼 · 단축키 · 전역
@@ -223,6 +215,7 @@ window.addEventListener("keydown", (e) => {
 window.App = {
   ask(text) {
     inputEl.value = text;
+    autosize();
     showProgressTab();
     formEl.requestSubmit();
   },

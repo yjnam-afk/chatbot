@@ -1,6 +1,7 @@
 /* 무대 — artifact(완결 HTML)를 iframe srcdoc으로 렌더, 분량 게이지·내보내기 (front-ui-spec.md §2-4). */
 
 const Stage = (() => {
+  const stageEl = document.getElementById("stage");
   const wrap = document.getElementById("stage-wrap");
   const empty = document.getElementById("stage-empty");
   const frame = document.getElementById("sheet-frame");
@@ -9,8 +10,14 @@ const Stage = (() => {
   const gaugeFill = document.getElementById("gauge-fill");
   const gaugeText = document.getElementById("gauge-text");
   const exportBtns = ["ex-print", "ex-pdf", "ex-html", "ex-tab"].map((id) => document.getElementById(id));
+  const navEl = document.getElementById("page-nav");
+  const pnLabel = document.getElementById("pn-label");
+  const pnPrev = document.getElementById("pn-prev");
+  const pnNext = document.getElementById("pn-next");
 
   let current = null; // {title, html}
+  let pageTops = []; // 무대 스크롤 좌표계의 각 쪽 시작 위치
+  let curPage = 0;
 
   function blobUrl(art) {
     return URL.createObjectURL(new Blob([art.html], { type: "text/html" }));
@@ -32,6 +39,46 @@ const Stage = (() => {
     } catch (e) { /* sandbox 접근 실패 시 기본 높이 유지 */ }
   }
 
+  // ---- 쪽 이동 네비 (무대는 뷰포트에 가둬 내부 스크롤 — 발주자 피드백 2026-07)
+  function buildPageNav() {
+    try {
+      const d = frame.contentDocument;
+      const pages = d ? Array.from(d.querySelectorAll(".page")) : [];
+      if (!pages.length) {
+        navEl.hidden = true;
+        return;
+      }
+      const base = wrap.offsetTop;
+      pageTops = pages.map((p) => base + p.offsetTop);
+      navEl.hidden = false;
+      updatePageNav();
+    } catch (e) {
+      navEl.hidden = true;
+    }
+  }
+
+  function updatePageNav() {
+    if (navEl.hidden || !pageTops.length) return;
+    const pos = stageEl.scrollTop + 60;
+    let i = 0;
+    for (let k = 0; k < pageTops.length; k++) {
+      if (pageTops[k] <= pos) i = k;
+    }
+    curPage = i;
+    pnLabel.textContent = `${i + 1} / ${pageTops.length} 쪽`;
+    pnPrev.disabled = i === 0;
+    pnNext.disabled = i >= pageTops.length - 1;
+  }
+
+  function gotoPage(i) {
+    if (i < 0 || i >= pageTops.length) return;
+    stageEl.scrollTo({ top: Math.max(0, pageTops[i] - 14), behavior: "smooth" });
+  }
+
+  pnPrev.onclick = () => gotoPage(curPage - 1);
+  pnNext.onclick = () => gotoPage(curPage + 1);
+  stageEl.addEventListener("scroll", () => requestAnimationFrame(updatePageNav));
+
   function render(art) {
     current = art;
     empty.hidden = true;
@@ -39,9 +86,11 @@ const Stage = (() => {
     frame.classList.add("enter");
     frame.onload = () => {
       syncHeight();
+      buildPageNav();
       requestAnimationFrame(() => frame.classList.remove("enter"));
     };
     frame.srcdoc = art.html;
+    stageEl.scrollTop = 0;
     exportBtns.forEach((b) => (b.disabled = false));
   }
 
@@ -92,7 +141,10 @@ const Stage = (() => {
       print();
     }
   });
-  window.addEventListener("resize", syncHeight);
+  window.addEventListener("resize", () => {
+    syncHeight();
+    buildPageNav();
+  });
 
   return { render, gauge, showOverlay, setOverlayCaption, hideOverlay, hasSheet: () => !!current };
 })();

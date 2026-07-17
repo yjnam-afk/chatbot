@@ -18,8 +18,11 @@
     <span></span>
     <span id="mode-badge" class="badge">connecting…</span>
     <form class="ask" id="chat-form">
-      <input id="chat-input" type="text" placeholder="문제를 입력하세요 · 예: SLA에 대하여 설명하시오 (25점)" autocomplete="off" />
-      <button type="submit" id="ask-btn">작성</button>
+      <textarea id="chat-input" rows="3" placeholder="실전 문항을 통째로 붙여넣으세요 (Ctrl+Enter 제출) — 예)
+클라우드 전환에 따라 ITSM 도입을 검토 중이다. 다음에 대하여 설명하시오. (25점)
+가. ITSM의 검토 모델과 구성요소
+나. 성공적 구축을 위한 요건"></textarea>
+      <button type="submit" id="ask-btn">답안지<br>작성</button>
     </form>
     <div class="askmeta">
       <div class="kinds" id="kind-chips">
@@ -76,6 +79,15 @@
 
     <!-- ==================== 무대: 답안지 ==================== -->
     <section class="stage" id="stage">
+      <div id="page-nav" class="page-nav" hidden>
+        <button type="button" id="pn-prev" title="이전 쪽">◀</button>
+        <span id="pn-label">1 / 1 쪽</span>
+        <button type="button" id="pn-next" title="다음 쪽">▶</button>
+      </div>
+      <div id="chat-card" class="chat-card" hidden>
+        <div class="cc-head"><span>💬 답변</span><button type="button" id="cc-close" title="닫기">✕</button></div>
+        <div class="cc-body" id="cc-body"></div>
+      </div>
       <div id="stage-empty" class="stage-empty">
         <div class="empty-sheet">
           <div class="empty-note">
@@ -95,16 +107,6 @@
       </div>
     </section>
   </main>
-
-  <!-- ==================== 대화 도크 ==================== -->
-  <div class="dock" id="dock">
-    <button type="button" class="dock-pill" id="dock-open">💬 대화 <span class="bdg" id="dock-badge" hidden>0</span></button>
-    <div class="dock-panel">
-      <div class="dock-head">일반 질문 대화 <button type="button" id="dock-close">✕</button></div>
-      <div class="dock-msgs" id="dock-msgs"></div>
-      <div class="dock-hint">질문은 상단 입력창에 입력하세요 — 시험 문제는 답안지로, 일반 질문은 여기로 답합니다.</div>
-    </div>
-  </div>
 
   <script src="progress.js"></script>
   <script src="stage.js"></script>

@@ -528,7 +528,7 @@ body {
    줄 그리드 정렬을 유지한다 (만석 페이지 하단 테두리 클리핑 방지, 세아 검수 2026-07) */
 .content table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13.5px; margin-bottom: -1px; }
 .content th, .content td { border: 1px solid var(--ink); padding: 2px 8px; vertical-align: middle; line-height: 1.5; overflow: hidden; }
-.content th { font-weight: 700; text-align: center; background: rgba(28, 47, 74, 0.04); }
+.content th { font-weight: 700; text-align: center; } /* 실물 손답안엔 음영 없음 — 체크리스트 T2 */
 .content tr { height: var(--lh); }
 .content tr.r2 { height: calc(2 * var(--lh)); }
 .t3 th:nth-child(1) { width: 20%; }
@@ -558,6 +558,31 @@ body {
 .d-box.soft { border-style: dashed; border-width: 1px; font-weight: 400; }
 .d-box.d-hub { border-width: 2.5px; padding: 12px 20px; font-size: 15px; }
 .d-arrow { font-weight: 700; font-size: 17px; flex: none; }
+/* ---- 개념도 패턴 키트 (docs/diagram-spec.md, 실물 MG 표본 34건 역설계) ----
+   모든 패턴은 고정 높이 .diagram(6줄)/.d7(7줄) 안의 flex/grid 배치 —
+   컨테이너 높이가 불변이라 페이지 줄 계측(_layout)과 충돌하지 않는다. */
+.d-flow { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; } /* ①흐름 */
+.d-flow .d-box { flex: 1; padding: 4px 6px; font-size: 12px; }
+.d-out { border: 1px dashed var(--ink); background: #fff; font-size: 10.5px; font-weight: 400; padding: 1px 8px; text-align: center; } /* 산출물 병기 칩 */
+.d-bar { border: 1.5px solid var(--ink); background: #fff; font-weight: 700; font-size: 13px; text-align: center; padding: 3px 10px; width: 72%; } /* ②대분류 긴 사각 */
+.d-bar small { display: block; font-size: 11px; font-weight: 400; }
+.d-tree { display: flex; flex-direction: column; align-items: center; width: 100%; } /* ②계층/분류 */
+.d-stem { width: 0; height: 10px; border-left: 1.5px solid var(--ink); }
+.d-branch { width: 72%; height: 10px; border: 1.5px solid var(--ink); border-bottom: none; }
+.d-tree .d-row { align-items: stretch; gap: 10px; }
+.d-stack { display: flex; flex-direction: column; gap: 6px; width: 72%; } /* ③레이어 */
+.d-stack .d-box { width: 100%; padding: 3px 10px; }
+.d-cycle { display: grid; grid-template-columns: auto 1fr auto 1fr auto; gap: 8px 10px; align-items: center; justify-items: center; width: 88%; } /* ④순환(4단계) */
+.d-cycle.c6 { grid-template-columns: auto 1fr auto 1fr auto 1fr auto; } /* 6단계 */
+.d-cycle .d-box { width: 100%; padding: 3px 6px; font-size: 12px; }
+.d-turn { grid-row: 1 / 3; font-weight: 700; font-size: 17px; } /* 순환 좌우 회귀 화살표 */
+.d-net { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px 12px; align-items: center; justify-items: center; width: 100%; } /* ⑤허브 3×3 */
+.d-net .d-box { width: 100%; padding: 3px 8px; font-size: 12px; }
+.d-net .d-box.d-hub { width: auto; font-size: 14px; padding: 8px 16px; }
+.d-vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: stretch; width: 100%; } /* ⑥비교대칭 */
+.d-zone { border: 1px dashed var(--ink); padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.d-zt { font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; }
+.d-link { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11px; text-align: center; }
 .mnemonic { height: calc(3 * var(--lh)); border: 1.5px dashed var(--ink); padding: 0 14px; overflow: hidden; }
 .mnemonic.mn2 { height: calc(2 * var(--lh)); }
 .mn-label { line-height: var(--lh); font-size: 12px; font-weight: 700; letter-spacing: 0.25em; }
@@ -653,10 +678,23 @@ _BODY_RULES = """[답안 본문 HTML 규칙 — 실물 답안지 줄 그리드 �
   div class="diagram d7"  2교시 서론 로드맵 전용 7줄 컨테이너 (서론에 1개만)
     내부 전용: div.d-row / div.d-col / div.d-box(+.soft 점선 보조, +.d-hub 중심 강조) /
                div.d-circle(등장배경 원형) / span.d-sep(구분 점선) / span.d-arrow(→ ← ↓ ↔ 텍스트)
+    패턴 키트(docs/diagram-spec.md — 토픽 성격에 맞는 것 하나를 선택, 박스 일렬 나열 금지):
+      div.d-flow  ①흐름/절차(단계 좌→우, 산출물은 d-col 안 div.d-out 칩으로 병기)
+      div.d-tree  ②계층/분류(div.d-bar 대분류 긴 사각 + div.d-stem 수직선 + div.d-branch 갈래 + d-row 하위)
+      div.d-stack ③레이어(층 스택 — 위가 상위 계층)
+      div.d-cycle ④순환(PDCA류 4단계; 6단계는 d-cycle.c6 — 좌우 회귀 화살표는 span.d-turn)
+      div.d-net   ⑤허브(3×3: 모서리 4요소 + 중앙 d-hub + 방향 d-arrow)
+      div.d-vs    ⑥비교대칭(div.d-zone 좌우 진영(첫 줄 div.d-zt 라벨) + 중앙 div.d-link 연결·라벨)
 - 표 종류: t3 = 3단표(구분 20/구성요소 20/설명 60) / t2 = 2단표(구분 20/설명 80) /
   tcmp = 비교표(구분 20/40/40) / texp = 2가지 설명표(20/19/61)
+- 표 작성(실물 모범답안 규칙 — 체크리스트 §4): 헤더 행 필수(라벨은 구분/유형/단계/순서 등 내용에 맞게).
+  속성-설명형 셀은 "- " 개조식 항목 나열(항목 사이 <br>), 비교표(tcmp) 셀은 짧은 구 평문.
+  1열 카테고리가 하위 2~3행을 묶으면 <td rowspan="N"> 병합. 셀 안 약어는 영문 병기 "SLA(Service Level Agreement)".
+- **행 높이 = 내용 밀도**: 셀 내용 28자 이하면 1줄 행(tr), 30~60자 또는 "- " 항목 2개면 2줄 행(tr.r2).
+  내용 1구절뿐인 r2 금지 — "표는 두 줄 잡아먹고 왜 한 줄만 써?"가 반려 사유였다.
 - 문체: 개조식("~임/~함/~됨" 종결). 정의·설명은 키워드 나열형 — 문장을 만들지 말 것.
-- 표 셀은 1줄 15자, 2줄 행(r2) 셀은 34자 이내. h2 사이에 빈 줄·gap을 직접 넣지 말 것(서버가 페이지 배치 시 자동 삽입).
+- 본문 개념도(diagram) 직후에는 p.gloss 간글 1줄 필수(서론 d7 뒤는 (정의) p.def가 대체).
+  h2 사이에 빈 줄·gap을 직접 넣지 말 것(서버가 페이지 배치 시 자동 삽입).
 
 [1교시형(용어, 10점) — 3단락, 26~30줄]
 <p class="ans">답)</p>
@@ -672,8 +710,10 @@ II. 본론1 1쪽: 제목(h2) + 가. 구성도 (h3 + div.diagram + p.gloss) + 나
 III. 본론2 1쪽: 문제가 물어본 요구사항을 지문 문구 그대로 제목·헤더로 (h2 + h3/표 중심 — 승부처, 깊이 있게)
 IV. 결론·알파 0.5쪽: 제목(h2) + 기대효과 table.t2 3~4행 + 결론 p.def
 
-- 개념도 예시 (6줄 컨테이너, flex 배치):
-<div class="diagram"><div class="d-col"><div class="d-box">평가·인증<small>eSCM · ISO 20000</small></div><div class="d-box">서비스수준<small>SOW · SLA</small></div></div><span class="d-arrow">→</span><div class="d-box d-hub">ITSM<small>고품질 IT 서비스 관리체계</small></div><span class="d-arrow">←</span><div class="d-col"><div class="d-box">품질인증<small>CMMI</small></div><div class="d-box">Best Practice<small>ITIL</small></div></div></div>"""
+- 개념도 예시 1 — ⑤허브형(d-net, 중심 개념+4요소 방사. 예: ITSM):
+<div class="diagram"><div class="d-net"><div class="d-box">인력<small>People</small></div><span class="d-arrow">↓</span><div class="d-box">조직<small>Organization</small></div><span class="d-arrow">→</span><div class="d-box d-hub">ITSM<small>ITIL · eSCM · SLM · CMMI</small></div><span class="d-arrow">←</span><div class="d-box">기술<small>Technology</small></div><span class="d-arrow">↑</span><div class="d-box">프로세스<small>Process</small></div></div></div>
+- 개념도 예시 2 — ④순환형(d-cycle, PDCA류. 예: BCM):
+<div class="diagram"><div class="d-cycle"><span class="d-turn">↑</span><div class="d-box">Plan<small>BCP 수립</small></div><span class="d-arrow">→</span><div class="d-box">Do<small>구축 · 운영</small></div><span class="d-turn">↓</span><div class="d-box">Act<small>유지 · 개선</small></div><span class="d-arrow">←</span><div class="d-box">Check<small>모의훈련</small></div></div></div>"""
 
 
 # ---------------------------------------------------------------- 데모 모드
@@ -876,7 +916,7 @@ def _verify_assembly(body: str, sheet: str, kind: str) -> list[str]:
             break
     if re.search(r"https?://|<script", sheet, re.I):
         warnings.append("외부 리소스/스크립트 감지")
-    if 'class="mnemonic"' not in sheet:
+    if 'class="mnemonic' not in sheet:  # mn2(2줄 박스) 변형 포함
         warnings.append("암기 박스 누락")
     return warnings
 
