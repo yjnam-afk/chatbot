@@ -56,8 +56,8 @@ header {
 .brand p { font-size: 12px; color: var(--muted); margin-top: 1px; }
 
 .badge {
-  font-size: 12px; font-weight: 600;
-  padding: 7px 14px;
+  font-size: 11.5px; font-weight: 600;
+  padding: 5px 12px;
   background: #f0f1ec;
   border-radius: 999px;
   color: var(--muted);
@@ -83,7 +83,7 @@ header {
   background: #fff;
   outline: none;
   resize: none;
-  min-height: calc(3 * 1.55em + 20px);
+  min-height: calc(4 * 1.55em + 20px); /* rows=4 — placeholder 4줄이 잘리지 않게 (ui-audit) */
   max-height: calc(8 * 1.55em + 20px);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
@@ -135,41 +135,49 @@ main.workbench { flex: 1; display: flex; min-height: 0; }
   flex: 1; border: none; background: none;
   font: inherit; font-size: 12.5px; font-weight: 600;
   color: var(--muted); padding: 7px 0;
-  border-radius: 8px; cursor: pointer;
+  border-radius: 8px; cursor: pointer; white-space: nowrap;
 }
 .rail-tabs button.on { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(20, 30, 22, 0.08); }
 .pane { display: flex; flex-direction: column; gap: 12px; }
 .pane[hidden] { display: none; }
 
-/* 진행 3단계 */
-.step { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; transition: border-color 0.2s; }
-.step .top { display: flex; align-items: center; gap: 8px; }
-.step .name { font-size: 13px; font-weight: 700; flex: 1; }
-.step .st {
-  font-size: 11px; font-weight: 600;
-  padding: 3px 9px; border-radius: 999px;
-  background: #f0f1ec; color: var(--muted);
-  white-space: nowrap;
-  transition: background 0.2s ease, color 0.2s ease;
-  display: inline-flex; align-items: center; gap: 5px;
+/* 상태 한 줄 — 평시 숨김, 폴백 1.5초 초과·오류·미적중만 (ui-audit §2) */
+.statusline {
+  font-size: 12px; font-weight: 600; color: #9a7218;
+  background: #faf3df; border-radius: 10px; padding: 7px 12px;
+  line-height: 1.5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.step.run { border-color: color-mix(in srgb, var(--accent) 45%, #fff); }
-.step.run .st { background: var(--accent-soft); color: var(--accent-dark); }
-.step.run .st::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: blink 0.9s infinite; }
-.step.done { border-color: color-mix(in srgb, var(--accent) 45%, #fff); }
-.step.done .st { background: var(--accent-soft); color: var(--accent-dark); }
-.step.done .st::after { content: " ✓"; }
-.step.error .st { background: #fdecec; color: #c2453e; }
-.step .cap {
-  margin-top: 6px; font-size: 11.5px; color: var(--muted); line-height: 1.5;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.step .t { float: right; font-size: 10.5px; color: #b5bbb1; }
-.step .rework { font-size: 10px; font-weight: 700; color: #9a7218; background: #faf3df; border-radius: 6px; padding: 1px 6px; }
+.statusline.err { color: #c2453e; background: #fdecec; }
+.statusline[hidden] { display: none; }
 
-/* 분량 게이지 */
-.gauge { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
-.gauge h4 { font-size: 11.5px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+/* 레일 카드 공통 (답안 탭: 구성 요약·두문자·분량) */
+.rcard { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 11px 12px; }
+.rcard h4 { font-size: 11.5px; color: var(--muted); font-weight: 600; margin-bottom: 7px; }
+.rcard[hidden] { display: none; }
+
+/* ① 답안 구성 요약 — 결과 메타(수험생 언어) + h2 목차, 클릭 = 해당 쪽 스크롤 */
+.sum-line { font-size: 12px; color: var(--muted); margin-bottom: 8px; line-height: 1.55; }
+.sum-line b { color: var(--accent-dark); }
+.toc { display: flex; flex-direction: column; gap: 2px; }
+.toc button {
+  display: flex; gap: 8px; align-items: baseline; text-align: left;
+  border: none; background: none; font: inherit; font-size: 12.5px; color: var(--text);
+  padding: 5px 8px; border-radius: 8px; cursor: pointer; line-height: 1.4; width: 100%;
+}
+.toc button:hover { background: #f0f1ec; }
+.toc .n { flex: none; font-weight: 700; color: var(--accent-dark); font-size: 11.5px; width: 18px; }
+.toc .pg { margin-left: auto; flex: none; font-size: 10.5px; color: #b5bbb1; }
+
+/* ② 두문자 카드 — 서랍 카드와 같은 앰버 배지 톤 */
+.mn-word {
+  display: inline-block; font-size: 12px; font-weight: 700;
+  color: #b45309; background: #fef3c7; border-radius: 6px; padding: 2px 9px;
+  margin-bottom: 5px; cursor: pointer;
+}
+.mn-exp { font-size: 11.5px; color: var(--muted); line-height: 1.55; }
+
+/* ③ 분량 게이지 */
+.gauge h4 { margin-bottom: 8px; }
 .gbar { height: 7px; background: #eceee7; border-radius: 999px; overflow: hidden; margin-bottom: 7px; }
 .gbar i {
   display: block; height: 100%; width: 0%;
@@ -192,7 +200,7 @@ main.workbench { flex: 1; display: flex; min-height: 0; }
 .exports button.pri { grid-column: 1 / -1; background: var(--accent); border-color: var(--accent); color: #fff; }
 .exports button.pri:hover:not(:disabled) { background: var(--accent-dark); }
 .exports button:not(.pri):hover:not(:disabled) { background: #f0f1ec; }
-.exports button:disabled { opacity: 0.45; cursor: default; }
+.exports button:disabled { background: #f0f1ec; border-color: var(--line); color: #b5bbb1; cursor: default; }
 
 /* 토픽 서랍 */
 .dsearch {
@@ -289,53 +297,80 @@ main.workbench { flex: 1; display: flex; min-height: 0; }
   box-shadow: var(--shadow);
 }
 
-/* 빈 상태: 빈 괘선 용지 + 안내 */
+/* 빈 상태: 실제 답안지 1쪽 미리보기 — 머리행+고스트 문제칸+괘선 (ui-audit §1 무대) */
 .stage-empty { width: min(794px, 100%); margin: 0 auto; }
-.empty-sheet {
-  background: #fdfdfa;
-  border: 1px solid #c9c5ba;
+.psheet {
+  background: #fdfdfa; border: 1px solid #c9c5ba;
   box-shadow: 0 2px 18px rgba(40, 40, 30, 0.12);
-  min-height: 560px;
-  background-image: repeating-linear-gradient(to bottom, transparent 0 31px, #c5cedd 31px 32px);
-  display: flex; align-items: center; justify-content: center;
-  padding: 40px 24px;
+  font-family: "Noto Serif KR", "Nanum Myeongjo", Batang, serif;
+  color: #1c2f4a; --plh: 32px;
 }
-.empty-note { text-align: center; background: rgba(253, 253, 250, 0.92); padding: 26px 30px; border-radius: 12px; }
-.en-title { font-size: 15.5px; font-weight: 700; color: #4a524a; }
+.ps-head {
+  height: var(--plh); display: flex; align-items: center;
+  font-family: system-ui, sans-serif; font-size: 11.5px; color: #3d4148;
+  border-bottom: 2px solid #9db0c8;
+}
+.ps-head .b1 { width: 88px; height: 100%; display: flex; align-items: center; justify-content: center; border-right: 1px solid #9db0c8; letter-spacing: 0.3em; }
+.ps-head .b2 { flex: 1; text-align: center; letter-spacing: 0.2em; color: #b0b8c6; }
+.ps-head .b3 { width: 88px; text-align: center; border-left: 1px solid #9db0c8; }
+.ps-q {
+  height: calc(2.5 * var(--plh)); padding: 10px 20px 0;
+  border-bottom: 2px solid #9db0c8;
+  font-family: system-ui, sans-serif; font-size: 14px; font-weight: 700;
+  display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+}
+.ps-pts { font-size: 11.5px; font-weight: 700; border: 1px solid currentColor; padding: 1px 10px; border-radius: 2px; white-space: nowrap; }
+.ghost { color: #b0b8c6; }
+.ps-body {
+  min-height: calc(15 * var(--plh)); padding: calc(1.5 * var(--plh)) 24px;
+  background: repeating-linear-gradient(to bottom, transparent 0 calc(var(--plh) - 1px), #c5cedd calc(var(--plh) - 1px) var(--plh));
+  display: flex; align-items: flex-start; justify-content: center;
+}
+/* 안내는 괘선 위 각진 종이톤 박스 — 웹 라운드 카드 금지 (ui-audit) */
+.empty-note {
+  text-align: center; background: #fdfdfa; border: 1px dashed #9db0c8;
+  padding: 20px 28px; font-family: "Pretendard Variable", Pretendard, system-ui, sans-serif;
+}
+.en-title { font-size: 18px; font-weight: 700; color: #3d4148; line-height: 1.5; }
 .en-sub { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
-.examples { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+.examples { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
 .ex-btn {
   font: inherit; font-size: 12.5px; font-weight: 600;
-  padding: 9px 14px; border-radius: 10px;
+  padding: 9px 14px;
   border: 1px solid var(--line); background: #fff; color: var(--text);
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .ex-btn:hover { border-color: color-mix(in srgb, var(--accent) 55%, #fff); box-shadow: var(--shadow); }
 
-/* ------------------------------------------------ 답변 카드 (일반 질문 — 무대 표시) */
-.chat-card {
-  max-width: 794px;
-  margin: 0 auto 20px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
+/* ------------------------------------------------ 대화 탭 (답안지 생성 + 질문 답변 겸용 챗봇) */
+.pane.chat { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.chat-log {
+  flex: 1; min-height: 120px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 8px; padding: 2px;
 }
-.chat-card[hidden] { display: none; }
-.cc-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--line);
-  font-size: 13px; font-weight: 700;
-  background: #fbfcf9;
+.msg {
+  font-size: 12.5px; line-height: 1.6; padding: 8px 11px; border-radius: 12px;
+  white-space: pre-wrap; word-break: break-word; max-width: 100%;
 }
-.cc-head button { border: none; background: none; font-size: 14px; color: var(--muted); cursor: pointer; }
-.cc-body {
-  padding: 14px 18px;
-  font-size: 14px; line-height: 1.7;
-  white-space: pre-wrap; word-break: break-word;
+.msg.user { align-self: flex-end; background: var(--accent-soft); color: #1d5c3c; border-bottom-right-radius: 4px; }
+.msg.bot { align-self: flex-start; background: #fff; border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+.msg.bot .view-btn {
+  display: inline-block; margin-top: 6px;
+  font: inherit; font-size: 11.5px; font-weight: 700;
+  padding: 4px 12px; border-radius: 8px; border: 1px solid var(--accent);
+  background: #fff; color: var(--accent-dark); cursor: pointer;
+}
+.msg.bot .view-btn:hover { background: var(--accent-soft); }
+.chat-mini { display: flex; gap: 6px; flex: none; }
+.chat-mini input {
+  flex: 1; min-width: 0; border: 1.5px solid var(--line); border-radius: 10px;
+  padding: 8px 12px; font: inherit; font-size: 12.5px; outline: none; background: #fff;
+}
+.chat-mini input:focus { border-color: var(--accent); }
+.chat-mini button {
+  border: none; border-radius: 10px; background: var(--accent); color: #fff;
+  font: inherit; font-size: 12px; font-weight: 700; padding: 0 14px; cursor: pointer;
 }
 
 /* ------------------------------------------------ 스크롤바 */
@@ -356,9 +391,10 @@ main.workbench { flex: 1; display: flex; min-height: 0; }
   }
   .rail > * { flex: none; }
   .pane { flex-direction: row; }
-  .step { width: 168px; }
-  .step .cap { display: none; }
+  .pane.chat { min-width: 280px; }
+  .rcard { min-width: 200px; }
   .gauge { width: 190px; }
+  .statusline { flex: none; align-self: center; }
   .exports { grid-auto-flow: column; grid-template-columns: none; }
   .exports button.pri { grid-column: auto; padding: 9px 12px; }
   .drawer.pane { flex-direction: row; }

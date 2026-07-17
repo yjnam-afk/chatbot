@@ -18,7 +18,7 @@
     <span></span>
     <span id="mode-badge" class="badge">connecting…</span>
     <form class="ask" id="chat-form">
-      <textarea id="chat-input" rows="3" placeholder="실전 문항을 통째로 붙여넣으세요 (Ctrl+Enter 제출) — 예)
+      <textarea id="chat-input" rows="4" placeholder="실전 문항을 통째로 붙여넣으세요 (Ctrl+Enter 제출) — 예)
 클라우드 전환에 따라 ITSM 도입을 검토 중이다. 다음에 대하여 설명하시오. (25점)
 가. ITSM의 검토 모델과 구성요소
 나. 성공적 구축을 위한 요건"></textarea>
@@ -30,33 +30,33 @@
         <button type="button" class="kchip" data-kind="1교시형">1교시형</button>
         <button type="button" class="kchip" data-kind="2교시형">2교시형</button>
       </div>
-      <span id="result-line" class="resultline"></span>
     </div>
   </header>
 
   <main class="workbench">
-    <!-- ==================== 좌측 레일 ==================== -->
+    <!-- ==================== 좌측 레일 (ui-audit.md §1·§2 — 진행 3단계 없음) ==================== -->
     <aside class="rail">
+      <!-- 상태 한 줄: 평시 숨김, 폴백 1.5초 초과·오류·미적중만 (§2) -->
+      <div id="status-line" class="statusline" hidden></div>
+
       <div class="rail-tabs">
-        <button type="button" id="tab-progress" class="on">진행</button>
-        <button type="button" id="tab-drawer">토픽 서랍</button>
+        <button type="button" id="tab-answer">답안</button>
+        <button type="button" id="tab-drawer" class="on">토픽 서랍</button>
+        <button type="button" id="tab-chat">대화</button>
       </div>
 
-      <!-- 탭 ① 진행 -->
-      <div id="pane-progress" class="pane">
-        <div class="step" data-step="1">
-          <div class="top"><span>🔍</span><span class="name">토픽 검색</span><span class="st">대기</span></div>
-          <div class="cap">문제를 입력하면 시작됩니다 <span class="t"></span></div>
+      <!-- 탭 ① 답안: 구성 요약(목차) · 두문자 · 분량 · 인쇄 -->
+      <div id="pane-answer" class="pane" hidden>
+        <div class="rcard" id="sum-card" hidden>
+          <h4>이번 답안</h4>
+          <div class="sum-line" id="sum-line"></div>
+          <div class="toc" id="toc"></div>
         </div>
-        <div class="step" data-step="2">
-          <div class="top"><span>📄</span><span class="name">조립</span><span class="st">대기</span></div>
-          <div class="cap">&nbsp;<span class="t"></span></div>
+        <div class="rcard" id="mn-card" hidden>
+          <h4>두문자 암기</h4>
+          <div id="mn-body"></div>
         </div>
-        <div class="step" data-step="3">
-          <div class="top"><span>✅</span><span class="name">검증</span><span class="st">대기</span></div>
-          <div class="cap">&nbsp;<span class="t"></span></div>
-        </div>
-        <div class="gauge">
+        <div class="rcard gauge">
           <h4>분량</h4>
           <div class="gbar"><i id="gauge-fill"></i></div>
           <div class="gv" id="gauge-text">답안지 없음</div>
@@ -69,11 +69,23 @@
         </div>
       </div>
 
-      <!-- 탭 ② 토픽 서랍 -->
-      <div id="pane-drawer" class="pane drawer" hidden>
+      <!-- 탭 ② 토픽 서랍 (빈 상태의 기본 탭 — 자판기 진열창) -->
+      <div id="pane-drawer" class="pane drawer">
         <input id="drawer-search" class="dsearch" type="text" placeholder="토픽 검색 (이름·두문자·정의)" autocomplete="off" />
         <div id="drawer-folders"></div>
         <div id="drawer-list"></div>
+      </div>
+
+      <!-- 탭 ③ 대화: 이력 + 자체 입력창 (답안지 요청·질문 겸용 챗봇) -->
+      <div id="pane-chat" class="pane chat" hidden>
+        <div id="chat-log" class="chat-log">
+          <div class="msg bot">문제를 주시면 답안지를 만들고, 토픽 질문에는 답변해 드려요.
+예) "ITSM 답안지 적어줘" / "SLA가 뭐야?"</div>
+        </div>
+        <form id="chat-mini" class="chat-mini">
+          <input id="chat-mini-input" type="text" placeholder="질문 또는 문제 입력…" autocomplete="off" />
+          <button type="submit">전송</button>
+        </form>
       </div>
     </aside>
 
@@ -84,19 +96,23 @@
         <span id="pn-label">1 / 1 쪽</span>
         <button type="button" id="pn-next" title="다음 쪽">▶</button>
       </div>
-      <div id="chat-card" class="chat-card" hidden>
-        <div class="cc-head"><span>💬 답변</span><button type="button" id="cc-close" title="닫기">✕</button></div>
-        <div class="cc-body" id="cc-body"></div>
-      </div>
+      <!-- 빈 상태: 실제 답안지 1쪽 미리보기 (ui-audit §1 무대 — 맨 괘선·웹 카드 금지) -->
       <div id="stage-empty" class="stage-empty">
-        <div class="empty-sheet">
-          <div class="empty-note">
-            <p class="en-title">문제를 입력하면 이 용지에 답안이 채워집니다</p>
-            <p class="en-sub">라이브러리 적중 시 LLM 키 없이도 3초 안에 조립돼요</p>
-            <div class="examples">
-              <button type="button" class="ex-btn">SLA에 대하여 설명하시오 (25점)</button>
-              <button type="button" class="ex-btn">SLA와 SLM을 비교하여 설명하시오 (25점)</button>
-              <button type="button" class="ex-btn">SWOT 분석에 대하여 설명하시오 (10점)</button>
+        <div class="psheet">
+          <div class="ps-head"><span class="b1">번 호</span><span class="b2">기 술 사 답 안 지</span><span class="b3">1 쪽</span></div>
+          <div class="ps-q">
+            <span class="ghost">문 ) 여기에 문제가 들어갑니다</span>
+            <span class="ps-pts ghost">배점 자동 판별</span>
+          </div>
+          <div class="ps-body">
+            <div class="empty-note">
+              <p class="en-title">문제를 붙여넣으면<br>이 답안지가 3초 안에 채워집니다</p>
+              <p class="en-sub" id="en-sub">등록 토픽은 서랍에서 바로 골라도 돼요</p>
+              <div class="examples">
+                <button type="button" class="ex-btn">SLA에 대하여 설명하시오 (25점)</button>
+                <button type="button" class="ex-btn">ITSM에 대하여 설명하시오 (25점)</button>
+                <button type="button" class="ex-btn">SWOT 분석에 대하여 설명하시오 (10점)</button>
+              </div>
             </div>
           </div>
         </div>

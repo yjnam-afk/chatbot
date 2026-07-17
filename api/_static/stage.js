@@ -88,10 +88,48 @@ const Stage = (() => {
       syncHeight();
       buildPageNav();
       requestAnimationFrame(() => frame.classList.remove("enter"));
+      if (typeof Stage.onReady === "function") Stage.onReady(); // 레일 목차·두문자 갱신 훅
     };
     frame.srcdoc = art.html;
     stageEl.scrollTop = 0;
     exportBtns.forEach((b) => (b.disabled = false));
+  }
+
+  // ---- 레일 "답안" 탭용 iframe DOM 추출 (ui-audit §1 — 서버 무변경, allow-same-origin)
+  function outline() {
+    try {
+      const d = frame.contentDocument;
+      if (!d) return [];
+      const pages = Array.from(d.querySelectorAll(".page"));
+      const out = [];
+      pages.forEach((pg, pi) => {
+        pg.querySelectorAll("h2").forEach((h) => {
+          const m = (h.textContent || "").trim().match(/^([ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩ])\.\s*(.+)$/);
+          out.push({
+            n: m ? m[1] : String(out.length + 1),
+            label: m ? m[2] : (h.textContent || "").trim(),
+            page: pi,
+          });
+        });
+      });
+      return out;
+    } catch (e) { return []; }
+  }
+
+  function mnemonic() {
+    try {
+      const d = frame.contentDocument;
+      const box = d && d.querySelector(".mnemonic");
+      if (!box) return null;
+      const ps = Array.from(box.querySelectorAll("p"));
+      return {
+        page: pageTops.length - 1,
+        lines: ps.map((p) => ({
+          word: (p.querySelector("b") || {}).textContent || "",
+          exp: (p.textContent || "").replace((p.querySelector("b") || {}).textContent || "", "").replace(/^\s*[—-]\s*/, "").trim(),
+        })),
+      };
+    } catch (e) { return null; }
   }
 
   // 분량 게이지: reply.sheet {pages, lines, target_pages} — 진행 = (22·(N−1)+M) / (22·T)
@@ -146,5 +184,6 @@ const Stage = (() => {
     buildPageNav();
   });
 
-  return { render, gauge, showOverlay, setOverlayCaption, hideOverlay, hasSheet: () => !!current };
+  return { render, gauge, showOverlay, setOverlayCaption, hideOverlay,
+           hasSheet: () => !!current, outline, mnemonic, gotoPage, onReady: null };
 })();

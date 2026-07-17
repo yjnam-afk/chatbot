@@ -71,10 +71,11 @@ def test_routing_pipeline_e2e():
     assert r["matched"] == ["MG-004"] and r["artifact"], r.get("matched")
     r = _run_pipeline("7S 모범답안")[-1]
     assert r["matched"] == ["MG-023"] and r["artifact"], r.get("matched")
-    # 대화형 의문문 → 채팅 + 적중 토픽 답안지 유도(회복 경로)
+    # 대화형 의문문 → 챗봇 답변 (무키 + 적중: 라이브러리 데이터 무LLM 답변 + 답안지 유도)
     r = _run_pipeline("RTO랑 RPO 차이가 뭐야?")[-1]
     assert "artifact" not in r and "exam" not in r
-    assert "답안지 적어줘" in r["reply"]
+    assert r.get("library") is True and r.get("llm_calls") == 0
+    assert "정의" in r["reply"] and "설명하시오" in r["reply"]
 
 
 def test_miss_no_fake_sheet():

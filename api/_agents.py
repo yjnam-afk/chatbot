@@ -1128,38 +1128,95 @@ async def run_pipeline(history: list[dict], message: str,
         }
 
 
-async def _chat_path(history: list[dict], message: str) -> AsyncIterator[dict]:
-    """일반 질문 — 로운(수험 멘토)이 바로 답변 (라이브 1콜).
+def _topic_brief(t: dict) -> dict:
+    """대화 답변용 라이브러리 부품 요약 — LLM 컨텍스트/무LLM 답변 공용 (검증된 사실 우선)."""
+    comps = [{"role": c.get("role"), "name": c.get("name"),
+              "detail": c.get("detail")} for c in (t.get("components") or [])[:5]]
+    return {
+        "name": t.get("name"),
+        "definition": t.get("definition_long") or t.get("definition"),
+        "background": t.get("background"),
+        "components": comps,
+        "features": (t.get("features") or [])[:4],
+        "usage": (t.get("usage") or [])[:3],
+        "mnemonic": t.get("mnemonic"),
+        "exam_points": (t.get("exam_points") or [])[:3],
+    }
 
-    회복 경로: 질문이 라이브러리 토픽에 적중하면 답안지 유도 문구를 덧붙인다.
+
+def _library_answer(t: dict) -> str:
+    """키 없는 환경의 무LLM 토픽 답변 — 라이브러리 데이터만으로 정의·구성·두문자 응답."""
+    s = short_name(t)
+    lines = [f"『{s}』 — 라이브러리 등록 토픽이에요."]
+    d = t.get("definition_long") or t.get("definition")
+    if d:
+        lines.append(f"· 정의: {d}")
+    if t.get("background"):
+        lines.append(f"· 필요성: {t['background']}")
+    comps = t.get("components") or []
+    if comps:
+        lines.append("· 구성요소: " + ", ".join(str(c.get("name") or "") for c in comps[:5]))
+    mn = t.get("mnemonic") or {}
+    if mn.get("word"):
+        exp = " · ".join(str(e) for e in (mn.get("expansion") or [])[:5])
+        lines.append(f"· 두문자: {mn['word']}" + (f" — {exp}" if exp else ""))
+    lines.append(f"답안지가 필요하면 \"{s}에 대하여 설명하시오 (25점)\"처럼 입력해 주세요.")
+    return "\n".join(lines)
+
+
+async def _chat_path(history: list[dict], message: str) -> AsyncIterator[dict]:
+    """일반 질문 — 챗봇 답변 (발주자 확정 2026-07-17: 답안지 생성 + 질문 답변 겸용).
+
+    - 키 있음: 로운(수험 멘토) 1콜. 질문이 라이브러리 토픽에 적중하면 검증된 부품
+      데이터(정의·구성요소·두문자)를 컨텍스트로 주입해 정확도를 확보한다.
+    - 키 없음: 적중 토픽은 라이브러리 데이터만으로 무LLM 답변(정의·구성·두문자),
+      그 외에는 안내.
     """
     yield _ev("orchestrator", "working", "접수 중…")
     yield _talk("orchestrator", "일반 질문이네요. 로운님이 멘토로 바로 답할게요!")
+    topic = None
     suggestion = ""
     hit = _library.match(message)
     if hit["status"] == "hit" and hit["matched"]:
-        meta = (_library.load_index().get("topics") or {}).get(hit["matched"][0]) or {}
-        t_name = meta.get("name") or hit["matched"][0]
+        topic = _library.load_topic(hit["matched"][0])
+    if topic:
         suggestion = (f"\n\n💡 이 토픽은 라이브러리에 있어요 — 답안지가 필요하시면 "
-                      f"\"{t_name} 답안지 적어줘\"라고 입력해 보세요.")
+                      f"\"{short_name(topic)} 답안지 적어줘\"라고 입력해 보세요.")
     if provider() is None:
+        if topic:
+            yield _ev("writer", "working", "라이브러리 답변 중…")
+            await asyncio.sleep(0.2)
+            yield _ev("writer", "done", "답변 완료")
+            yield _talk("writer", "라이브러리 부품으로 바로 답했어요!")
+            yield _ev("orchestrator", "done", "턴 완료")
+            yield {"type": "reply", "reply": _library_answer(topic), "library": True,
+                   "matched": [topic["id"]], "llm_calls": 0}
+            return
         async for e in _demo_chat(suggestion):
             yield e
         return
     yield _ev("writer", "working", "답변 작성 중…")
-    reply = await _chat(
+    system = (
         "당신은 '기술사 답안 사무소'의 집필 담당이자 기술사 수험 멘토 '로운'입니다. "
         "기술사 시험 준비(공부법, 답안 작성 요령, 용어 개념, 서브노트 등)에 대해 "
         "친절하고 간결한 한국어로 답하세요. "
         "사용자가 시험 문제를 그대로 입력하면 팀이 답안지를 즉시 만들어 준다는 것도 "
-        "필요할 때 자연스럽게 안내하세요.",
+        "필요할 때 자연스럽게 안내하세요."
+    )
+    if topic:
+        system += ("\n\n[라이브러리 검증 자료 — 질문 토픽의 사실 근거로 최우선 사용, "
+                   "여기 없는 세부 수치는 지어내지 말 것]\n"
+                   + json.dumps(_topic_brief(topic), ensure_ascii=False))
+    reply = await _chat(
+        system,
         history[-10:] + [{"role": "user", "content": message}],
         max_tokens=2048,
     )
     yield _ev("writer", "done", "답변 완료")
     yield _talk("writer", "답변 보냈어요!")
     yield _ev("orchestrator", "done", "턴 완료")
-    yield {"type": "reply", "reply": reply + suggestion, "llm_calls": 1}
+    yield {"type": "reply", "reply": reply + suggestion, "llm_calls": 1,
+           "library": bool(topic), "matched": [topic["id"]] if topic else []}
 
 
 async def _assembly_path(message: str, kind: str, points: int,
