@@ -59,11 +59,16 @@ def _auto_gloss(t: dict) -> str:
 
 # ---------------------------------------------------------------- 표 빌더
 
+def _wlen(s: str) -> float:
+    """손글씨 환산 글자 수 — 공백 제외, 영문·숫자 반각 0.5자 (발주자 규격 2026-07-17)."""
+    return sum(0.5 if ord(ch) < 128 else 1.0 for ch in str(s) if not ch.isspace())
+
+
 def _detail_cell(detail, kws=None, compact: bool = False) -> tuple[str, int]:
     """detail(문자열 또는 개조식 항목 list) → (셀 HTML, 행 줄수 1|2).
 
-    체크리스트 T4~T6: list는 "- 항목<br>- 항목" 개조식(2항목이면 2줄 행),
-    문자열은 29자 이상이면 2줄 행. compact=True(축약 표)는 첫 항목만 1줄로.
+    체크리스트 T4~T6 + 손글씨 밀도: list는 "- 항목<br>- 항목" 개조식(2항목이면 2줄 행),
+    문자열은 손글씨 한 줄(환산 11자) 초과면 2줄 행. compact=True(축약 표)는 1줄로 절삭.
     """
     if isinstance(detail, (list, tuple)):
         items = [re.sub(r"^[-–]\s*", "", str(x).strip()) for x in detail if str(x).strip()]
@@ -75,7 +80,7 @@ def _detail_cell(detail, kws=None, compact: bool = False) -> tuple[str, int]:
     s = str(detail or "")
     if compact:
         return _esc(s[:28]), 1
-    return _emph(s, kws, limit=1), (2 if len(s) >= 29 else 1)
+    return _emph(s, kws, limit=1), (2 if _wlen(s) > 11 else 1)
 
 
 def _t3(rows: list[dict], r2: bool = True, headers=("구분", "구성요소", "설명"),

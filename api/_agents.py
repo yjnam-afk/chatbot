@@ -413,38 +413,76 @@ def _lint_format(body_html: str, kind: str) -> list[str]:
         elif 'class="diagram"' in head:
             if not ('class="gloss"' in nxt or 'class="def"' in nxt):
                 issues.append("본문 개념도 직후 간글(p.gloss 1줄) 누락")
+    # 8) 손글씨 밀도 상한 (발주자 규격 2026-07-17): 전폭 줄 17~19자(공백 제외·영문 반각)
+    #    → 2줄 문단(p.def) 40자, 간글(p.gloss) 20자 초과는 위반 — 넘치면 손으로 못 베낀다
+    for m in re.finditer(r'<p class="(def|gloss)">(.*?)</p>', body, re.S | re.I):
+        w = _wide_len(html_mod.unescape(re.sub(r"<[^>]+>", "", m.group(2))))
+        cap = _W_GLOSS if m.group(1) == "gloss" else _W_FULL2
+        if w > cap:
+            issues.append(f"{'간글' if m.group(1) == 'gloss' else '2줄 문단'} 손글씨 밀도 초과 "
+                          f"({w:.0f}자 > {cap:.0f}자) — 한 줄 17~19자 기준")
     return issues
 
 
-def _lint_table_density(body_html: str) -> list[str]:
-    """표 밀도 린터 (체크리스트 T5 신설) — "행 높이 = 내용 밀도" 실물 규칙.
+def _wide_len(s: str) -> float:
+    """손글씨 환산 글자 수 — 공백 제외, 한글·한자 1자 / 영문·숫자·ASCII 반각 0.5자.
 
-    - 2줄 행(tr.r2)인데 최장 셀이 1줄분(29자 미만)이고 개조식(<br>)도 아니면 위반
-      ("표는 두 줄 잡아먹고 왜 한 줄만 써?" — 발주자 반려 그 자체)
-    - 설명열이 넓은 표(t3/texp)의 1줄 행에 33자 초과 셀(≈30자/줄 환산)이 있으면
-      줄 넘침 위험 위반
+    근거(발주자 규격 + [실물] 기본 답안 2교시.pdf OCR 줄바꿈 실측 2026-07-17):
+    IT거버넌스 정의 줄바꿈 = 19자/18자(공백 제외), 표 설명셀 한 줄 "서비스 제공업자의
+    서" = 9자, r2 두 줄 합 18자, 구성요소열 "eSCM, ISO 20000" = 반각 환산 ≈7자.
+    → 공백 포함이 아니라 **공백 제외** 기준이 실물과 정합.
+    """
+    return sum(0.5 if ord(ch) < 128 else 1.0 for ch in s if not ch.isspace())
+
+
+# 손글씨 밀도 상한 (발주자 직접 규격 2026-07-17: "한줄에 17~19글자 / 표 설명 칸 5~7…
+# 넘치면 위반 — 모자란 것보다 넘치는 게 죄"). 전폭 줄 19자 → 2줄 문단 38(+접두 여유 40).
+_W_FULL2 = 40.0    # p.def 2줄 문단 상한 ("(정의) " 접두 포함)
+_W_GLOSS = 20.0    # p.gloss 간글 1줄 상한 ("– " 접두 포함)
+_W_CELL = {"t3": 11.0, "texp": 11.0, "t2": 15.0, "tcmp": 8.0}  # 마지막 열 1줄 상한
+_W_CELL_MID = 8.0  # 가운데 열(구성요소) 1줄 상한 (발주자 "5~7글자" + 반각 여유)
+
+
+def _lint_table_density(body_html: str) -> list[str]:
+    """표 밀도 린터 (체크리스트 T5 — 손글씨 기준 v2) — "행 높이 = 내용 밀도".
+
+    상한 방향(발주자 2026-07-17): 셀 내용이 손글씨 한 줄 용량을 넘치면 위반.
+    - r2 행: 개조식 항목 각 12자, 단일 문자열 22자 초과 → 위반.
+      최장 셀이 1줄분(11자 이하)인데 개조식도 아니면 미달 위반(두 줄 잡고 한 줄 쓰기).
+    - 1줄 행: 마지막 열이 표종별 상한(_W_CELL), 가운데 열이 8자 초과 → 위반.
     적용: 조립 경로는 견본(MG-001)만 강제·나머지는 로그, 폴백 경로는 보완 사유.
     """
     under = over = 0
     for tbl in re.findall(r"<table[^>]*>.*?</table>", body_html or "", re.S | re.I):
-        wide = re.search(r'class="(?:t3|texp)"', tbl[:40]) is not None
+        m = re.search(r'class="(t3|texp|t2|tcmp)"', tbl[:40])
+        last_cap = _W_CELL.get(m.group(1) if m else "", 15.0)
         for tr in re.findall(r"<tr[^>]*>.*?</tr>", tbl, re.S | re.I):
             if "<th" in tr:
                 continue
-            cells = [html_mod.unescape(re.sub(r"<[^>]+>", " ", c)).strip()
-                     for c in re.findall(r"<td[^>]*>(.*?)</td>", tr, re.S | re.I)]
-            longest = max((len(c) for c in cells), default=0)
+            raw_cells = re.findall(r"<td[^>]*>(.*?)</td>", tr, re.S | re.I)
+            cells = [html_mod.unescape(re.sub(r"<[^>]+>", "\n", c)).strip()
+                     for c in raw_cells]
+            widths = [max((_wide_len(x) for x in c.split("\n")), default=0.0) for c in cells]
             if 'class="r2"' in tr[:20]:
-                if longest < 29 and "<br" not in tr.lower():
+                for c, w in zip(raw_cells, widths):
+                    if "<br" in c.lower():
+                        if w > 12.0:  # 개조식 항목이 셀 폭 한 줄을 넘침
+                            over += 1
+                    elif _wide_len(html_mod.unescape(re.sub(r"<[^>]+>", "", c))) > 22.0:
+                        over += 1
+                if widths and max(widths) <= 11.0 and "<br" not in tr.lower():
                     under += 1
-            elif wide and longest > 33:
-                over += 1
+            elif widths:
+                if widths[-1] > last_cap:
+                    over += 1
+                if len(widths) >= 3 and widths[-2] > _W_CELL_MID:
+                    over += 1
     issues: list[str] = []
-    if under:
-        issues.append(f"표 밀도 미달 — 내용이 1줄분인 2줄 행(r2) {under}개: "
-                      "1줄 행 전환 또는 셀 증량(30~60자/개조식 항목 2개) 필요")
     if over:
-        issues.append(f"표 줄 넘침 위험 — 1줄 행에 33자 초과 셀 {over}개: 2줄 행(r2) 전환 필요")
+        issues.append(f"표 셀 손글씨 밀도 초과 {over}건 — 설명열 한 줄 ~10자·구성요소열 "
+                      "5~7자·r2 개조식 항목 12자 상한 (넘치면 위반)")
+    if under:
+        issues.append(f"표 밀도 미달 — 내용이 1줄분인 2줄 행(r2) {under}개: 1줄 행 전환 필요")
     return issues
 
 
@@ -732,8 +770,9 @@ _BODY_RULES = """[답안 본문 HTML 규칙 — 실물 답안지 줄 그리드 �
   h2                  단락 제목 — 로마 숫자 자동, "I." 직접 쓰지 말 것
   h3                  하부 제목 — 가나다 자동, "가." 직접 쓰지 말 것
   p class="ans"       첫 줄 "답)" 1회
-  p class="def"       2줄 문단(정의·특징·마무리 설명), 공백 포함 70자 이내
-  p class="gloss"     간글 1줄, "– "로 시작, 40자 이내
+  p class="def"       2줄 문단(정의·특징·마무리 설명) — 손글씨 밀도: 한 줄 17~19자(공백 제외,
+                    영문·숫자는 2자=1자 환산), 2줄 합계 38자 이내
+  p class="gloss"     간글 1줄, "– "로 시작, 19자 이내(공백 제외 환산)
   u                   키워드 밑줄(섹션당 1~3개), 강조 인용은 "쌍따옴표" 텍스트
   table class="t3|t2|tcmp|texp" + thead/tbody/tr/th/td — 2줄 행은 <tr class="r2">
   div class="diagram"     개념도 6줄 컨테이너 (답안 전체 1~2개, 일도일표)
@@ -752,8 +791,9 @@ _BODY_RULES = """[답안 본문 HTML 규칙 — 실물 답안지 줄 그리드 �
 - 표 작성(실물 모범답안 규칙 — 체크리스트 §4): 헤더 행 필수(라벨은 구분/유형/단계/순서 등 내용에 맞게).
   속성-설명형 셀은 "- " 개조식 항목 나열(항목 사이 <br>), 비교표(tcmp) 셀은 짧은 구 평문.
   1열 카테고리가 하위 2~3행을 묶으면 <td rowspan="N"> 병합. 셀 안 약어는 영문 병기 "SLA(Service Level Agreement)".
-- **행 높이 = 내용 밀도**: 셀 내용 28자 이하면 1줄 행(tr), 30~60자 또는 "- " 항목 2개면 2줄 행(tr.r2).
-  내용 1구절뿐인 r2 금지 — "표는 두 줄 잡아먹고 왜 한 줄만 써?"가 반려 사유였다.
+- **행 높이 = 내용 밀도 (손글씨 기준)**: 표 셀은 손글씨 폭 — 구분열 3~4자, 구성요소열 5~7자,
+  설명열 한 줄 ~10자. 설명이 11자 이하면 1줄 행(tr), "- " 항목 2개(각 10자 내외)면 2줄 행(tr.r2).
+  r2 셀 합계 20자 상한 — 넘치면 손으로 못 베낀다(위반). 내용 1구절뿐인 r2도 금지.
 - 문체: 개조식("~임/~함/~됨" 종결). 정의·설명은 키워드 나열형 — 문장을 만들지 말 것.
 - 본문 개념도(diagram) 직후에는 p.gloss 간글 1줄 필수(서론 d7 뒤는 (정의) p.def가 대체).
   h2 사이에 빈 줄·gap을 직접 넣지 말 것(서버가 페이지 배치 시 자동 삽입).
@@ -1172,10 +1212,10 @@ async def _assembly_path(message: str, kind: str, points: int,
                 "HTML 프래그먼트로만 출력하세요.\n"
                 "구조(순서 고정): <h2>토픽명의 구성도 및 구성요소</h2> → <h3>토픽명의 구성도</h3> → "
                 "<div class=\"diagram\">개념도(내부: div.d-row/d-col/d-box(+.soft 점선/.d-hub 중심)/"
-                "span.d-arrow(→ ← ↓), 박스 3~6개)</div> → <p class=\"gloss\">– 간글 1줄(40자 이내)</p> → "
+                "span.d-arrow(→ ← ↓), 박스 3~6개)</div> → <p class=\"gloss\">– 간글 1줄(공백 제외 19자 이내)</p> → "
                 "<h3>토픽명의 구성요소</h3> → <table class=\"t3\"><thead><tr><th>구분</th><th>구성요소</th>"
                 "<th>설명</th></tr></thead><tbody><tr class=\"r2\">…</tr> 4행</tbody></table>\n"
-                "문체는 개조식(~임/~함), 표 셀 34자 이내. 다른 태그·설명·코드 펜스 금지.",
+                "문체는 개조식(~임/~함), 표 설명셀 한 줄 10자·2줄 행 20자 이내(공백 제외, 영문 반각 환산). 다른 태그·설명·코드 펜스 금지.",
                 [{"role": "user", "content":
                     f"문제: {message}\n토픽명: {short_name(sk)}\n"
                     f"정의: {sk.get('definition') or ''}\n"
@@ -1195,7 +1235,7 @@ async def _assembly_path(message: str, kind: str, points: int,
             frag = _extract_body(await _chat(
                 "당신은 기술사 답안 팀의 집필 담당 '로운'입니다. 아래 미등록 토픽의 소단락만 "
                 "HTML 프래그먼트로 출력하세요. 허용: <h3>토픽명의 개요</h3> + "
-                "<p class=\"def\">키워드 나열형 정의(70자 이내, ~임 종결)</p> + "
+                "<p class=\"def\">키워드 나열형 정의(2줄 — 공백 제외 38자 이내, ~임 종결)</p> + "
                 "<table class=\"t2\">(구분|설명 헤더 + 2~3행). 다른 태그·설명 금지.",
                 [{"role": "user", "content": f"문제: {message}\n미등록 토픽: {missing[0]}"}],
                 max_tokens=800,
@@ -1212,7 +1252,7 @@ async def _assembly_path(message: str, kind: str, points: int,
         try:
             polish = _parse_json(await _chat(
                 "기술사 답안의 서론 정의 문장을 문제 어구에 맞게 1문장으로 다듬어 JSON만 출력: "
-                "{\"definition\": \"...(70자 이내, ~임 종결, 키워드 나열형)\"}",
+                "{\"definition\": \"...(공백 제외 38자 이내, ~임 종결, 키워드 나열형)\"}",
                 [{"role": "user", "content":
                     f"문제: {message}\n현재 정의: {topics[0].get('definition_long') or topics[0].get('definition')}"}],
                 json_mode=True, max_tokens=300,
