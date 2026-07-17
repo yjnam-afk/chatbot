@@ -249,7 +249,14 @@ def _layout(body_html: str, kind: str,
             sub += 1
             blk = _stamp(blk, "h3", sub)
         seq.append((blk, _block_lines(blk)))
-    seq.append(('<p class="end">"끝"</p>', 1))
+    # "끝"은 마지막 답안 내용 바로 옆에 인라인 표기 (체크리스트 U4 — 공단 유의사항·실물).
+    # 마지막 블록이 문단이면 그 끝에 붙이고, 표·그림으로 끝나면 다음 줄 서두에 표기한다.
+    end_span = ' <span class="end">"끝"</span>'
+    if seq and seq[-1][0].rstrip().endswith("</p>"):
+        blk0, ln0 = seq[-1]
+        seq[-1] = (blk0.rstrip()[:-4] + end_span + "</p>", ln0)
+    else:
+        seq.append((f"<p>{end_span.strip()}</p>", 1))
     seq.append((_GAP_HTML, 1))
     # 두문자 박스는 라벨 1줄 + 풀이 p 줄수(1~2) — 풀이 1줄이면 2줄 박스(mn2)로 낭비 제거
     n_mn = 1 + max(1, min(2, mnemonic_html.count("<p")))
@@ -292,6 +299,10 @@ def _layout(body_html: str, kind: str,
         pages.append({"blocks": cur, "cap": cap, "used": used})
 
     _pull_tail(pages)
+    # 최종 답안(꼬리 포함) 아래 줄이 남으면 중앙에 "이하여백" (체크리스트 U5 — 공단·실물).
+    # 답안 줄 수가 아니므로 used(분량 계측)에는 넣지 않는다 — 남는 첫 괘선 줄에 얹힌다.
+    if pages and pages[-1]["used"] < pages[-1]["cap"]:
+        pages[-1]["blocks"].append('<p class="fill">이하여백</p>')
     return pages
 
 
@@ -388,6 +399,52 @@ def _lint_format(body_html: str, kind: str) -> list[str]:
     long_style = len(re.findall(r"(?:합니다|입니다)", text))
     if long_style >= 3:
         issues.append(f"만연체 {long_style}회 — 개조식(~임/~함/~됨) 종결 필요")
+    # 7) 간글: 본문 개념도 직후 간글 1줄 필수(체크리스트 G1 — "간글은 다 빼먹었냐?"),
+    #    서론 로드맵(d7) 직후는 (정의) p.def 2줄이 간글을 대체(G2 — 복합 조립은 h3 뒤 정의)
+    blocks = _split_blocks(body)
+    for i, b in enumerate(blocks):
+        head = b.lstrip().lower()[:60]
+        if not head.startswith("<div"):
+            continue
+        nxt = blocks[i + 1].lstrip().lower()[:40] if i + 1 < len(blocks) else ""
+        if 'class="diagram d7"' in head:
+            if not (nxt.startswith("<h3") or 'class="def"' in nxt):
+                issues.append("서론 로드맵(d7) 아래 (정의) 2줄 누락 — 그림 밑 정의가 간글 대체")
+        elif 'class="diagram"' in head:
+            if not ('class="gloss"' in nxt or 'class="def"' in nxt):
+                issues.append("본문 개념도 직후 간글(p.gloss 1줄) 누락")
+    return issues
+
+
+def _lint_table_density(body_html: str) -> list[str]:
+    """표 밀도 린터 (체크리스트 T5 신설) — "행 높이 = 내용 밀도" 실물 규칙.
+
+    - 2줄 행(tr.r2)인데 최장 셀이 1줄분(29자 미만)이고 개조식(<br>)도 아니면 위반
+      ("표는 두 줄 잡아먹고 왜 한 줄만 써?" — 발주자 반려 그 자체)
+    - 설명열이 넓은 표(t3/texp)의 1줄 행에 33자 초과 셀(≈30자/줄 환산)이 있으면
+      줄 넘침 위험 위반
+    적용: 조립 경로는 견본(MG-001)만 강제·나머지는 로그, 폴백 경로는 보완 사유.
+    """
+    under = over = 0
+    for tbl in re.findall(r"<table[^>]*>.*?</table>", body_html or "", re.S | re.I):
+        wide = re.search(r'class="(?:t3|texp)"', tbl[:40]) is not None
+        for tr in re.findall(r"<tr[^>]*>.*?</tr>", tbl, re.S | re.I):
+            if "<th" in tr:
+                continue
+            cells = [html_mod.unescape(re.sub(r"<[^>]+>", " ", c)).strip()
+                     for c in re.findall(r"<td[^>]*>(.*?)</td>", tr, re.S | re.I)]
+            longest = max((len(c) for c in cells), default=0)
+            if 'class="r2"' in tr[:20]:
+                if longest < 29 and "<br" not in tr.lower():
+                    under += 1
+            elif wide and longest > 33:
+                over += 1
+    issues: list[str] = []
+    if under:
+        issues.append(f"표 밀도 미달 — 내용이 1줄분인 2줄 행(r2) {under}개: "
+                      "1줄 행 전환 또는 셀 증량(30~60자/개조식 항목 2개) 필요")
+    if over:
+        issues.append(f"표 줄 넘침 위험 — 1줄 행에 33자 초과 셀 {over}개: 2줄 행(r2) 전환 필요")
     return issues
 
 
@@ -489,8 +546,9 @@ body {
   font-family: system-ui, sans-serif; font-size: 11.5px; color: var(--chrome);
   border-bottom: 2px solid var(--rule2);
 }
+/* 내지 머리행은 최소 인쇄 — 번호 칸 + 쪽 표기만, 표제 없음 (체크리스트 U6, 실물 내지) */
 .ph-box { width: 88px; height: 100%; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--rule2); letter-spacing: 0.3em; }
-.ph-title { flex: 1; text-align: center; letter-spacing: 0.2em; }
+.ph-sp { flex: 1; }
 .ph-num { width: 88px; text-align: center; border-left: 1px solid var(--rule2); }
 .q-strip {
   height: calc(4 * var(--lh)); padding: 8px 20px 0;
@@ -509,7 +567,9 @@ body {
     transparent 0 calc(var(--lh) - 1px),
     var(--rule) calc(var(--lh) - 1px) var(--lh));
 }
-.body::before { content: ""; position: absolute; left: 44px; top: 0; bottom: 0; width: 1px; background: var(--rule2); }
+/* 좌측 여백 세로 3줄 — 단락 표기(Ⅰ./가./본문) 들여쓰기 가이드 (체크리스트 U3, 공단 규격) */
+.body::before { content: ""; position: absolute; left: 15px; top: 0; bottom: 0; width: 1px;
+  background: var(--rule2); box-shadow: 15px 0 var(--rule2), 30px 0 var(--rule2); }
 .content { margin: 0 20px 0 58px; }
 .content h2, .content h3, .content p { line-height: var(--lh); font-size: 15px; font-weight: 400; }
 .content h2 { font-weight: 700; }
@@ -518,7 +578,9 @@ body {
 .ans { font-weight: 700; }
 .def { min-height: calc(2 * var(--lh)); padding-left: 18px; }
 .gloss { padding-left: 18px; }
-.end { text-align: right; padding-right: 12px; font-weight: 700; }
+.end { font-weight: 700; } /* "끝"은 답안이 끝난 지점 바로 옆 인라인 (체크리스트 U4) */
+.content span.end { margin-left: 10px; }
+.fill { text-align: center; letter-spacing: 0.5em; text-indent: 0.5em; } /* "이하여백" 중앙 (U5) */
 .gap { height: var(--lh); }
 .content u, .content .keyword {
   text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px;
@@ -615,15 +677,15 @@ def render_answer(question: str, title: str, kind: str, points: int | str,
     """
     is_terms = "1교시" in str(kind)
     pcls = "p1" if is_terms else "p2"
-    ptitle = "제 1 교 시 형" if is_terms else "제 2 교 시 형"
     esc = html_mod.escape
     pages = _layout(body, kind, mnemonic_html)
     page_parts = []
     for i, pg in enumerate(pages):
+        # 내지 머리행: 번호 칸 + "N 쪽"만 — 임의 표제 없음 (체크리스트 U6, 실물 내지)
         head = (
             '  <div class="page-head">\n'
             '    <span class="ph-box">번 호</span>\n'
-            f'    <span class="ph-title">기 술 사 답 안 지 ({ptitle})</span>\n'
+            '    <span class="ph-sp"></span>\n'
             f'    <span class="ph-num">{i + 1} 쪽</span>\n'
             "  </div>\n"
         )
@@ -1180,6 +1242,14 @@ async def _assembly_path(message: str, kind: str, points: int,
     sheet = render_answer(question=message, title=result["title"], kind=kind, points=points,
                           body=result["body"], mnemonic_html=result["mnemonic_html"])
     warnings = result["warnings"] + _verify_assembly(result["body"], sheet, kind)
+    # 표 밀도 린터는 견본(MG-001)만 강제 — 나머지 20건은 부품 전수 재작성 배치 전까지
+    # 로그로만 남긴다 (기존 부품 21/21이 실측 미달이라 일괄 경고 노출은 소음)
+    density = _lint_table_density(result["body"])
+    if density:
+        if "MG-001" in matched:
+            warnings += density
+        else:
+            print(f"[density] {','.join(matched)}: {' / '.join(density)}", flush=True)
     yield _ev("reviewer", "done", "통과" if not warnings else f"경고 {len(warnings)}건")
     yield _talk("reviewer", "필수 섹션·암기박스 확인, 통과 ✅" if not warnings
                 else f"조립은 통과, 경고 {len(warnings)}건: {warnings[0]}")
@@ -1271,7 +1341,7 @@ async def _live_exam(message: str, kind: str, points: int,
     # 최소 미달·린트 위반은 점수와 무관하게 보완 강제 (최대 1회).
     min_pages, rec_pages = (1.0, 1.4) if is_terms else (2.5, 3.5)
     vol = _volume(body, kind)
-    lint = _lint_format(body, kind)
+    lint = _lint_format(body, kind) + _lint_table_density(body)  # 신설 밀도 린터도 보완 사유
     reviewer_system = (
         "당신은 기술사 시험 채점위원 '세아'입니다. 답안 본문 HTML을 검토해 JSON만 출력하세요.\n"
         "채점 기준: ① 출제 의도 부합 ② ITPE 목차 완결성(2교시형 Ⅰ~Ⅳ 4단락, 가나다 소제목) "
@@ -1343,7 +1413,7 @@ async def _live_exam(message: str, kind: str, points: int,
             body = revised
         rounds = 1
         vol = _volume(body, kind)
-        lint = _lint_format(body, kind)
+        lint = _lint_format(body, kind) + _lint_table_density(body)  # 신설 밀도 린터도 보완 사유
         under = vol["pages_frac"] < min_pages
         yield _ev("writer", "done", "보완 완료")
         yield _talk("writer", "지적사항 반영해서 보완했어요. 재채점 부탁해요!")

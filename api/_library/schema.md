@@ -23,7 +23,7 @@
 | `background` | str | 필요성/등장배경(p.def) |
 | `intro_diagram_html` | str | 2교시 서론 Type IV 로드맵 그림(`div.diagram.d7`). 부재 시 서론은 Type I(정의+필요성) |
 | `diagram_html` | str | 본론 개념도(`div.diagram`, 6줄). 템플릿 계약 클래스만 사용 |
-| `diagram_gloss` | str | 개념도 간글 1줄 텍스트("– "로 시작) |
+| `diagram_gloss` | str | 개념도 간글 1줄 텍스트("– "로 시작). **부재 시 조립기가 keywords로 합성**(체크리스트 G1 — 본문 그림 뒤 간글 필수라 침묵 생략 없음) |
 | `features` | list[{item, desc}] | 특징표(t2) |
 | `components` | list[{role, name, detail}] | 구성요소 상세표(t3: 구분=role/구성요소=name/설명=detail) |
 | `components_gloss` | str | 구성요소표 아래 마무리/간글 텍스트 |
@@ -35,8 +35,18 @@
 
 ## 규칙
 
+- **components.detail 길이 가이드** (체크리스트 T5·T6 — "행 높이 = 내용 밀도" 실물 규칙):
+  - 1줄 행용: 문자열 **28자 이하** / 2줄 행(r2)용: 문자열 **30~60자** 또는
+    **개조식 list 2항목**(`["항목1", "항목2"]` — 조립기가 `- 항목<br>- 항목`으로 렌더).
+  - 조립기(_t3)가 길이·항목 수로 r1/r2를 행 단위 자동 선택한다 — 29자 미만 문자열을
+    2줄 행으로 강제할 방법은 없다(표 밀도 린터가 "내용 1구절 r2"를 위반 처리).
+  - **연속 행의 role이 같으면 1열(구분)을 rowspan 병합**(체크리스트 T3) — 카테고리가
+    하위 2~3행을 묶는 실물 표 구조는 role 반복으로 표현한다.
+  - 셀 약어는 영문 병기(`SLA(Service Level Agreement)`), 소라벨(`장점:`) 활용 가능(T7).
 - HTML 부품(`diagram_html`, `intro_diagram_html`)은 답안지 템플릿 계약 클래스만 사용:
-  `div.diagram(.d7)`, `d-row/d-col/d-box(.soft/.d-hub)/d-circle/d-sep/d-arrow`, `<small>`, `<br>`.
+  `div.diagram(.d7)`, `d-row/d-col/d-box(.soft/.d-hub)/d-circle/d-sep/d-arrow`, `<small>`, `<br>`
+  + 개념도 패턴 키트(`d-flow/d-out/d-bar/d-tree/d-stem/d-branch/d-stack/d-cycle(.c6)/d-turn/`
+  `d-net/d-vs/d-zone/d-zt/d-link` — docs/diagram-spec.md §3 가이드로 패턴 선택, 박스 일렬 나열 금지).
 - 금칙어(빌드 실패): `<script`, `<iframe`, `javascript:`, 외부 URL(`http://`, `https://`), 인라인 이벤트.
 - 전체 라이브러리 총량 5MB 이하 (토픽당 평균 30KB).
 - 부품 유무가 조립을 깨면 안 된다 — 없는 슬롯은 생략된다.

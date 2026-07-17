@@ -10,11 +10,14 @@
   ],
   "category": "ITSM · 아웃소싱 > ITSM > ITSM",
   "keywords": [
+    "ITIL",
     "ITIL V3",
     "eSCM",
     "CMMI",
+    "ISO 20000",
     "SLA",
     "SLM",
+    "SOW",
     "PMO",
     "HA",
     "운영 및 유지보수",
@@ -26,7 +29,7 @@
     "품질관리"
   ],
   "mnemonic": {
-    "word": "이삼씨투(ITIL. Escm, SLM, CMMI)",
+    "word": "이삼씨투",
     "expansion": [
       "ITIL(베스트프랙티스)",
       "eSCM(평가·인증)",
@@ -35,48 +38,63 @@
     ]
   },
   "definition": "SLA 수준에 맞춰 IT 서비스 품질을 종합 관리하는 선진 IT 서비스 관리 기법",
-  "definition_long": "IT 서비스 제공에 있어 고객 요구사항에 맞게 SLA 기반의 \"고품질 서비스\"를 제공하는 관리 체계",
-  "background": "서비스 품질의 정량 관리, 표준 프로세스 기반의 안정적 운영, 고객 만족 확보",
-  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 품질<br>요구 증대</div><div class=\"d-circle\">운영 표준<br>부재</div><div class=\"d-circle\">고객 요구<br>다양화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">ITSM 도입</div><div class=\"d-box soft\">검토 모델 · 구성요소 (Ⅱ)</div><div class=\"d-box soft\">구축 요건 · 활용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">고품질 IT 서비스<small>고객 만족</small></div></div>",
-  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">평가·인증<small>eSCM · ISO 20000</small></div><div class=\"d-box\">서비스수준<small>SOW · SLA</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">ITSM<small>고품질 IT 서비스 관리체계</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">품질인증<small>CMMI</small></div><div class=\"d-box\">Best Practice<small>ITIL</small></div></div></div>",
-  "diagram_gloss": "– ITIL, SOW, eSCM, CMMI 등 4가지 범위의 구축 모델 검토",
+  "definition_long": "고객과 합의한 SLA 수준의 고품질 IT 서비스 제공을 위해 ITIL 표준 프로세스와 인력·조직·기술을 통합 관리하는 서비스 관리 체계",
+  "background": "IT 운영 품질의 정량 관리 요구 증대, 표준 프로세스 부재에 따른 운영 편차, 비용 중심에서 고객 만족 중심 서비스로의 전환 필요",
+  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 품질<br>요구 증대</div><div class=\"d-circle\">운영 표준<br>부재</div><div class=\"d-circle\">고객 요구<br>다양화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">ITSM 도입</div><div class=\"d-box soft\">구성도 · 구성요소 (Ⅱ)</div><div class=\"d-box soft\">특징 · 비교 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">고품질 IT 서비스<small>고객 만족 · SLA 충족</small></div></div>",
+  "diagram_html": "<div class=\"diagram\"><div class=\"d-net\"><div class=\"d-box\">인력<small>People</small></div><span class=\"d-arrow\">↓</span><div class=\"d-box\">조직<small>Organization</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">ITSM<small>ITIL · eSCM · SLM · CMMI</small></div><span class=\"d-arrow\">←</span><div class=\"d-box\">기술<small>Technology</small></div><span class=\"d-arrow\">↑</span><div class=\"d-box\">프로세스<small>Process</small></div></div></div>",
+  "diagram_gloss": "– 4대 축과 ITIL·eSCM·SLM·CMMI 표준 상호연동으로 품질 향상",
   "features": [
     {
       "item": "정량 관리",
-      "desc": "SLA 지표 기반 서비스 품질의 정량적 측정·관리"
+      "desc": [
+        "SLA·KPI 지표로 서비스 품질을 수치 측정·관리",
+        "MTTR·가용률 등 운영 성과의 정량 보고"
+      ]
     },
     {
       "item": "프로세스 표준화",
-      "desc": "ITIL 모범 사례 기반의 표준 운영 프로세스"
+      "desc": "ITIL Best Practice 기반 표준 운영 절차 확립"
     },
     {
       "item": "고객 지향",
-      "desc": "고객 요구사항 중심의 서비스 수준 상호 합의"
+      "desc": "고객과 서비스 수준 상호 합의, 만족도 개선 환류"
     }
   ],
   "components": [
     {
-      "role": "평가·인증",
-      "name": "eSCM, ISO 20000",
-      "detail": "서비스 제공업자의 서비스 능력 평가 및 인증"
+      "role": "평가 · 인증",
+      "name": "eSCM",
+      "detail": [
+        "IT 서비스 공급자의 소싱 수행 능력 평가·인증",
+        "ISO 20000과 함께 제3자 인증 체계 구성"
+      ]
     },
     {
-      "role": "품질인증",
+      "role": "평가 · 인증",
       "name": "CMMI",
-      "detail": "서비스 품질 및 품질 성숙도에 대한 인증"
+      "detail": [
+        "조직 프로세스 성숙도의 5단계 정량 평가",
+        "서비스 품질·조직 역량의 단계적 개선 유도"
+      ]
     },
     {
-      "role": "서비스수준",
-      "name": "SOW, SLA·SLM",
-      "detail": "고객과 상호 협의하의 업무 정의·수준 관리"
+      "role": "수준 관리",
+      "name": "SOW, SLA · SLM",
+      "detail": [
+        "SOW 기반 서비스 항목·목표 수준 상호 합의",
+        "지표 측정·보고 환류로 서비스 수준 지속 개선"
+      ]
     },
     {
-      "role": "Best Practice",
+      "role": "표준 지침",
       "name": "ITIL",
-      "detail": "IT 서비스 도입·운영의 모범 사례 제공"
+      "detail": [
+        "IT 서비스 생명주기 전반의 Best Practice 지침",
+        "전략·설계·전환·운영·개선 5단계 프로세스 제공"
+      ]
     }
   ],
-  "components_gloss": "– \"평가·인증, 품질, 서비스수준, BP\" 4가지 범위의 검토 모델로 활용",
+  "components_gloss": "– 평가·인증, 수준 관리, 표준 지침 3범위 검토 모델로 구축 활용",
   "comparisons": [
     {
       "vs": "MG-035",
@@ -102,19 +120,19 @@
   ],
   "usage": [
     {
-      "item": "업무 효율성",
-      "desc": "표준 프로세스 적용으로 효율적 업무 수행"
+      "item": "운영 안정화",
+      "desc": "표준 프로세스·변경 통제로 장애 감소, MTTR 단축"
     },
     {
-      "item": "생산성 향상",
-      "desc": "사용 편리성과 시스템 접근성 향상"
+      "item": "품질 가시화",
+      "desc": "SLA 지표 보고로 서비스 품질·성과의 정량 입증"
     },
     {
-      "item": "비용 절감",
-      "desc": "IT 인프라 관리 비용 절감"
+      "item": "비용 최적화",
+      "desc": "서비스 카탈로그 기반 자원 배분으로 운영비 절감"
     }
   ],
-  "conclusion": "ITSM은 ITIL 기반 프로세스 표준화와 SLA 관리를 통한 안정적 IT 서비스 운영의 기반",
+  "conclusion": "ITSM은 ITIL 프로세스 표준화와 SLA 기반 수준 관리로 IT 운영 조직을 비용 조직에서 서비스 가치 조직으로 전환하는 기반임",
   "exam_points": [
     "검토 모델 4종(ITIL·eSCM·CMMI·ISO 20000) 비교",
     "성공적 구축 요건(관리·기술·서비스·비즈니스·품질 측면)",
