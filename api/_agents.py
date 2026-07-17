@@ -413,9 +413,20 @@ def _lint_format(body_html: str, kind: str) -> list[str]:
         elif 'class="diagram"' in head:
             if not ('class="gloss"' in nxt or 'class="def"' in nxt):
                 issues.append("본문 개념도 직후 간글(p.gloss 1줄) 누락")
-    # 8) 손글씨 밀도 상한 (발주자 규격 2026-07-17): 전폭 줄 17~19자(공백 제외·영문 반각)
-    #    → 2줄 문단(p.def) 40자, 간글(p.gloss) 20자 초과는 위반 — 넘치면 손으로 못 베낀다
-    for m in re.finditer(r'<p class="(def|gloss)">(.*?)</p>', body, re.S | re.I):
+    return issues
+
+
+def _lint_text_density(body_html: str) -> list[str]:
+    """문단 밀도 린터 (발주자 규격 2026-07-17): 전폭 줄 17~19자(공백 제외·영문 반각)
+    → 2줄 문단(p.def) 40자, 간글(p.gloss) 20자 초과는 위반 — 넘치면 손으로 못 베낀다.
+
+    스코프는 표 밀도 린터(_lint_table_density)와 동일: 조립 경로는 견본(MG-001)만
+    경고 강제·나머지 토픽은 서버 로그, 폴백(LLM) 경로는 보완 사유. 기존 부품이
+    전면 감량 배치를 마치면 조립 경로도 전면 강제로 전환한다 (세아 반려 2026-07-17
+    — _lint_format에 두면 견본 외 20개 풀부품이 일괄 경고 노출).
+    """
+    issues: list[str] = []
+    for m in re.finditer(r'<p class="(def|gloss)">(.*?)</p>', body_html or "", re.S | re.I):
         w = _wide_len(html_mod.unescape(re.sub(r"<[^>]+>", "", m.group(2))))
         cap = _W_GLOSS if m.group(1) == "gloss" else _W_FULL2
         if w > cap:
@@ -1339,9 +1350,9 @@ async def _assembly_path(message: str, kind: str, points: int,
     sheet = render_answer(question=message, title=result["title"], kind=kind, points=points,
                           body=result["body"], mnemonic_html=result["mnemonic_html"])
     warnings = result["warnings"] + _verify_assembly(result["body"], sheet, kind)
-    # 표 밀도 린터는 견본(MG-001)만 강제 — 나머지 20건은 부품 전수 재작성 배치 전까지
-    # 로그로만 남긴다 (기존 부품 21/21이 실측 미달이라 일괄 경고 노출은 소음)
-    density = _lint_table_density(result["body"])
+    # 밀도 린터(표+문단)는 견본(MG-001)만 강제 — 나머지 20건은 부품 전수 재작성 배치
+    # 전까지 로그로만 남긴다 (기존 부품 21/21이 실측 미달이라 일괄 경고 노출은 소음)
+    density = _lint_table_density(result["body"]) + _lint_text_density(result["body"])
     if density:
         if "MG-001" in matched:
             warnings += density
@@ -1438,7 +1449,8 @@ async def _live_exam(message: str, kind: str, points: int,
     # 최소 미달·린트 위반은 점수와 무관하게 보완 강제 (최대 1회).
     min_pages, rec_pages = (1.0, 1.4) if is_terms else (2.5, 3.5)
     vol = _volume(body, kind)
-    lint = _lint_format(body, kind) + _lint_table_density(body)  # 신설 밀도 린터도 보완 사유
+    # 폴백(LLM) 경로는 밀도 린터(표+문단) 위반도 보완 사유
+    lint = _lint_format(body, kind) + _lint_table_density(body) + _lint_text_density(body)
     reviewer_system = (
         "당신은 기술사 시험 채점위원 '세아'입니다. 답안 본문 HTML을 검토해 JSON만 출력하세요.\n"
         "채점 기준: ① 출제 의도 부합 ② ITPE 목차 완결성(2교시형 Ⅰ~Ⅳ 4단락, 가나다 소제목) "
@@ -1510,7 +1522,8 @@ async def _live_exam(message: str, kind: str, points: int,
             body = revised
         rounds = 1
         vol = _volume(body, kind)
-        lint = _lint_format(body, kind) + _lint_table_density(body)  # 신설 밀도 린터도 보완 사유
+        lint = (_lint_format(body, kind) + _lint_table_density(body)
+                + _lint_text_density(body))  # 밀도 린터도 보완 사유
         under = vol["pages_frac"] < min_pages
         yield _ev("writer", "done", "보완 완료")
         yield _talk("writer", "지적사항 반영해서 보완했어요. 재채점 부탁해요!")
