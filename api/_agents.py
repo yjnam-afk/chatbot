@@ -300,6 +300,17 @@ def _layout(body_html: str, kind: str,
         pages.append({"blocks": cur, "cap": cap, "used": used})
 
     _pull_tail(pages)
+    # 만석 페이지의 말단 블록이 표면 자기 높이 보정 클래스(tend)를 주입한다 —
+    # border-collapse 표는 실측 높이가 행합+1px라 페이지 캡을 1px 넘겨
+    # overflow:hidden에 하단 닫는 보더가 잘린다 (세아 실측: Q5 3쪽). 기존
+    # margin-bottom:-1px는 후속 블록 위치만 보정해 말단 표엔 무효 — tend가
+    # margin-top:-1px로 표 전체를 1px 당겨 하단 보더를 캡 안에 넣는다.
+    # 만석이 아닌 페이지는 잘릴 일이 없으므로 건드리지 않는다 (회귀 차단).
+    for pg in pages:
+        last = pg["blocks"][-1].lstrip().lower() if pg["blocks"] else ""
+        if pg["used"] >= pg["cap"] and last.startswith("<table"):
+            pg["blocks"][-1] = re.sub(r'(<table[^>]*class=")', r"\1tend ",
+                                      pg["blocks"][-1], count=1)
     # 최종 답안(꼬리 포함) 아래 줄이 남으면 중앙에 "이하여백" (체크리스트 U5 — 공단·실물).
     # 답안 줄 수가 아니므로 used(분량 계측)에는 넣지 않는다 — 남는 첫 괘선 줄에 얹힌다.
     if pages and pages[-1]["used"] < pages[-1]["cap"]:
@@ -641,6 +652,10 @@ body {
 /* border-collapse 표는 외곽 보더로 실측 높이가 행합보다 +1px — 후속 블록을 1px 당겨
    줄 그리드 정렬을 유지한다 (만석 페이지 하단 테두리 클리핑 방지, 세아 검수 2026-07) */
 .content table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13.5px; margin-bottom: -1px; }
+/* 만석 페이지 말단 표 자기 보정: margin-bottom:-1px는 후속 블록만 당기므로 페이지
+   마지막 블록이 표면 +1px가 캡을 넘어 하단 닫는 보더가 잘린다 — 서버(_layout)가
+   해당 표에만 tend를 주입, 표 전체를 1px 당겨 보더를 캡 안에 수납 (세아 실측 Q5 3쪽) */
+.content table.tend { margin-top: -1px; }
 .content th, .content td { border: 1px solid var(--ink); padding: 2px 8px; vertical-align: middle; line-height: 1.5; overflow: hidden; }
 .content th { font-weight: 700; text-align: center; } /* 실물 손답안엔 음영 없음 — 체크리스트 T2 */
 .content tr { height: var(--lh); }
