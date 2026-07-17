@@ -71,6 +71,19 @@ def main() -> int:
             for bad in FORBIDDEN:
                 if bad in low:
                     fail(f"{f.name}: {hf}에 금칙어 '{bad}' 포함")
+        # procedure 부품 (스키마 v1.1, question-spec 2-2): [{step, name, desc}]
+        proc = t.get("procedure")
+        if proc is not None:
+            if not isinstance(proc, list) or not proc:
+                fail(f"{f.name}: procedure는 비어있지 않은 배열이어야 함")
+            for i, p in enumerate(proc):
+                if not isinstance(p, dict) or not isinstance(p.get("step"), int) \
+                        or not p.get("name") or "desc" not in p:
+                    fail(f"{f.name}: procedure[{i}]는 {{step:int, name, desc}} 객체여야 함")
+                if p["step"] != i + 1:
+                    fail(f"{f.name}: procedure[{i}].step은 1부터 연속 정수여야 함 — {p['step']}")
+                if any("<" in str(p.get(k) or "") for k in ("name", "desc")):
+                    fail(f"{f.name}: procedure[{i}]에 HTML 태그 금지")
         # comparisons.vs 상호참조 검사(존재하는 id인지)는 전체 로드 후
         tid = t["id"]
         full = sum(1 for k in FULL_FIELDS if t.get(k)) >= 2

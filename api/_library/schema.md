@@ -28,6 +28,7 @@
 | `components` | list[{role, name, detail}] | 구성요소 상세표(t3: 구분=role/구성요소=name/설명=detail) |
 | `components_gloss` | str | 구성요소표 아래 마무리/간글 텍스트 |
 | `comparisons` | list[{vs, vs_name, axes[{axis, a, b}]}] | 인접 토픽 비교표(tcmp). `vs`는 존재하는 토픽 id(빌드 시 검사) |
+| `procedure` | list[{step, name, desc}] | 절차·단계 표(t3 절차표 — 구분열 "N단계") — v1.1 신설(question-spec 2-2). `step`은 1부터 정수, `name` 5~7자, `desc`는 detail과 동일 밀도 규격. 절차·과정·단계를 묻는 요구의 1순위 부품 |
 | `usage` | list[{item, desc}] | 활용/기대효과표(t2) — Ⅳ단락 |
 | `conclusion` | str | 결론 1~2줄(p.def) |
 | `exam_points` | list[str] | 기출 변형 포인트 — 결론부 소재 |
