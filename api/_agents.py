@@ -28,8 +28,9 @@ from typing import Any, AsyncIterator
 
 import httpx
 
+import _question
 import _topic_library as _library
-from _assembler import assemble, short_name, split_subjects
+from _assembler import assemble, assemble_requirements, short_name, split_subjects
 
 # 역할은 라이브러리 파이프라인의 실제 코드 단계와 1:1 (docs/library-spec.md 2-5).
 # 프런트 표기의 단일 출처 — progress.js는 role 문자열을 하드코딩하지 않는다.
@@ -366,12 +367,14 @@ def _lint_format(body_html: str, kind: str) -> list[str]:
     issues: list[str] = []
     body = body_html or ""
     is_terms = "1교시" in kind
-    # 1) 단락(h2) 수: 2교시형 Ⅰ~Ⅳ 4개, 1교시형 Ⅰ~Ⅲ 3개
-    need_h2 = 3 if is_terms else 4
+    # 1) 단락(h2) 수: 1교시형 Ⅰ~Ⅲ 3개 고정, 2교시형은 요구 수에 따라 Ⅰ~Ⅳ 기준·
+    #    최대 Ⅵ 가변 (question-spec 2-2 — N=2 기준 4단락, N=4~5 병렬식 5~6단락)
     n_h2 = len(re.findall(r"<h2[\s>]", body, re.I))
-    if n_h2 != need_h2:
-        issues.append(f"단락 수 {n_h2}개(기준 {need_h2}개) — "
-                      f"{'Ⅰ~Ⅲ' if is_terms else 'Ⅰ~Ⅳ'} 구조로 재편 필요")
+    if is_terms:
+        if n_h2 != 3:
+            issues.append(f"단락 수 {n_h2}개(기준 3개) — Ⅰ~Ⅲ 구조로 재편 필요")
+    elif not 4 <= n_h2 <= 6:
+        issues.append(f"단락 수 {n_h2}개(기준 4~6개) — Ⅰ~Ⅳ(요구 많으면 ~Ⅵ) 구조로 재편 필요")
     # 2) "답)" 표기
     if 'class="ans"' not in body:
         issues.append("\"답)\" 표기 누락 — 첫 줄 <p class=\"ans\">답)</p>")
@@ -1020,6 +1023,95 @@ def classify_exam(message: str, kind_hint: str | None = None) -> tuple[str, int]
     return kind, points
 
 
+def _assign_req_topics(reqs: list[dict]) -> list[list[dict]]:
+    """요구별 토픽 배정 (0콜, question-spec 2-2) — 요구 text 단위 매칭.
+
+    확정급 점수(>=8) + 이름/별칭이 요구 텍스트에 실제 언급된 토픽만 배정한다.
+    비교 요구는 언급 순서대로 최대 2건(대비 쌍), 그 외는 핵심 명사(한국어 어순상
+    마지막 언급 대상 — "BCP 달성을 위한 PDCA 사이클"의 PDCA) 1건.
+    """
+    out: list[list[dict]] = []
+    for r in reqs:
+        res = _library.match(r["text"])
+        scores = {c["id"]: c["score"] for c in res.get("candidates") or []}
+        for tid in res["matched"]:
+            scores.setdefault(tid, _library.HIT_SCORE)
+        qn = _library.norm(r["text"])
+        ranked: list[tuple[int, int, str]] = []  # (첫 언급, -마지막 언급 끝, id)
+        for tid, sc in scores.items():
+            if sc < _library.HIT_SCORE:
+                continue
+            t = _library.load_topic(tid)
+            if not t:
+                continue
+            pos = []
+            for nm in [t.get("name") or ""] + list(t.get("aliases") or []):
+                n = _library.norm(nm)
+                if len(n) >= 2 and n in qn:
+                    pos.append((qn.find(n), qn.rfind(n) + len(n)))
+            if pos:
+                ranked.append((min(p[0] for p in pos), -max(p[1] for p in pos), tid))
+        if not ranked:
+            out.append([])
+        elif r.get("verb") == "compare":
+            ranked.sort()  # 언급 순서 → (a, b) 대비 쌍
+            out.append([t for t in (_library.load_topic(tid) for _, _, tid in ranked[:2]) if t])
+        else:
+            ranked.sort(key=lambda x: x[1])  # 마지막 언급이 핵심 명사
+            out.append([t for t in [_library.load_topic(ranked[0][2])] if t])
+    return out
+
+
+_ALLOWED_FRAG_TAGS = {"h3", "p", "table", "thead", "tbody", "tr", "th", "td",
+                      "u", "br", "small", "div", "span"}
+
+
+def _fragment_ok(html: str) -> bool:
+    """부족 슬롯 집필 프래그먼트의 §7 계약 검사 — 위반이면 플레이스홀더 유지 (2-4)."""
+    low = (html or "").lower()
+    if not low or "<script" in low or "http://" in low or "https://" in low \
+            or "javascript:" in low or "<h2" in low:
+        return False
+    return all(m.group(1) in _ALLOWED_FRAG_TAGS
+               for m in re.finditer(r"</?([a-z0-9]+)", low))
+
+
+def _verify_requirements(body: str, parsed: dict, roadmap: list[str]) -> list[str]:
+    """세아 요구 검증 (0콜, question-spec 2-3): 로드맵 박스 수/텍스트-단락 일치,
+    요구 순서(핵심 명사 ⊂ 해당 h2), 비교→tcmp·절차→절차표 존재."""
+    warns: list[str] = []
+    reqs = parsed.get("requirements") or []
+    n = len(reqs)
+    parts = re.split(r"(<h2[^>]*>.*?</h2>)", body, flags=re.S | re.I)
+    h2s = [html_mod.unescape(re.sub(r"<[^>]+>", "", p)).strip()
+           for p in parts if p.lower().startswith("<h2")]
+    contents = [parts[i + 1] if i + 1 < len(parts) else ""
+                for i, p in enumerate(parts) if p.lower().startswith("<h2")]
+    if len(h2s) < n + 1:
+        warns.append(f"요구 단락 수 부족 (h2 {len(h2s)}개 < 서론+요구 {n + 1})")
+        return warns
+    req_h2s, req_contents = h2s[1:1 + n], contents[1:1 + n]
+    d7 = next((b for b in _split_blocks(body)
+               if 'class="diagram d7"' in b.lstrip()[:40]), "")
+    boxes = [html_mod.unescape(re.sub(r"<[^>]+>", "", m)).strip()
+             for m in re.findall(r'<div class="d-box soft">(.*?)(?:<small|</div>)', d7, re.S)]
+    if len(boxes) != n:
+        warns.append(f"서론 로드맵 박스 {len(boxes)}개 ≠ 요구 {n}건")
+    else:
+        for i, (b, h) in enumerate(zip(boxes, req_h2s)):
+            if b and b not in h:
+                warns.append(f"로드맵 박스 '{b[:12]}'가 Ⅱ+{i}단락 제목의 부분 문자열이 아님")
+    for r, content in zip(reqs, req_contents):
+        low = content.lower()
+        if (r.get("verb") == "compare" or "comparisons" in (r.get("slots") or [])) \
+                and 'class="tcmp"' not in low:
+            warns.append(f"비교 요구({r.get('label')}) 단락에 비교표(tcmp) 없음")
+        if "procedure" in (r.get("slots") or []) and "<th>단계</th>" not in content \
+                and "<table" not in low:
+            warns.append(f"절차 요구({r.get('label')}) 단락에 절차표 없음")
+    return warns
+
+
 def _verify_assembly(body: str, sheet: str, kind: str) -> list[str]:
     """세아 규칙 검증 (0콜): 필수 슬롯/표 최소 2행/암기 박스/외부 리소스 0건 + 형식 린트."""
     warnings = list(_lint_format(body, kind))
@@ -1068,6 +1160,44 @@ async def run_pipeline(history: list[dict], message: str,
         await asyncio.sleep(0.1)
 
         llm_calls = 0
+        # ---- 문항 구조 파싱 (누리, 무LLM 규칙 우선 — question-spec 2-1)
+        parsed = _question.parse_question(message)
+        if parsed.pop("needs_llm", False):
+            acc = None
+            if provider() is not None and llm_calls < 2:
+                # 파서 LLM 폴백 1콜 — 요구 text 원문 부분 문자열 검증(accept_llm) 통과 시만 수용
+                yield _ev("nlu", "thinking", "지문 정독 중…")
+                llm_calls += 1
+                try:
+                    sys_p, msgs = _question.llm_messages(message)
+                    acc = _question.accept_llm(
+                        message, await _chat(sys_p, msgs, json_mode=True))
+                except RateLimitError:
+                    acc = None
+                if acc:
+                    yield _talk("nlu", "지문이 까다로워서 한 번 더 꼼꼼히 읽었어요!")
+            if acc:
+                parsed = acc
+            elif not 1 <= len(parsed["requirements"]) <= 6:
+                parsed = _question.fallback_parse(message)  # 키 없음/기각 → simple 강등
+        parsed.pop("needs_llm", None)
+        reqs = parsed["requirements"]
+        if len(reqs) >= 2:
+            yield _talk("nlu", f"요구사항 {len(reqs)}건 파악: "
+                        + " / ".join(_question.req_tag(r) for r in reqs[:5]))
+
+        # ---- 요구 주도 조립 경로 (2교시형 · 요구 2건 이상 · 요구별 적중 — 2-2)
+        if "1교시" not in kind and len(reqs) >= 2:
+            assignments = _assign_req_topics(reqs)
+            if any(assignments):
+                matched = []
+                for ts in assignments:
+                    matched.extend(t["id"] for t in ts if t["id"] not in matched)
+                async for e in _assembly_path(message, kind, points, matched, llm_calls,
+                                              parsed=parsed, assignments=assignments):
+                    yield e
+                return
+
         res = _library.match(message)
         matched = list(res["matched"])
         if res["status"] == "ambiguous" and provider() is not None:
@@ -1088,7 +1218,8 @@ async def run_pipeline(history: list[dict], message: str,
                 matched = []
 
         if matched:
-            async for e in _assembly_path(message, kind, points, matched, llm_calls):
+            async for e in _assembly_path(message, kind, points, matched, llm_calls,
+                                          parsed=parsed):
                 yield e
             return
 
@@ -1116,11 +1247,12 @@ async def run_pipeline(history: list[dict], message: str,
                 "demo": True,
                 "library": False,
                 "exam": {"kind": kind, "points": points, "topic": topic_txt},
+                "question": _qmeta(parsed),
                 "llm_calls": llm_calls,
             }
         else:
             yield _talk("nlu", "라이브러리에 없는 토픽이에요. 라이브 파이프라인으로 작성할게요!")
-            async for e in _live_exam(message, kind, points, llm_calls):
+            async for e in _live_exam(message, kind, points, llm_calls, parsed=parsed):
                 yield e
     except RateLimitError:
         yield _ev("orchestrator", "error", "LLM 한도 초과")
@@ -1230,22 +1362,39 @@ async def _chat_path(history: list[dict], message: str) -> AsyncIterator[dict]:
            "library": bool(topic), "matched": [topic["id"]] if topic else []}
 
 
+def _qmeta(parsed: dict | None) -> dict | None:
+    """reply 노출용 파싱 메타 (question-spec 2-6)."""
+    if not parsed:
+        return None
+    return {"form": parsed.get("form"), "requirements": len(parsed.get("requirements") or []),
+            "parse": parsed.get("parse")}
+
+
 async def _assembly_path(message: str, kind: str, points: int,
-                         matched: list[str], llm_calls: int) -> AsyncIterator[dict]:
-    """라이브러리 적중 — 부품 조립 경로 (LLM 0~2콜, 3초 목표. sleep은 연출용 ≤0.15s)."""
+                         matched: list[str], llm_calls: int,
+                         parsed: dict | None = None,
+                         assignments: list[list[dict]] | None = None) -> AsyncIterator[dict]:
+    """라이브러리 적중 — 부품 조립 경로 (LLM 0~2콜, 3초 목표. sleep은 연출용 ≤0.15s).
+
+    assignments가 있으면 요구 주도 조립(question-spec 2-2: 요구 순서 = 단락 순서,
+    목차는 지문 어구), 없으면 표준 구조 조립(단순형·1교시형·복합 나열).
+    """
     is_terms = "1교시" in kind
+    req_mode = bool(parsed and assignments)
     topics = [t for t in (_library.load_topic(i) for i in matched) if t]
     names = [short_name(t) for t in topics]
 
-    # 부분 적중 감지: 문제 주제어 중 적중 토픽에 안 잡힌 것
+    # 부분 적중 감지(표준 경로 전용): 문제 주제어 중 적중 토픽에 안 잡힌 것.
+    # 요구 주도 경로는 요구 단위 부족(deficits)으로 대신 처리한다.
     missing: list[str] = []
-    subjects = split_subjects(message)
-    if len(subjects) >= 2:
-        for s in subjects:
-            r = _library.match(s)
-            if not (set(r["matched"]) & set(matched)):
-                missing.append(s)
-    missing = missing[:2]
+    if not req_mode:
+        subjects = split_subjects(message)
+        if len(subjects) >= 2:
+            for s in subjects:
+                r = _library.match(s)
+                if not (set(r["matched"]) & set(matched)):
+                    missing.append(s)
+        missing = missing[:2]
 
     yield _ev("nlu", "done", f"적중 {len(topics)}건")
     note = f"라이브러리 {len(topics)}건 적중: {', '.join(names)}"
@@ -1257,19 +1406,57 @@ async def _assembly_path(message: str, kind: str, points: int,
     # 다인 — 슬롯 배치 (0콜)
     yield _ev("designer", "working", "편집 중…")
     await asyncio.sleep(0.12)
-    result = assemble(message, kind, points, topics, missing, {})
-    yield _ev("designer", "done", f"슬롯 {result['slots']}개")
-    yield _talk("designer", f"{'1교시형' if is_terms else '2교시형'} 슬롯 {result['slots']}개에 부품 배치했어요")
+    if req_mode:
+        result = assemble_requirements(message, kind, points, parsed, assignments)
+        n_req = len(parsed["requirements"])
+        yield _ev("designer", "done", f"단락 {result['slots'] - 1}개")
+        yield _talk("designer", f"요구 {n_req}건을 물어본 순서대로 Ⅱ~"
+                    f"{'ⅡⅢⅣⅤⅥⅦ'[result['slots'] - 2]} 단락에 배치했어요")
+    else:
+        result = assemble(message, kind, points, topics, missing, {})
+        yield _ev("designer", "done", f"슬롯 {result['slots']}개")
+        yield _talk("designer", f"{'1교시형' if is_terms else '2교시형'} 슬롯 {result['slots']}개에 부품 배치했어요")
     await asyncio.sleep(0.12)
 
     # 로운 — 접합부/미등록 소단락/뼈대 보강 (기본 0콜, 필요 시 콜당 예산 llm_calls<=2)
     yield _ev("writer", "working", "집필 중…")
+    # 요구 주도 경로: 부족 요구들을 모아 LLM 1콜 일괄 집필 (2-4 — 예산 합산 2콜 상한)
+    deficits = list(result.get("deficits") or []) if req_mode else []
+    if deficits and provider() is not None and llm_calls < 2:
+        llm_calls += 1
+        try:
+            raw = await _chat(
+                "당신은 기술사 답안 팀의 집필 담당 '로운'입니다. 라이브러리에 부품이 없는 "
+                "요구 단락들의 내부 블록만 집필해 JSON으로 출력하세요: "
+                "{\"sections\": [{\"label\": \"가\", \"html\": \"...\"}]}\n"
+                "각 html은 답안지 줄 그리드 계약(§7) 프래그먼트: 허용 태그는 h3/p(class "
+                "def|gloss)/table(class t3|t2|tcmp)/thead/tbody/tr(2줄 행 class r2)/th/td/u/br/"
+                "small만. h2 금지(서버가 지문 어구로 스탬프). 표는 헤더 1행+행 3~4개, "
+                "문체는 개조식(~임/~함), 표 설명셀 한 줄 10자·2줄 행 20자·p.def 38자 이내"
+                "(공백 제외, 영문 반각 환산). sub_points가 있으면 표 구분열로 반영.",
+                [{"role": "user", "content":
+                    f"문제: {message}\n부족 요구 목록: "
+                    + json.dumps(deficits, ensure_ascii=False)}],
+                json_mode=True, max_tokens=1800,
+            )
+            extra_req: dict[str, str] = {}
+            for sec in (_parse_json(raw, {}).get("sections") or []):
+                label = str((sec or {}).get("label") or "")
+                frag = _extract_body(str((sec or {}).get("html") or ""))
+                if label and _fragment_ok(frag):
+                    extra_req[label] = frag
+            if extra_req:
+                result = assemble_requirements(message, kind, points, parsed,
+                                               assignments, extra_req)
+                deficits = list(result.get("deficits") or [])
+        except RateLimitError:
+            pass  # 플레이스홀더 유지
     # 뼈대 적중(핵심 부품 없음) + 키 있으면 Ⅱ단락(구성도·구성요소) LLM 1콜 보강 (스펙 2-1)
-    # 단일 토픽 경로 한정 — 복합 조립은 core_sections를 사용하지 않으므로 콜을 아예 안 쓴다
+    # 단일 토픽 표준 경로 한정 — 복합/요구 주도 조립은 core_sections를 쓰지 않으므로 콜 금지
     # (복합에서 콜을 쓰면 결과가 사장되고 로운 talk이 허위가 됨 — 세아 반려 2026-07)
     core: dict[str, str] = {}
     skeleton = ([t for t in topics if not (t.get("components") or t.get("diagram_html"))]
-                if len(topics) == 1 else [])
+                if len(topics) == 1 and not req_mode else [])
     if skeleton and provider() is not None and llm_calls < 2:
         llm_calls += 1
         try:
@@ -1337,6 +1524,9 @@ async def _assembly_path(message: str, kind: str, points: int,
     notes = []
     if missing:
         notes.append(f"미등록 토픽 {len(missing)}건 " + ("집필했어요" if extra else "플레이스홀더 처리했어요"))
+    if req_mode and deficits:
+        notes.append(f"부품 없는 요구 {len(deficits)}건은 플레이스홀더 처리했어요"
+                     + ("" if provider() is None else " (집필 계약 위반으로 강등)"))
     if core:
         notes.append("뼈대 토픽이라 핵심 섹션(구성도·구성요소)을 집필했어요")
     elif skeleton:
@@ -1350,6 +1540,8 @@ async def _assembly_path(message: str, kind: str, points: int,
     sheet = render_answer(question=message, title=result["title"], kind=kind, points=points,
                           body=result["body"], mnemonic_html=result["mnemonic_html"])
     warnings = result["warnings"] + _verify_assembly(result["body"], sheet, kind)
+    if req_mode:
+        warnings += _verify_requirements(result["body"], parsed, result.get("roadmap") or [])
     # 밀도 린터(표+문단)는 견본(MG-001)만 강제 — 나머지 20건은 부품 전수 재작성 배치
     # 전까지 로그로만 남긴다 (기존 부품 21/21이 실측 미달이라 일괄 경고 노출은 소음)
     density = _lint_table_density(result["body"]) + _lint_text_density(result["body"])
@@ -1372,9 +1564,16 @@ async def _assembly_path(message: str, kind: str, points: int,
     reply = (f"『{result['title']}』 {kind} {points}점 답안지 조립 완료 — "
              f"라이브러리 {len(topics)}건 적중({', '.join(names)}), LLM {llm_calls}콜. "
              f"분량 {vol['pages']}쪽 {vol['line_in_page']}줄 (환산 {vol['pages_frac']}매).")
+    if req_mode:
+        reply = (f"요구사항 {len(parsed['requirements'])}건을 물어본 순서대로 답했어요.\n"
+                 + reply)
     if stub_names:
         reply = (f"⚠️ 이 토픽은 아직 요약본이에요({', '.join(stub_names)} — 핵심 섹션 준비 중, "
                  "LLM 키 설정 시 자동 보강)\n") + reply
+    if deficits:
+        labs = ", ".join(str(d.get("label") or "?") for d in deficits)
+        reply = (f"⚠️ 요구 {labs} 항목은 라이브러리 미등록 부품이라 자리만 잡았어요"
+                 + ("" if provider() is not None else " — LLM 키 설정 시 자동 집필") + "\n") + reply
     if warnings:
         reply += "\n검증 경고: " + " / ".join(warnings[:4])
     yield {
@@ -1383,6 +1582,7 @@ async def _assembly_path(message: str, kind: str, points: int,
         "exam": {"kind": kind, "points": points, "topic": result["title"]},
         "library": True,
         "matched": matched,
+        "question": _qmeta(parsed),
         "llm_calls": llm_calls,
         "review": {"passed": not warnings, "warnings": warnings},
         "sheet": {"kind": kind, "points": points, "pages": vol["pages"],
@@ -1392,7 +1592,7 @@ async def _assembly_path(message: str, kind: str, points: int,
 
 
 async def _live_exam(message: str, kind: str, points: int,
-                     llm_calls: int) -> AsyncIterator[dict]:
+                     llm_calls: int, parsed: dict | None = None) -> AsyncIterator[dict]:
     """미적중 폴백 — 라이브 파이프라인 (설계1 + 초안1 + 채점1 + 보완1 + 재채점1 = 최대 5콜)."""
     topic = _subject_hint(message)
     is_terms = "1교시" in kind
@@ -1582,6 +1782,7 @@ async def _live_exam(message: str, kind: str, points: int,
         "reply": summary,
         "exam": {"kind": kind, "points": points, "topic": topic},
         "library": False,
+        "question": _qmeta(parsed),
         "llm_calls": llm_calls,
         "review": {"score": score, "rounds": rounds, "weak_points": weak,
                    "volume": {"lines": vol["lines"], "pages": vol["pages_frac"]}},

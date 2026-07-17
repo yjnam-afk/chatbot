@@ -134,13 +134,18 @@ def _t2(rows: list[dict], headers=("구분", "설명"), kws=None) -> str:
     return f'<table class="t2"><thead><tr>{th}</tr></thead><tbody>{"".join(trs)}</tbody></table>'
 
 
-def _tcmp(axes: list[dict], a_name: str, b_name: str) -> str:
-    trs = "".join(
-        f"<tr><td>{_esc(r.get('axis'))}</td><td>{_esc(r.get('a'))}</td><td>{_esc(r.get('b'))}</td></tr>"
-        for r in axes[:4]
-    )
+def _tcmp(axes: list[dict], a_name: str, b_name: str, auto_r2: bool = False,
+          max_rows: int = 4) -> str:
+    """비교표. auto_r2=True(요구 조립 경로 전용)면 셀이 손글씨 한 줄(환산 8자)을
+    넘는 행을 2줄 행(r2)으로 — 기존 호출(기본값)은 렌더 불변."""
+    trs = []
+    for r in axes[:max_rows]:
+        a, b = str(r.get("a") or ""), str(r.get("b") or "")
+        cls = ' class="r2"' if auto_r2 and max(_wlen(a), _wlen(b)) > 8 else ""
+        trs.append(f"<tr{cls}><td>{_esc(r.get('axis'))}</td>"
+                   f"<td>{_esc(a)}</td><td>{_esc(b)}</td></tr>")
     return (f'<table class="tcmp"><thead><tr><th>구분</th><th>{_esc(a_name)}</th>'
-            f"<th>{_esc(b_name)}</th></tr></thead><tbody>{trs}</tbody></table>")
+            f"<th>{_esc(b_name)}</th></tr></thead><tbody>{''.join(trs)}</tbody></table>")
 
 
 def _mutual_comparison(topics: list[dict]):
@@ -429,6 +434,425 @@ def assemble(question: str, kind: str, points: int, topics: list[dict],
         "slots": slots,
         "warnings": warnings,
     }
+
+
+# ================================================================ 요구 주도 조립
+# (docs/question-spec.md 2-2·2-3·2-5 — 2교시형 · 요구 2개 이상일 때만 사용.
+#  단순형(N=0~1)·1교시형은 위 assemble() 표준 구조를 그대로 쓴다.)
+
+from _question import clip_label, req_title  # noqa: E402  (순환 없음)
+
+_ROMAN = "ⅠⅡⅢⅣⅤⅥⅦ"
+
+# 슬롯 → 부품 대체 순서 (question-spec 2-2 표: 1순위 부재 시 경고 없이 강등)
+_SLOT_CHAIN = {
+    "definition_long": ("definition_long", "definition"),
+    "background": ("background", "definition_long", "definition"),
+    "components": ("components", "features"),
+    "diagram": ("diagram_html",),
+    "procedure": ("procedure", "components"),
+    "comparisons": ("comparisons",),
+    "usage": ("usage", "exam_points"),
+    "features": ("features", "components"),
+}
+
+# 분량 재배분 (2-5): 요구 수 → 요구 단락당 (최소, 최대) 줄 — 최소 7줄은 별도 보장
+_REQ_BOUNDS = {1: (18, 22), 2: (18, 22), 3: (13, 17), 4: (9, 12), 5: (9, 12)}
+
+
+def _block_ln(block: str) -> int:
+    """블록 1개의 점유 줄 수 — _agents._block_lines와 동일 규칙 (조립 시 예산 계측용)."""
+    b = block.lstrip().lower()
+    if b.startswith("<h2") or b.startswith("<h3"):
+        return 1
+    if b.startswith("<p"):
+        return 2 if 'class="def"' in b[:40] else 1
+    if b.startswith("<table"):
+        return (len(re.findall(r"<tr[\s>]", b))
+                + len(re.findall(r'<tr\s+class="r2"', b)))
+    if b.startswith("<div"):
+        head = b[:60]
+        if 'class="diagram d7"' in head:
+            return 7
+        if 'class="diagram"' in head:
+            return 6
+    return 1
+
+
+def _proc_table(proc: list[dict], kws=None, max_rows: int = 5) -> str:
+    """절차표 (t3 변형) — 구분열 'N단계' + 절차명 + 수행 내용 (스키마 v1.1)."""
+    rows = [{"role": f"{p.get('step')}단계", "name": p.get("name"),
+             "detail": p.get("desc")} for p in proc[:max_rows]]
+    return _t3(rows, r2=True, headers=("단계", "절차", "수행 내용"), kws=kws)
+
+
+def _sub_point_rows(rows: list[dict], sub_points: list[str], key: str = "role"):
+    """괄호 지정(sub_points)과 role이 맞는 행만 지정 순서로 — 표 구분열 반영 (2-2)."""
+    if not sub_points:
+        return None
+    out = []
+    for sp in sub_points:
+        spn = _norm(sp)
+        for r in rows:
+            rn = _norm(str(r.get(key) or ""))
+            if rn and (spn in rn or rn in spn) and r not in out:
+                out.append(r)
+    return out if len(out) >= max(2, len(sub_points) - 1) else None
+
+
+class _Ctx:
+    """조립 중 공유 상태 — 부품 중복 사용·개념도 총량(일도일표) 추적."""
+
+    def __init__(self):
+        self.used: set[tuple] = set()
+        self.diagrams = 0
+
+    def take(self, t: dict, field: str):
+        """부품이 있고 아직 안 썼으면 반환+사용 처리, 아니면 None."""
+        v = t.get(field)
+        key = (t.get("id"), field)
+        if not v or key in self.used:
+            return None
+        self.used.add(key)
+        return v
+
+
+def _req_h2_title(r: dict, t: dict) -> str:
+    """단락 제목 — 지문 어구 그대로 스탬프. 너무 짧으면 토픽명으로 보완."""
+    title = req_title(r)
+    s = short_name(t)
+    if len(title) <= 6 and s and _norm(s) not in _norm(title):
+        title = f"{s}의 {title}"
+    return title[:30]
+
+
+def _req_section(r: dict, ts: list[dict], primary: dict, bounds: tuple[int, int],
+                 ctx: _Ctx, warnings: list, first_of: dict) -> dict:
+    """요구 1건 → 단락 블록들. 반환 {title, blocks, lines, deficit}."""
+    bmin, bmax = bounds
+    t = ts[0] if ts else primary
+    kws = t.get("keywords") or []
+    title = _req_h2_title(r, t)
+    blocks: list[str] = [f"<h2>{_esc(title)}</h2>"]
+    lines = 1
+    s = short_name(t)
+
+    def add(html: str) -> bool:
+        nonlocal lines
+        ln = _block_ln(html)
+        if html and lines + ln <= bmax:
+            blocks.append(html)
+            lines += ln
+            return True
+        return False
+
+    def add_def(text, prefix="", quote=False):
+        if not text:
+            return False
+        return add(f'<p class="def">{prefix}{_emph(text, kws, quote=quote)}</p>')
+
+    def add_t2(rows, headers, h3=None):
+        if not rows:
+            return False
+        html = _t2(rows[:4], headers, kws=kws)
+        pre = f"<h3>{_esc(h3)}</h3>" if h3 else ""
+        ln = _block_ln(html) + (1 if pre else 0)
+        if lines + ln > bmax:
+            html = _t2(rows[:2], headers, kws=kws)  # 압축
+            if lines + _block_ln(html) + (1 if pre else 0) > bmax:
+                return False
+        if pre:
+            add(pre)
+        return add(html)
+
+    def add_t3(rows, h3, headers=("구분", "구성요소", "설명")):
+        if not rows:
+            return False
+        for n in (4, 3, 2):  # 9줄 상세표 → 7줄 압축표 순 시도 (2-5)
+            html = _t3(rows[:n], r2=True, headers=headers, kws=kws)
+            if lines + 1 + _block_ln(html) <= bmax:
+                add(f"<h3>{_esc(h3)}</h3>")
+                return add(html)
+        return False
+
+    def add_diagram(tp):
+        nonlocal lines
+        if ctx.diagrams >= 2 or lines + 8 > bmax:
+            return False
+        d = ctx.take(tp, "diagram_html")
+        if not d:
+            return False
+        ctx.diagrams += 1
+        add(f"<h3>{_esc(short_name(tp))}의 구성도</h3>")
+        blocks.append(d)  # 부품 HTML은 add() 계측을 우회하므로 직접 가산
+        lines += _block_ln(d)
+        add(f'<p class="gloss">{_esc(tp.get("diagram_gloss") or _auto_gloss(tp))}</p>')
+        return True
+
+    content0 = len(blocks)
+
+    # ---- 비교 요구 (verb=compare): 상호 comparisons → 자동 대비표 순
+    if r.get("verb") == "compare" or "comparisons" in (r.get("slots") or []):
+        a = ts[0] if ts else primary
+        b = ts[1] if len(ts) > 1 else None
+        if b is None and a.get("id") != primary.get("id"):
+            a, b = primary, a  # 지문에 한쪽만 언급 → 주 토픽과 짝
+        cmp_done = False
+        if b is not None:
+            # b가 이 답안 첫 등장이면 정의 1건 먼저 (지문 어구 아래 근거)
+            if first_of.get(b.get("id")) == r.get("label"):
+                add_def(ctx.take(b, "definition_long") or b.get("definition"),
+                        f"({_esc(short_name(b))} 정의) ")
+            mutual = _mutual_comparison([a, b])
+            if mutual:
+                base_t, c = mutual
+                other = b if base_t.get("id") == a.get("id") else a
+                add(f"<h3>{_esc(short_name(base_t))}와 {_esc(short_name(other))}의 비교</h3>")
+                cmp_done = add(_tcmp(c.get("axes") or [], short_name(base_t),
+                                     short_name(other), auto_r2=True))
+            else:
+                add(f"<h3>{_esc(short_name(a))}와 {_esc(short_name(b))}의 비교</h3>")
+                cmp_done = add(_tcmp(_auto_compare_axes(a, b), short_name(a),
+                                     short_name(b), auto_r2=True))
+                warnings.append(f"{short_name(a)}·{short_name(b)} 상호 비교 부품 없음 — "
+                                "features 자동 대비표 사용")
+        else:
+            cmp0 = (t.get("comparisons") or [None])[0]
+            if cmp0:
+                add(f'<h3>{_esc(s)}와 {_esc(cmp0.get("vs_name"))}의 비교</h3>')
+                cmp_done = add(_tcmp(cmp0.get("axes") or [], s,
+                                     cmp0.get("vs_name") or "", auto_r2=True))
+        if not cmp_done:
+            pass  # 아래 부족 판정으로
+    else:
+        # ---- 일반 요구: 슬롯 순서대로 부품 배치 (대체 순서 강등)
+        for slot in r.get("slots") or ["components"]:
+            for field in _SLOT_CHAIN.get(slot, (slot,)):
+                done = False
+                if field == "diagram_html":
+                    done = add_diagram(t)
+                elif field == "procedure":
+                    proc = ctx.take(t, "procedure")
+                    if proc:
+                        html = _proc_table(proc, kws=kws,
+                                           max_rows=5 if bmax - lines >= 12 else 4)
+                        if lines + 1 + _block_ln(html) <= bmax:
+                            add(f"<h3>{_esc(s)}의 절차</h3>")
+                            done = add(html)
+                        if not done:
+                            ctx.used.discard((t.get("id"), "procedure"))
+                elif field == "components":
+                    rows = ctx.take(t, "components")
+                    if rows:
+                        picked = _sub_point_rows(rows, r.get("sub_points") or []) or rows
+                        done = add_t3(picked, f"{s}의 구성요소")
+                elif field == "features":
+                    rows = ctx.take(t, "features")
+                    if rows:
+                        done = add_t2(rows, ("구분", "특징"), h3=f"{s}의 주요 특징")
+                elif field == "usage":
+                    rows = ctx.take(t, "usage")
+                    if rows:
+                        head = "활용방안" if r.get("verb") in ("propose", "apply") else "기대효과"
+                        done = add_t2(rows, (head, "설명"), h3=f"{s}의 {head}")
+                elif field == "exam_points":
+                    pts = ctx.take(t, "exam_points")
+                    if pts:
+                        rows = [{"item": f"포인트{i + 1}", "desc": p}
+                                for i, p in enumerate(pts[:3])]
+                        done = add_t2(rows, ("구분", "적용 포인트"))
+                elif field == "background":
+                    done = add_def(ctx.take(t, "background"), "(필요성) ")
+                elif field in ("definition_long", "definition"):
+                    done = add_def(ctx.take(t, field), "(정의) ", quote=True)
+                if done:
+                    break
+
+    deficit = len(blocks) == content0
+    if deficit:
+        # 부품 전멸 — 플레이스홀더 표 (키 있으면 조립 후 LLM 일괄 집필로 대체, 2-4)
+        blocks.append(
+            f'<table class="t2"><thead><tr><th>구분</th><th>내용</th></tr></thead><tbody>'
+            f'<tr><td>요구</td><td>{_esc(req_title(r)[:24])}</td></tr>'
+            f'<tr><td>안내</td><td>라이브러리 미등록 부품</td></tr></tbody></table>')
+        lines += 3
+        warnings.append(f"요구 '{req_title(r)[:16]}' 부품 없음 — 플레이스홀더")
+
+    # ---- 분량 미달 시 미사용 부품으로 보강 (문서 순서 고정 풀)
+    if not deficit:
+        pads = [
+            lambda: add_def(ctx.take(t, "definition_long")
+                            or (None if (t.get("id"), "definition_long") in ctx.used
+                                else ctx.take(t, "definition")), "(정의) ", quote=True),
+            lambda: add_t2(ctx.take(t, "features") or [], ("구분", "특징"),
+                           h3=f"{s}의 주요 특징"),
+            lambda: add_diagram(t),
+            lambda: add_t3(ctx.take(t, "components") or [], f"{s}의 구성요소"),
+            lambda: add_def(ctx.take(t, "background"), "(필요성) "),
+            lambda: add_t2(ctx.take(t, "usage") or [], ("기대효과", "설명"),
+                           h3=f"{s}의 기대효과"),
+            lambda: add_def(ctx.take(t, "components_gloss")),
+        ]
+        for pad in pads:
+            if lines >= bmin:
+                break
+            pad()
+
+    return {"title": title, "blocks": blocks, "lines": lines,
+            "deficit": deficit, "label": r.get("label")}
+
+
+def _dyn_intro(primary: dict, hub: str, labels: list[str], warnings: list) -> list[str]:
+    """서론 동적 로드맵 (Type IV, 2-3) — d-box 라벨 = 요구 단락 제목 요약(12자 절삭)."""
+    s = short_name(primary)
+    cat = str(primary.get("category") or "")
+    if "보안" in cat or "sec" in cat.lower():
+        h2 = f"{s}의 중요성 및 개요"  # Type III 리드문 제목 차용
+    else:
+        h2 = f"{s}의 개요"
+    boxes = "".join(
+        f'<div class="d-box soft">{_esc(lab)}<small>{_ROMAN[i + 1]} 단락</small></div>'
+        for i, lab in enumerate(labels))
+    goal = ((primary.get("usage") or [{}])[0].get("item") or "활용·기대효과")
+    d7 = (f'<div class="diagram d7">'
+          f'<div class="d-box d-hub">{_esc(hub[:12])}</div>'
+          f'<span class="d-arrow">→</span><span class="d-sep"></span>'
+          f'<div class="d-col">{boxes}</div>'
+          f'<span class="d-sep"></span><span class="d-arrow">→</span>'
+          f'<div class="d-box">{_esc(str(goal)[:12])}<small>물어본 순서 목차</small></div>'
+          f"</div>")
+    parts = [f"<h2>{_esc(h2)}</h2>", d7]
+    kws = primary.get("keywords") or []
+    d = primary.get("definition_long") or primary.get("definition")
+    if d:
+        parts.append(f'<p class="def">(정의) {_emph(d, kws, quote=True)}</p>')
+    else:
+        warnings.append("서론 정의 부품 없음")
+    if primary.get("background"):
+        parts.append(f'<p class="def">(필요성) {_emph(primary["background"], kws, limit=1)}</p>')
+    return parts
+
+
+def assemble_requirements(question: str, kind: str, points: int, parsed: dict,
+                          assignments: list[list[dict]],
+                          extra_sections: dict[str, str] | None = None) -> dict:
+    """요구사항 리스트 → 단락 가변 조립 (2교시형 · N>=2 전용, LLM 0콜).
+
+    - parsed: _question.parse_question 결과 / assignments: 요구별 토픽 dict 목록
+    - extra_sections: 요구 label → LLM이 집필한 단락 내부 프래그먼트 (부족 슬롯 1콜 결과,
+      h2는 서버가 지문 어구로 스탬프하므로 h2 없는 내부 블록만)
+    반환: assemble()과 동일 + deficits(부족 요구 목록)·roadmap(박스 라벨 목록)
+    """
+    extra_sections = extra_sections or {}
+    reqs = parsed.get("requirements") or []
+    n = len(reqs)
+    warnings: list[str] = []
+    ctx = _Ctx()
+
+    # 주 토픽 = 첫 배정 토픽. 배정 없는 요구는 주 토픽으로 조립
+    primary = next((ts[0] for ts in assignments if ts), None)
+    if primary is None:
+        raise ValueError("assignments에 토픽 없음")
+    topics_seen: list[dict] = []
+    for ts in assignments:
+        for t in ts or []:
+            if all(t.get("id") != x.get("id") for x in topics_seen):
+                topics_seen.append(t)
+
+    # 요구별 토픽 첫 등장 라벨 (비교 단락의 상대 정의 배치용)
+    first_of: dict[str, str] = {}
+    for r, ts in zip(reqs, assignments):
+        for t in ts or []:
+            first_of.setdefault(t.get("id"), r.get("label"))
+
+    # 서론 로드맵 허브: 리드 주제어(시나리오·리드에 담긴 물음 대상)가 짧으면 그것, 아니면 주 토픽
+    hub = short_name(primary)
+    m = re.match(r"\s*([A-Za-z0-9·\s가-힣]{2,12})(?:에\s*대(?:하여|해)|의|을|를|은|는)\s",
+                 question or "")
+    if m and not re.search(r"다음|아래", m.group(1)):
+        hub = m.group(1).strip() or hub
+
+    bounds = _REQ_BOUNDS.get(n, _REQ_BOUNDS[5])
+    bounds = (max(bounds[0], 7), bounds[1])  # 요구당 최소 7줄 보장
+
+    # ---- 요구 단락들
+    sections: list[dict] = []
+    for i, (r, ts) in enumerate(zip(reqs, assignments)):
+        b = bounds
+        if n >= 3 and i == n - 1:
+            b = (bounds[0], max(7, bounds[1] - 2))  # 마지막 단락 말미 결론 2줄 자리
+        sec = _req_section(r, ts or [], primary, b, ctx, warnings, first_of)
+        if sec["deficit"] and sec["label"] in extra_sections:
+            frag = extra_sections[sec["label"]]
+            sec["blocks"] = [sec["blocks"][0], frag]  # h2(지문 스탬프) + LLM 프래그먼트
+            sec["lines"] = 1 + sum(_block_ln(b2) for b2 in _split_blocks_frag(frag))
+            sec["deficit"] = False
+            warnings[:] = [w for w in warnings
+                           if not w.startswith(f"요구 '{req_title(r)[:16]}'")]
+        sections.append(sec)
+
+    # ---- 결론 (2-2 표): N=2 → Ⅳ 결론 단락 / N>=3 → 마지막 단락 말미 2줄
+    concl_t = next((t for t in topics_seen if t.get("conclusion")), None)
+    if n <= 2:
+        blocks = ["<h2>결론 및 기대효과</h2>"]
+        rows = ctx.take(primary, "usage") or ctx.take(primary, "exam_points")
+        if rows and isinstance(rows[0], str):
+            rows = [{"item": f"포인트{i + 1}", "desc": p} for i, p in enumerate(rows[:3])]
+        if rows:
+            blocks.append(_t2(rows[:3], ("기대효과", "설명"), kws=primary.get("keywords")))
+        if concl_t:
+            blocks.append(f'<p class="def">{_emph(concl_t["conclusion"], concl_t.get("keywords"), limit=1)}</p>')
+        if len(blocks) > 1:
+            sections.append({"title": "결론 및 기대효과", "blocks": blocks,
+                             "lines": sum(_block_ln(b2) for b2 in blocks),
+                             "deficit": False, "label": None})
+    elif concl_t:
+        sections[-1]["blocks"].append(
+            f'<p class="def">{_emph(concl_t["conclusion"], concl_t.get("keywords"), limit=1)}</p>')
+        sections[-1]["lines"] += 2
+
+    # ---- 서론 (요구 단락 제목 확정 후 로드맵 라벨 생성 — 박스 텍스트 ⊂ h2 제목)
+    labels = [clip_label(sec["title"]) for sec in sections[:n]]
+    parts: list[str] = ['<p class="ans">답)</p>']
+    parts.extend(_dyn_intro(primary, hub, labels, warnings))
+    for sec in sections:
+        parts.extend(sec["blocks"])
+
+    names = [short_name(t) for t in topics_seen[:3]]
+    deficits = [
+        {"label": sec["label"], "title": sec["title"],
+         "text": reqs[i]["text"], "sub_points": reqs[i]["sub_points"],
+         "keywords": ((assignments[i] or [primary])[0].get("keywords") or [])[:5]}
+        for i, sec in enumerate(sections[:n]) if sec["deficit"]
+    ]
+    return {
+        "body": "\n".join(parts),
+        "title": " · ".join(names) if len(names) > 1 else (names[0] if names else hub),
+        "mnemonic_html": _mnemonic_lines(topics_seen),
+        "slots": 1 + len(sections),
+        "warnings": warnings,
+        "deficits": deficits,
+        "roadmap": labels,
+    }
+
+
+def _split_blocks_frag(html: str) -> list[str]:
+    """LLM 프래그먼트의 최상위 블록 분해 (줄 수 계측용 — 단순 태그 경계)."""
+    return re.findall(r"<(?:h3|p|table|div)\b.*?</(?:h3|p|table|div)>|<(?:h3|p)\b[^>]*>[^<]*",
+                      html or "", re.S) or ([html] if html else [])
+
+
+def _mnemonic_lines(topics: list[dict]) -> str:
+    """두문자 암기 박스 — 토픽별 병렬 (assemble()과 동일 규칙)."""
+    mn_lines = []
+    for t in topics[:2]:
+        mn = t.get("mnemonic") or {}
+        word = str(mn.get("word") or "").strip()
+        exp = " · ".join(str(e) for e in (mn.get("expansion") or [])[:5])
+        if word or exp:
+            mn_lines.append(f"<p><b>{_esc(word or short_name(t))}</b> — {_esc(exp)}</p>")
+    return ("\n    ".join(mn_lines)
+            or "<p><b>핵심 키워드</b> — 소제목 첫 글자를 이어 암기하세요.</p>")
 
 
 def split_subjects(question: str) -> list[str]:
