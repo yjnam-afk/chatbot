@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>기술사 답안 사무소 — 프론트 UI 목업 (시험장 책상 + 답안 서랍)</title>
+<title>기술사 답안 사무소 — UI 목업 v2 (레일 재정의)</title>
 <style>
 /* ================================================================
-   프론트 UI 목업 — docs/front-ui-spec.md 의 정적 시연
-   B(시험장 책상) 뼈대 + A(토픽 서랍) 좌측 탭. 팀 보드 없음.
-   상태: 2교시형 답안 작성 완료 직후 시점.
+   목업 v2 — docs/ui-audit.md 반영판
+   변경: 진행 3단계 제거 → [답안] 탭(구성 요약·두문자·분량·인쇄) /
+   상태 한 줄 / 빈 무대 = 실제 답안지 1쪽 미리보기 / 배지·메타 수험생 언어.
    ================================================================ */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -16,159 +16,117 @@
   --accent: #2f9e63; --accent-dark: #257f4f; --accent-soft: #e7f5ec;
   --amber: #f2b544; --radius: 18px;
   --shadow: 0 1px 2px rgba(20,30,22,.05), 0 10px 30px rgba(20,30,22,.07);
-  --desk: #e6e5e0;
+  --desk: #e6e5e0; --ink: #1c2f4a; --rule: #c5cedd;
 }
 body {
   background: var(--bg); color: var(--text);
-  font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
-  height: 100vh; display: flex; flex-direction: column; letter-spacing: -0.01em;
+  font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", system-ui, sans-serif;
+  height: 100vh; display: flex; flex-direction: column; letter-spacing: -0.01em; overflow: hidden;
 }
 
-/* ---------------- 헤더 + 문제 입력 ---------------- */
+/* ---------------- 헤더 ---------------- */
 header {
   padding: 12px 28px 14px;
-  background: rgba(255,255,255,.85); backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--line);
+  background: rgba(255,255,255,.85); border-bottom: 1px solid var(--line);
   display: grid; grid-template-columns: auto 1fr auto; gap: 10px 24px; align-items: center;
 }
 .brand { display: flex; align-items: center; gap: 12px; }
 .brand .logo { width: 42px; height: 42px; display: grid; place-items: center; font-size: 22px; background: var(--accent-soft); border-radius: 12px; }
 .brand h1 { font-size: 16.5px; font-weight: 700; }
 .brand p { font-size: 12px; color: var(--muted); margin-top: 1px; }
-.badge { font-size: 12px; font-weight: 600; padding: 7px 14px; background: var(--accent-soft); border-radius: 999px; color: var(--accent-dark); display: inline-flex; align-items: center; gap: 7px; }
-.badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: blink 1.8s infinite; }
-@keyframes blink { 50% { opacity: .3; } }
-
-.ask { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; }
-.ask input {
-  flex: 1; border: 1.5px solid var(--line); border-radius: 12px; padding: 11px 16px;
-  font: inherit; font-size: 14px; background: #fff; outline: none;
+/* 배지: 내부 사정("데모/LLM 키") 노출 금지 — 수험생 언어 + 무게 축소 */
+.badge { justify-self: end; font-size: 11.5px; font-weight: 600; padding: 5px 12px; background: var(--accent-soft); border-radius: 999px; color: var(--accent-dark); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.ask { grid-column: 1 / -1; display: flex; gap: 10px; align-items: stretch; }
+.ask textarea {
+  flex: 1; border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 16px;
+  font: inherit; font-size: 14px; line-height: 1.55; resize: none; outline: none;
+  min-height: calc(4 * 1.55em + 20px); /* rows=4 — placeholder 4줄이 잘리지 않게 (감사 항목) */
 }
-.ask input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
-.ask button { border: none; border-radius: 12px; background: var(--accent); color: #fff; font: inherit; font-weight: 700; font-size: 14px; padding: 0 22px; align-self: stretch; cursor: pointer; }
-.ask button:hover { background: var(--accent-dark); }
-.askmeta { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.kinds { display: flex; gap: 6px; }
+.ask textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
+.ask button { border: none; border-radius: 12px; background: var(--accent); color: #fff; font: inherit; font-weight: 700; font-size: 14px; padding: 0 20px; cursor: pointer; }
+.askmeta { grid-column: 1 / -1; display: flex; gap: 6px; }
 .kchip { font-size: 11.5px; font-weight: 600; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
 .kchip.on { background: var(--text); border-color: var(--text); color: #fff; }
-.resultline { font-size: 12px; color: var(--muted); }
-.resultline b { color: var(--accent-dark); }
 
 /* ---------------- 작업대 ---------------- */
-main.workbench { flex: 1; display: flex; min-height: 0; }
+main { flex: 1; display: flex; min-height: 0; }
+.rail { width: 248px; flex: none; padding: 14px; border-right: 1px solid var(--line); background: #fbfcf9; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
 
-/* 좌측 레일 */
-.rail { width: 248px; flex: none; padding: 16px 14px; border-right: 1px solid var(--line); background: #fbfcf9; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
-.rail-tabs { display: flex; background: #f0f1ec; border-radius: 10px; padding: 3px; }
-.rail-tabs button { flex: 1; border: none; background: none; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--muted); padding: 7px 0; border-radius: 8px; cursor: pointer; }
+/* 상태 한 줄 — 평시 숨김, 폴백/오류/미적중에만 (목업: 하단 메모에서 토글) */
+.statusline { display: none; font-size: 12px; font-weight: 600; color: #9a7218; background: #faf3df; border-radius: 10px; padding: 7px 12px; }
+.statusline.show { display: block; }
+.statusline.err { color: #c2453e; background: #fdecec; }
+
+.rail-tabs { display: flex; background: #f0f1ec; border-radius: 10px; padding: 3px; flex: none; }
+.rail-tabs button { flex: 1; border: none; background: none; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--muted); padding: 7px 0; border-radius: 8px; cursor: pointer; white-space: nowrap; }
 .rail-tabs button.on { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(20,30,22,.08); }
 
-/* 진행 3단계 */
-.step { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
-.step .top { display: flex; align-items: center; gap: 8px; }
-.step .name { font-size: 13px; font-weight: 700; flex: 1; }
-.step .st { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #f0f1ec; color: var(--muted); white-space: nowrap; }
-.step.done { border-color: color-mix(in srgb, var(--accent) 45%, #fff); }
-.step.done .st { background: var(--accent-soft); color: var(--accent-dark); }
-.step.done .st::after { content: " ✓"; }
-.step .cap { margin-top: 6px; font-size: 11.5px; color: var(--muted); line-height: 1.5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.step .t { float: right; font-size: 10.5px; color: #b5bbb1; }
+.rcard { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 11px 12px; }
+.rcard h4 { font-size: 11.5px; color: var(--muted); font-weight: 600; margin-bottom: 7px; }
 
-/* 분량 게이지 */
-.gauge { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
-.gauge h4 { font-size: 11.5px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+/* ① 답안 구성 요약 — h2 목차(출제 포인트) + 적중 토픽. 클릭=해당 쪽 스크롤 */
+.sum-line { font-size: 12px; color: var(--muted); margin-bottom: 8px; line-height: 1.55; }
+.sum-line b { color: var(--accent-dark); }
+.toc { display: flex; flex-direction: column; gap: 2px; }
+.toc button {
+  display: flex; gap: 8px; align-items: baseline; text-align: left;
+  border: none; background: none; font: inherit; font-size: 12.5px; color: var(--text);
+  padding: 5px 8px; border-radius: 8px; cursor: pointer; line-height: 1.4; width: 100%;
+}
+.toc button:hover { background: #f0f1ec; }
+.toc .n { flex: none; font-weight: 700; color: var(--accent-dark); font-size: 11.5px; width: 18px; }
+.toc .pg { margin-left: auto; flex: none; font-size: 10.5px; color: #b5bbb1; }
+
+/* ② 두문자 카드 */
+.mn-word { display: inline-block; font-size: 12px; font-weight: 700; color: #b45309; background: #fef3c7; border-radius: 6px; padding: 2px 9px; margin-bottom: 5px; }
+.mn-exp { font-size: 11.5px; color: var(--muted); line-height: 1.55; }
+
+/* ③ 분량 게이지 */
 .gbar { height: 7px; background: #eceee7; border-radius: 999px; overflow: hidden; margin-bottom: 7px; }
-.gbar i { display: block; height: 100%; width: 81%; background: linear-gradient(90deg, var(--accent), #6fc890); border-radius: 999px; transition: width .6s; }
-.gauge .gv { font-size: 12.5px; } .gauge .gv b { color: var(--accent-dark); }
+.gbar i { display: block; height: 100%; width: 81%; background: linear-gradient(90deg, var(--accent), #6fc890); border-radius: 999px; }
+.gv { font-size: 12.5px; } .gv b { color: var(--accent-dark); }
 
-/* 내보내기 */
+/* ④ 내보내기 — disabled는 회색(감사 항목) */
 .exports { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .exports button { font: inherit; font-size: 12.5px; font-weight: 600; padding: 9px 0; border-radius: 10px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
 .exports button.pri { grid-column: 1 / -1; background: var(--accent); border-color: var(--accent); color: #fff; }
-.exports button.pri:hover { background: var(--accent-dark); }
-.exports button:not(.pri):hover { background: #f0f1ec; }
+.exports button:disabled { background: #f0f1ec; border-color: var(--line); color: #b5bbb1; cursor: default; }
 
-/* 토픽 서랍 탭 */
-.drawer { display: none; flex-direction: column; gap: 10px; }
-.drawer.show { display: flex; }
-.dsearch { border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 12px; font: inherit; font-size: 12.5px; outline: none; }
-.folder { display: flex; justify-content: space-between; font-size: 12.5px; padding: 7px 10px; border-radius: 8px; cursor: pointer; color: var(--text); }
-.folder:hover { background: #f0f1ec; }
-.folder.open { background: var(--accent-soft); color: var(--accent-dark); font-weight: 700; }
-.folder .n { color: #9ca3af; font-weight: 400; }
-.tcard { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; transition: border-color .2s, box-shadow .2s; }
-.tcard:hover { border-color: color-mix(in srgb, var(--accent) 55%, #fff); box-shadow: var(--shadow); }
-.tcard h5 { font-size: 13.5px; }
-.tcard .mn { display: inline-block; font-size: 10.5px; font-weight: 600; color: #b45309; background: #fef3c7; border-radius: 6px; padding: 2px 8px; margin: 5px 0 4px; }
-.tcard p { font-size: 11.5px; color: var(--muted); line-height: 1.55; }
-.tcard .acts { display: flex; gap: 5px; margin-top: 8px; }
-.tcard .acts button { font: inherit; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
-.tcard .acts button:hover { border-color: var(--accent); color: var(--accent-dark); }
-
-/* ---------------- 무대(답안지) ---------------- */
+/* ---------------- 무대 ---------------- */
 .stage { flex: 1; background: var(--desk); overflow-y: auto; padding: 26px 20px 60px; }
-.sheet {
-  width: min(720px, 100%); margin: 0 auto; background: #fdfdfa;
-  border: 1px solid #c9c5ba; box-shadow: 0 2px 18px rgba(40,40,30,.14);
-  font-family: "Noto Serif KR", "Nanum Myeongjo", Batang, serif;
-  color: #1c2f4a; --slh: 27px; font-size: 12.5px; word-break: keep-all;
-}
+.sheet { width: min(720px, 100%); margin: 0 auto; background: #fdfdfa; border: 1px solid #c9c5ba;
+  box-shadow: 0 2px 18px rgba(40,40,30,.14); font-family: "Noto Serif KR", "Nanum Myeongjo", Batang, serif;
+  color: var(--ink); --slh: 27px; font-size: 12.5px; word-break: keep-all; }
 .sh-head { height: var(--slh); display: flex; align-items: center; font-family: system-ui, sans-serif; font-size: 10px; color: #3d4148; border-bottom: 2px solid #9db0c8; }
 .sh-head .b1 { width: 74px; text-align: center; border-right: 1px solid #9db0c8; letter-spacing: .3em; }
 .sh-head .b2 { flex: 1; text-align: center; letter-spacing: .2em; }
 .sh-head .b3 { width: 74px; text-align: center; border-left: 1px solid #9db0c8; }
-.sh-q { padding: 8px 16px 6px; border-bottom: 2px solid #9db0c8; font-family: system-ui, sans-serif; color: #3d4148; }
-.sh-q .r1 { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; font-weight: 700; }
+.sh-q { padding: 8px 16px 6px; border-bottom: 2px solid #9db0c8; font-family: system-ui, sans-serif; color: #3d4148; min-height: 74px; }
+.sh-q .r1 { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; }
 .sh-q .pts { font-size: 10px; border: 1px solid #3d4148; border-radius: 2px; padding: 1px 8px; }
 .sh-q p { font-size: 11.5px; margin-top: 4px; }
-.sh-body {
-  position: relative; padding: 0 14px 0 46px;
-  background: repeating-linear-gradient(to bottom, transparent 0 calc(var(--slh) - 1px), #c5cedd calc(var(--slh) - 1px) var(--slh));
-}
+.sh-body { position: relative; padding: 0 14px 0 46px;
+  background: repeating-linear-gradient(to bottom, transparent 0 calc(var(--slh) - 1px), var(--rule) calc(var(--slh) - 1px) var(--slh)); }
 .sh-body::before { content: ""; position: absolute; left: 36px; top: 0; bottom: 0; width: 1px; background: #9db0c8; }
 .sh-body > * { line-height: var(--slh); }
 .sh-body .h2 { font-weight: 700; }
-.sh-body .h3 { font-weight: 700; padding-left: 14px; }
-.sh-body u { text-underline-offset: 4px; }
-.sh-body .def { min-height: calc(2 * var(--slh)); padding-left: 14px; }
-.dia { border: 1.5px solid #1c2f4a; display: flex; align-items: center; justify-content: center; gap: 14px; overflow: hidden; }
-.dia.h7 { height: calc(7 * var(--slh)); }
-.dcol { display: flex; flex-direction: column; align-items: center; gap: 7px; }
-.dbox { border: 1.5px solid #1c2f4a; background: #fff; padding: 2px 10px; font-size: 11px; font-weight: 700; text-align: center; line-height: 1.35; }
-.dbox.soft { border-style: dashed; border-width: 1px; font-weight: 400; }
-.dbox.hub { border-width: 2.5px; padding: 7px 14px; font-size: 12.5px; }
-.dcircle { width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid #1c2f4a; background: #fff; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 9px; line-height: 1.2; padding: 3px; }
-.dsep { align-self: stretch; border-left: 1px dashed #1c2f4a; margin: 8px 0; }
-.darr { font-weight: 700; font-size: 13px; }
+.sh-body .def { padding-left: 14px; }
 .sh-more { text-align: center; font-family: system-ui, sans-serif; font-size: 11px; color: var(--muted); padding: 14px 0 4px; }
 
-/* ---------------- 대화 도크 ---------------- */
-.dock { position: fixed; right: 22px; bottom: 22px; z-index: 30; font-size: 13px; }
-.dock-pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 10px 18px; font: inherit; font-weight: 700; cursor: pointer; box-shadow: var(--shadow); }
-.dock-pill .bdg { background: var(--accent); color: #fff; font-size: 10.5px; border-radius: 999px; padding: 1px 7px; }
-.dock-panel { display: none; width: 340px; height: 420px; background: #fff; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 14px 44px rgba(20,30,22,.18); flex-direction: column; overflow: hidden; }
-.dock.open .dock-panel { display: flex; }
-.dock.open .dock-pill { display: none; }
-.dock-head { display: flex; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 13px; }
-.dock-head button { margin-left: auto; border: none; background: none; font-size: 15px; color: var(--muted); cursor: pointer; }
-.dock-msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 9px; }
-.msg { max-width: 88%; padding: 9px 13px; border-radius: 14px; line-height: 1.6; font-size: 13px; }
-.msg.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
-.msg.bot { align-self: flex-start; background: #f4f5f0; border-bottom-left-radius: 4px; }
-.msg.sys { align-self: center; font-size: 11.5px; color: var(--muted); background: none; padding: 0; }
-.dock-hint { padding: 9px 14px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--muted); background: #fbfcf9; }
+/* 빈 상태: 실제 답안지 1쪽 미리보기 (감사 §1 무대 — 각진 종이톤 안내) */
+.ghost { color: #b0b8c6; }
+.empty-note { margin: calc(2 * var(--slh)) auto; width: max-content; max-width: 90%;
+  background: #fdfdfa; border: 1px dashed #9db0c8; padding: 18px 26px; text-align: center;
+  font-family: system-ui, sans-serif; }
+.empty-note .t1 { font-size: 18px; font-weight: 700; color: #3d4148; line-height: 1.5; }
+.empty-note .t2 { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
+.empty-note .exs { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.empty-note .exs button { font: inherit; font-size: 12.5px; font-weight: 600; padding: 9px 14px;
+  border: 1px solid var(--line); background: #fff; cursor: pointer; }
+.empty-note .exs button:hover { border-color: var(--accent); }
 
-/* ---------------- 반응형 ---------------- */
-@media (max-width: 1000px) {
-  main.workbench { flex-direction: column; }
-  .rail { width: 100%; flex-direction: row; align-items: stretch; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--line); }
-  .rail > * { flex: none; }
-  .step { width: 168px; } .step .cap { display: none; }
-  .gauge { width: 190px; } .exports { grid-auto-flow: column; }
-  .drawer.show { flex-direction: row; }
-  .dock { right: 0; bottom: 0; left: 0; }
-  .dock-panel { width: 100%; border-radius: 16px 16px 0 0; }
-}
+.mock-note { max-width: 720px; margin: 22px auto 0; font-family: system-ui, sans-serif; font-size: 12px; color: #666; line-height: 1.7; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
 </style>
 </head>
 <body>
@@ -182,148 +140,110 @@ main.workbench { flex: 1; display: flex; min-height: 0; }
     </div>
   </div>
   <span></span>
-  <span class="badge">LIVE · groq · llama-3.3-70b</span>
+  <span class="badge">등록 토픽 즉시 조립</span>
   <div class="ask">
-    <input value="ITSM(IT Service Management)의 검토 모델과 성공적 구축을 위한 요건에 대하여 설명하시오. (25점)">
-    <button>작성</button>
+    <textarea placeholder="실전 문항을 통째로 붙여넣으세요 (Ctrl+Enter 제출) — 예)
+클라우드 전환에 따라 ITSM 도입을 검토 중이다. 다음에 대하여 설명하시오. (25점)
+가. ITSM의 검토 모델과 구성요소
+나. 성공적 구축을 위한 요건"></textarea>
+    <button>답안지<br>작성</button>
   </div>
   <div class="askmeta">
-    <div class="kinds">
-      <button class="kchip on">자동 판별</button>
-      <button class="kchip">1교시형</button>
-      <button class="kchip">2교시형</button>
-    </div>
-    <span class="resultline">서술형 25점 · 라이브러리 적중 <b>1건 (ITSM)</b> · LLM 0콜 · 1.8초</span>
+    <button class="kchip on">자동 판별</button>
+    <button class="kchip">1교시형</button>
+    <button class="kchip">2교시형</button>
   </div>
 </header>
 
-<main class="workbench">
-  <!-- ==================== 좌측 레일 ==================== -->
+<main>
+  <!-- ============ 레일 v2: 진행 3단계 없음 ============ -->
   <aside class="rail">
+    <div class="statusline" id="status">미등록 토픽 — AI 예비 작성 중…</div>
+
     <div class="rail-tabs">
-      <button class="on" id="tabP">진행</button>
-      <button id="tabD">토픽 서랍</button>
+      <button class="on">답안</button>
+      <button>토픽 서랍</button>
     </div>
 
-    <!-- 탭 ① 진행 -->
-    <div id="paneP" style="display:flex;flex-direction:column;gap:12px">
-      <div class="step done">
-        <div class="top"><span>🔍</span><span class="name">토픽 검색</span><span class="st">완료</span></div>
-        <div class="cap">라이브러리 1건 적중: ITSM <span class="t">0.2초</span></div>
-      </div>
-      <div class="step done">
-        <div class="top"><span>📄</span><span class="name">조립</span><span class="st">완료</span></div>
-        <div class="cap">2교시형 슬롯 6개에 부품 배치 <span class="t">0.9초</span></div>
-      </div>
-      <div class="step done">
-        <div class="top"><span>✅</span><span class="name">검증</span><span class="st">완료</span></div>
-        <div class="cap">필수 섹션·암기박스 확인, 통과 <span class="t">0.1초</span></div>
-      </div>
-      <div class="gauge">
-        <h4>분량</h4>
-        <div class="gbar"><i></i></div>
-        <div class="gv"><b>3쪽 19줄</b> / 목표 3.5매</div>
-      </div>
-      <div class="exports">
-        <button class="pri">🖨️ 인쇄</button>
-        <button>PDF</button><button>HTML</button>
-        <button>새 탭</button><button>암기카드</button>
+    <!-- ① 답안 구성 요약: 결과 메타(수험생 언어) + h2 목차 + 쪽 이동 -->
+    <div class="rcard">
+      <h4>이번 답안</h4>
+      <div class="sum-line">2교시형(서술) 25점 · 적중 <b>SLA, SLM</b> · 즉시 조립 0.7초</div>
+      <div class="toc">
+        <button><span class="n">Ⅰ</span>SLA와 SLM의 개요<span class="pg">1쪽</span></button>
+        <button><span class="n">Ⅱ</span>SLA와 SLM의 구성<span class="pg">1쪽</span></button>
+        <button><span class="n">Ⅲ</span>SLA와 SLM의 비교<span class="pg">2쪽</span></button>
+        <button><span class="n">Ⅳ</span>활용방안 및 전망<span class="pg">3쪽</span></button>
       </div>
     </div>
 
-    <!-- 탭 ② 토픽 서랍 -->
-    <div class="drawer" id="paneD">
-      <input class="dsearch" placeholder="토픽 검색 (이름·두문자·정의)">
-      <div>
-        <div class="folder"><span>📁 경영전략</span><span class="n">29</span></div>
-        <div class="folder open"><span>📂 ITSM / 거버넌스</span><span class="n">18</span></div>
-        <div class="folder"><span>📁 보안</span><span class="n">31</span></div>
-        <div class="folder"><span>📁 데이터베이스</span><span class="n">24</span></div>
-      </div>
-      <div class="tcard">
-        <h5>ITSM</h5>
-        <div class="mn">암기 평·품·서·베</div>
-        <p>고객 요구에 맞게 SLA 기반 고품질 IT 서비스를 제공하는 관리체계</p>
-        <div class="acts"><button>📝 1교시형</button><button>📄 2교시형</button></div>
-      </div>
-      <div class="tcard">
-        <h5>SLA / SLM</h5>
-        <div class="mn">암기 기·소·카</div>
-        <p>서비스 수준을 정량 합의한 계약과 그 이행 관리 체계</p>
-        <div class="acts"><button>📝 1교시형</button><button>📄 2교시형</button></div>
-      </div>
+    <!-- ② 두문자 -->
+    <div class="rcard">
+      <h4>두문자 암기</h4>
+      <span class="mn-word">기·소·카 메·오·메·보</span>
+      <p class="mn-exp">기본계약서 · 서비스 카탈로그 · 메트릭 · SLO · 메저먼트 · 보상체계</p>
+    </div>
+
+    <!-- ③ 분량 -->
+    <div class="rcard">
+      <h4>분량</h4>
+      <div class="gbar"><i></i></div>
+      <div class="gv"><b>3쪽 18줄</b> / 목표 3.5매</div>
+    </div>
+
+    <!-- ④ 인쇄 -->
+    <div class="exports">
+      <button class="pri">🖨️ 인쇄</button>
+      <button>PDF</button><button>HTML</button>
+      <button>새 탭</button><button disabled>암기카드</button>
     </div>
   </aside>
 
-  <!-- ==================== 무대: 답안지 ==================== -->
-  <!-- 실제 구현은 artifact.html 을 <iframe sandbox srcdoc> 렌더. 목업은 1쪽 축약 인라인. -->
+  <!-- ============ 무대 ============ -->
   <section class="stage">
+    <!-- 결과 상태 -->
     <div class="sheet">
       <div class="sh-head"><span class="b1">번 호</span><span class="b2">기 술 사 답 안 지 (제 2 교 시 형)</span><span class="b3">1 쪽</span></div>
       <div class="sh-q">
-        <div class="r1"><span>문 2) ITSM 검토 모델, 성공 구축 요건</span><span class="pts">서술형 · 25점</span></div>
-        <p>ITSM(IT Service Management)의 검토 모델과 성공적 구축을 위한 요건에 대하여 설명하시오.</p>
+        <div class="r1"><span>문 2) SLA · SLM</span><span class="pts">2교시형(서술) · 25점</span></div>
+        <p>SLA와 SLM을 비교하여 설명하시오. (25점)</p>
       </div>
       <div class="sh-body">
         <p style="font-weight:700">답)</p>
-        <p class="h2">Ⅰ. 고품질 IT 서비스 제공을 위한 ITSM의 개요</p>
-        <div class="dia h7">
-          <div class="dcol">
-            <div class="dcircle">IT 품질<br>요구 증대</div>
-            <div class="dcircle">운영 표준<br>부재</div>
-            <div class="dcircle">고객 요구<br>다양화</div>
-          </div>
-          <span class="dsep"></span>
-          <span class="darr">→</span>
-          <div class="dcol">
-            <div class="dbox hub">ITSM 도입</div>
-            <div class="dbox soft">검토 모델 4종 (Ⅱ)</div>
-            <div class="dbox soft">성공 구축 요건 (Ⅲ)</div>
-          </div>
-          <span class="darr">→</span>
-          <span class="dsep"></span>
-          <div class="dbox">고품질 IT 서비스</div>
-        </div>
-        <p class="def">(정의) IT 서비스 제공에 있어 고객 요구사항에 맞게 <u>SLA 기반</u>의 "고품질 서비스"를 제공하는 <u>관리 체계</u></p>
-        <p class="def">(필요성) 서비스 <u>품질의 정량 관리</u>, 표준 프로세스 기반의 안정적 운영, 고객 만족 확보</p>
-        <div style="height:var(--slh)"></div>
-        <p class="h2">Ⅱ. ITSM의 구성도 및 구성요소</p>
-        <p class="h3">가. ITSM의 구성도 (검토 모델)</p>
-        <div style="height:var(--slh)"></div>
+        <p class="h2">Ⅰ. SLA와 SLM의 개요</p>
+        <p class="def">(정의) IT서비스 제공자와 사용자 간 서비스 수준을 정량 합의한 계약서…</p>
+        <p class="def ghost">… (이하 실제 답안 — 레일 목차 클릭 시 해당 쪽으로 스크롤)</p>
       </div>
     </div>
-    <p class="sh-more">⌄ 2쪽 · 3쪽 계속 (실제 구현: iframe 연속 렌더, 페이지 스크롤 하나)</p>
+
+    <!-- 빈 상태 무대 발췌: 맨 괘선 아님 — 실제 답안지 1쪽 미리보기 -->
+    <p class="sh-more">▼ 참고: 첫 방문(빈 상태) 무대 — 용지 자체가 "기술사 답안지"로 읽히게</p>
+    <div class="sheet">
+      <div class="sh-head"><span class="b1">번 호</span><span class="b2">기 술 사 답 안 지</span><span class="b3">1 쪽</span></div>
+      <div class="sh-q">
+        <div class="r1"><span class="ghost">문 ) 여기에 문제가 들어갑니다</span><span class="pts ghost">배점 자동 판별</span></div>
+      </div>
+      <div class="sh-body" style="height:calc(12*var(--slh))">
+        <div class="empty-note">
+          <p class="t1">문제를 붙여넣으면<br>이 답안지가 3초 안에 채워집니다</p>
+          <p class="t2">등록 토픽 166건 — 서랍에서 바로 골라도 돼요</p>
+          <div class="exs">
+            <button>SLA에 대하여 설명하시오 (25점)</button>
+            <button>SLA와 SLM을 비교하여 설명하시오 (25점)</button>
+            <button>SWOT 분석에 대하여 설명하시오 (10점)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mock-note">
+      목업 메모: ①상태 한 줄은 평시 숨김 — <a href="#" onclick="document.getElementById('status').classList.toggle('show');return false">여기를 눌러 토글</a>
+      (폴백·오류·미적중에만 표시, 진행 3단계의 대체물). ②빈 상태의 레일 기본 탭은 "토픽 서랍"(자판기 진열창 먼저),
+      답안 완성 시 "답안" 탭 자동 전환. ③목차·두문자·쪽 위치는 iframe DOM에서 추출(서버 무변경 — allow-same-origin).
+      근거와 우선순위: docs/ui-audit.md.
+    </div>
   </section>
 </main>
 
-<!-- ==================== 대화 도크 ==================== -->
-<div class="dock" id="dock">
-  <button class="dock-pill" id="dockOpen">💬 대화 <span class="bdg">1</span></button>
-  <div class="dock-panel">
-    <div class="dock-head">일반 질문 대화 <button id="dockClose">✕</button></div>
-    <div class="dock-msgs">
-      <div class="msg bot">어서 오세요, 기술사 답안 사무소입니다. 문제를 입력하시면 즉시 답안지를 조립해 드려요. 일반 질문도 여기서 답변합니다.</div>
-      <div class="msg user">ITSM 문제 자주 나와?</div>
-      <div class="msg bot">ITSM은 관리 도메인 단골 토픽입니다. 최근 회차 기준 검토 모델(ITIL·eSCM·CMMI·ISO 20000)과 SLA 연계 출제가 많아요.</div>
-      <div class="msg sys">📄 답안지 작성됨 — ITSM (서술형 25점)</div>
-    </div>
-    <div class="dock-hint">질문은 상단 입력창에 입력하세요 — 시험 문제는 답안지로, 일반 질문은 여기로 답합니다.</div>
-  </div>
-</div>
-
-<script>
-/* 목업 인터랙션: 레일 탭 전환 + 도크 토글 (실구현 동작 시연용) */
-const tabP = document.getElementById("tabP"), tabD = document.getElementById("tabD");
-const paneP = document.getElementById("paneP"), paneD = document.getElementById("paneD");
-tabP.onclick = () => { tabP.classList.add("on"); tabD.classList.remove("on"); paneP.style.display = "flex"; paneD.classList.remove("show"); };
-tabD.onclick = () => { tabD.classList.add("on"); tabP.classList.remove("on"); paneP.style.display = "none"; paneD.classList.add("show"); };
-const dock = document.getElementById("dock");
-document.getElementById("dockOpen").onclick = () => dock.classList.add("open");
-document.getElementById("dockClose").onclick = () => dock.classList.remove("open");
-document.querySelectorAll(".kchip").forEach(c => c.onclick = () => {
-  document.querySelectorAll(".kchip").forEach(x => x.classList.remove("on"));
-  c.classList.add("on");
-});
-</script>
 </body>
 </html>
