@@ -92,8 +92,18 @@ def _t3(rows: list[dict], r2: bool = True, headers=("구분", "구성요소", "�
     - 연속 행의 role이 같으면 1열(구분)을 rowspan 병합 (실물 카테고리 병합 22~28%)
     - r2=False는 축약 모드(복합/1교시): 전행 1줄, detail은 1줄 분량으로 절삭
     - max_rows: 행 수 상한 재정의 (절차표 5단계 등 — 기본값은 현행 4/6 유지)
+    - 기본 상한 적응(모범답안 감사 2-1): r2 모드라도 전 행이 1줄분(개조식 2항목
+      없음·환산 11자 이하)이면 7행까지 허용 — ISO 22301 7조항, ISP 수행내용 7행 등
+      1줄 행 다행 표가 4행에서 잘리지 않게. 2줄 행이 하나라도 있으면 현행 4행 유지.
     """
-    rows = rows[: max_rows or (4 if r2 else 6)]
+    if max_rows is None:
+        one_line = all(
+            not (isinstance(r.get("detail"), (list, tuple)) and len(r["detail"]) >= 2)
+            and (isinstance(r.get("detail"), (list, tuple))
+                 or _wlen(str(r.get("detail") or "")) <= 11)
+            for r in rows)
+        max_rows = (7 if one_line else 4) if r2 else 6
+    rows = rows[:max_rows]
     spans: list[int] = []  # 병합 시작 행이면 span 수, 병합 꼬리 행이면 0
     i = 0
     while i < len(rows):
@@ -175,13 +185,46 @@ def _auto_compare_axes(ta: dict, tb: dict) -> list[dict]:
     return axes
 
 
+def _pick_comparison(t: dict, question: str) -> dict | None:
+    """comparisons 중 문항 어구가 지목한 축 선택 — 없으면 첫 항목 (감사 C3).
+
+    모범답안 축(예: ITSM↔전통 IT운영)을 추가해도 기존 문항 렌더는 불변이고,
+    문항이 해당 상대를 언급할 때만 그 축이 뽑힌다.
+    """
+    comps = t.get("comparisons") or []
+    if not comps:
+        return None
+    qn = _norm(question or "")
+    for c in comps:
+        for nm in (c.get("vs_name"), c.get("a_name")):
+            n = _norm(nm or "")
+            if len(n) >= 2 and n in qn:
+                return c
+    return comps[0]
+
+
+def _section_table(sec: dict, kws=None) -> str:
+    """확장 단락 부품(sections, 스키마 v1.2) → 표 HTML (t3/t2)."""
+    rows = sec.get("rows") or []
+    if sec.get("kind") == "t2":
+        return _t2(rows, ("구분", "설명"), kws=kws)
+    return _t3(rows, r2=True, headers=("구분", "항목", "설명"), kws=kws)
+
+
+def _intro_title(t: dict) -> str:
+    """Ⅰ 리드문형 제목 (감사 C1 — 모범답안 전건 '리드문, ○○의 개요' 형)."""
+    s = short_name(t)
+    lead = str(t.get("lead") or "").strip()
+    return f"{lead}, {s}의 개요" if lead else f"{s}의 개요"
+
+
 # ---------------------------------------------------------------- 슬롯 조립
 
 def _slot_intro_p2(t: dict, parts: list, warnings: list) -> None:
     """2교시 Ⅰ. 서론 — intro_diagram 있으면 Type IV 로드맵, 없으면 Type I(정의+필요성)."""
     s = short_name(t)
     kws = t.get("keywords") or []
-    parts.append(f"<h2>{_esc(s)}의 개요</h2>")
+    parts.append(f"<h2>{_esc(_intro_title(t))}</h2>")
     if t.get("intro_diagram_html"):
         parts.append(t["intro_diagram_html"])
     if t.get("definition") or t.get("definition_long"):
@@ -333,24 +376,34 @@ def assemble(question: str, kind: str, points: int, topics: list[dict],
             if _slot_structure(t, parts, warnings, r2=True,
                                core=core_sections.get(t.get("id"))):
                 slots += 1
-            # Ⅲ. 특징·비교 (+ 미등록 소단락) — 물어본 지문 어구가 있으면 제목에
-            # 그대로 스탬프 (체크리스트 M6·M12, 단순형 범위. 파서 전체는 M7~M10 배치)
+            # Ⅲ. 확장 단락 — 토픽별 확장 부품(sections)이 있으면 우선 배치 (감사 C2:
+            # 모범답안의 절차/검토항목/위험·해결 단락), 없으면 특징 및 비교 (현행).
+            # 물어본 지문 어구가 있으면 제목에 그대로 스탬프 (체크리스트 M6·M12)
             third: list[str] = []
-            feats = t.get("features") or []
-            if feats:
-                third.append(f"<h3>{_esc(s)}의 주요 특징</h3>")
-                third.append(_t2(feats, ("구분", "특징"), kws=kws))
-            cmp0 = (t.get("comparisons") or [None])[0]
+            sec0 = (t.get("sections") or [None])[0]
+            if sec0:
+                third.append(_section_table(sec0, kws=kws))
+            else:
+                feats = t.get("features") or []
+                if feats:
+                    third.append(f"<h3>{_esc(s)}의 주요 특징</h3>")
+                    third.append(_t2(feats, ("구분", "특징"), kws=kws))
+            cmp0 = _pick_comparison(t, question)
             if cmp0:
-                third.append(f'<h3>{_esc(s)}와 {_esc(cmp0.get("vs_name"))}의 비교</h3>')
-                third.append(_tcmp(cmp0.get("axes") or [], s, cmp0.get("vs_name") or ""))
+                a_name = cmp0.get("a_name") or s
+                third.append(f'<h3>{_esc(a_name)}와 {_esc(cmp0.get("vs_name"))}의 비교</h3>')
+                third.append(_tcmp(cmp0.get("axes") or [], a_name, cmp0.get("vs_name") or ""))
             for name in missing_names:
                 third.extend([extra_sections[name]] if name in extra_sections
                              else _missing_placeholder(name))
             if third:
                 phrase = asked_phrase(question, [s] + list(t.get("aliases") or []))
-                third_title = (f"{s}의 {phrase}" if phrase and phrase not in ("특징", "비교")
-                               else f"{s}의 특징 및 비교")
+                if phrase and phrase not in ("특징", "비교"):
+                    third_title = f"{s}의 {phrase}"
+                elif sec0:
+                    third_title = str(sec0.get("title") or f"{s}의 특징 및 비교")
+                else:
+                    third_title = f"{s}의 특징 및 비교"
                 parts.append(f"<h2>{_esc(third_title)}</h2>")
                 parts.extend(third)
                 slots += 1
@@ -419,15 +472,8 @@ def assemble(question: str, kind: str, points: int, topics: list[dict],
         if concl:
             parts.append(f'<p class="def">{_esc(concl)}</p>')
 
-    # 두문자 암기 박스 — 토픽별 병렬 (박스 높이상 최대 2줄)
-    mn_lines = []
-    for t in topics[:2]:
-        mn = t.get("mnemonic") or {}
-        word = str(mn.get("word") or "").strip()
-        exp = " · ".join(str(e) for e in (mn.get("expansion") or [])[:5])
-        if word or exp:
-            mn_lines.append(f"<p><b>{_esc(word or short_name(t))}</b> — {_esc(exp)}</p>")
-    mnemonic_html = "\n    ".join(mn_lines) or "<p><b>핵심 키워드</b> — 소제목 첫 글자를 이어 암기하세요.</p>"
+    # 두문자 암기 박스 — 토픽별 병렬 (박스 높이상 최대 2줄, _mnemonic_lines 공용)
+    mnemonic_html = _mnemonic_lines(topics)
 
     return {
         "body": "\n".join(parts),
@@ -571,8 +617,11 @@ def _req_section(r: dict, ts: list[dict], primary: dict, bounds: tuple[int, int]
     def add_t3(rows, h3, headers=("구분", "구성요소", "설명")):
         if not rows:
             return False
-        for n in (4, 3, 2):  # 9줄 상세표 → 7줄 압축표 순 시도 (2-5)
-            html = _t3(rows[:n], r2=True, headers=headers, kws=kws)
+        # 다행(1줄 행) 표 → 9줄 상세표 → 7줄 압축표 순 시도 (2-5 + 감사 2-1 7행 표)
+        for n in sorted({min(7, len(rows)), 5, 4, 3, 2}, reverse=True):
+            if n > len(rows):
+                continue
+            html = _t3(rows[:n], r2=True, headers=headers, kws=kws, max_rows=n)
             if lines + 1 + _block_ln(html) <= bmax:
                 add(f"<h3>{_esc(h3)}</h3>")
                 return add(html)
@@ -625,14 +674,28 @@ def _req_section(r: dict, ts: list[dict], primary: dict, bounds: tuple[int, int]
                 cmp_done = add(_tcmp(_auto_compare_axes(a, b), short_name(a),
                                      short_name(b), auto_r2=True))
         else:
-            cmp0 = (t.get("comparisons") or [None])[0]
+            cmp0 = _pick_comparison(t, r.get("text") or "")  # 문항 어구 지목 축 우선 (C3)
             if cmp0:
-                add(f'<h3>{_esc(s)}와 {_esc(cmp0.get("vs_name"))}의 비교</h3>')
-                cmp_done = add(_tcmp(cmp0.get("axes") or [], s,
+                a_name = cmp0.get("a_name") or s
+                add(f'<h3>{_esc(a_name)}와 {_esc(cmp0.get("vs_name"))}의 비교</h3>')
+                cmp_done = add(_tcmp(cmp0.get("axes") or [], a_name,
                                      cmp0.get("vs_name") or "", auto_r2=True))
         if not cmp_done:
             pass  # 아래 부족 판정으로
     else:
+        # ---- 확장 단락 부품(sections) 우선: 요구 어구가 keys를 지목하면 그 표 배치 (C2)
+        for i_sec, sec in enumerate(t.get("sections") or []):
+            keyn = [_norm(k) for k in (sec.get("keys") or [])]
+            rtxt = _norm(r.get("text") or "")
+            if any(k and k in rtxt for k in keyn):
+                key = (t.get("id"), f"section{i_sec}")
+                if key not in ctx.used:
+                    html = _section_table(sec, kws=kws)
+                    if lines + 1 + _block_ln(html) <= bmax:
+                        ctx.used.add(key)
+                        add(f"<h3>{_esc(sec.get('title') or s)}</h3>")
+                        add(html)
+                break
         # ---- 일반 요구: 슬롯 순서대로 부품 배치 (대체 순서 강등)
         for slot in r.get("slots") or ["components"]:
             for field in _SLOT_CHAIN.get(slot, (slot,)):
@@ -727,7 +790,7 @@ def _dyn_intro(primary: dict, hub: str, labels: list[str], warnings: list,
     if "보안" in cat or "sec" in cat.lower():
         h2 = f"{s}의 중요성 및 개요"  # Type III 리드문 제목 차용
     else:
-        h2 = f"{s}의 개요"
+        h2 = _intro_title(primary)  # 리드문형 제목 (감사 C1 — lead 필드)
     boxes = "".join(
         f'<div class="d-box soft">{_esc(lab)}<small>{_ROMAN[i + 1]} 단락</small></div>'
         for i, lab in enumerate(labels))
@@ -875,7 +938,11 @@ def _split_blocks_frag(html: str) -> list[str]:
 
 
 def _mnemonic_lines(topics: list[dict]) -> str:
-    """두문자 암기 박스 — 토픽별 병렬 (assemble()과 동일 규칙)."""
+    """두문자 암기 박스 — 토픽별 병렬 (표준·요구 조립 공용, 박스 최대 2줄).
+
+    단일 토픽이고 mnemonic.extra("보조어 — 풀이", 스키마 v1.2)가 있으면 둘째 줄로
+    병기한다 (감사 2-2: ISP 사실규·필시중 등 보조 암기축).
+    """
     mn_lines = []
     for t in topics[:2]:
         mn = t.get("mnemonic") or {}
@@ -883,6 +950,12 @@ def _mnemonic_lines(topics: list[dict]) -> str:
         exp = " · ".join(str(e) for e in (mn.get("expansion") or [])[:5])
         if word or exp:
             mn_lines.append(f"<p><b>{_esc(word or short_name(t))}</b> — {_esc(exp)}</p>")
+    if len(topics) == 1 and len(mn_lines) == 1:
+        extra = str((topics[0].get("mnemonic") or {}).get("extra") or "").strip()
+        if extra:
+            head, _, tail = extra.partition(" — ")
+            mn_lines.append(f"<p><b>{_esc(head)}</b> — {_esc(tail)}</p>" if tail
+                            else f"<p>{_esc(extra)}</p>")
     return ("\n    ".join(mn_lines)
             or "<p><b>핵심 키워드</b> — 소제목 첫 글자를 이어 암기하세요.</p>")
 

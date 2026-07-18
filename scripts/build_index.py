@@ -84,6 +84,32 @@ def main() -> int:
                     fail(f"{f.name}: procedure[{i}].step은 1부터 연속 정수여야 함 — {p['step']}")
                 if any("<" in str(p.get(k) or "") for k in ("name", "desc")):
                     fail(f"{f.name}: procedure[{i}]에 HTML 태그 금지")
+        # lead 리드문형 제목 (스키마 v1.2, 감사 C1): 4~20자 문자열
+        lead = t.get("lead")
+        if lead is not None and (not isinstance(lead, str) or not 4 <= len(lead.strip()) <= 20
+                                 or "<" in lead):
+            fail(f"{f.name}: lead는 4~20자 문자열(HTML 금지)이어야 함 — {lead!r}")
+        # sections 확장 단락 부품 (스키마 v1.2, 감사 C2): [{title, keys, kind, rows}]
+        secs = t.get("sections")
+        if secs is not None:
+            if not isinstance(secs, list) or not secs:
+                fail(f"{f.name}: sections는 비어있지 않은 배열이어야 함")
+            for i, sc in enumerate(secs):
+                if not isinstance(sc, dict) or not sc.get("title") \
+                        or not isinstance(sc.get("keys"), list) or not sc["keys"] \
+                        or sc.get("kind") not in ("t3", "t2") \
+                        or not isinstance(sc.get("rows"), list) or not sc["rows"]:
+                    fail(f"{f.name}: sections[{i}]는 {{title, keys[], kind:t3|t2, rows[]}} 필요")
+                need = ("item",) if sc["kind"] == "t2" else ("name",)
+                for j, row in enumerate(sc["rows"]):
+                    if not isinstance(row, dict) or not all(row.get(k) for k in need):
+                        fail(f"{f.name}: sections[{i}].rows[{j}] 필수 키 누락({need})")
+                    if any("<" in str(v) for v in row.values() if isinstance(v, str)):
+                        fail(f"{f.name}: sections[{i}].rows[{j}]에 HTML 태그 금지")
+        # mnemonic.extra (스키마 v1.2): 보조 두문자 줄
+        extra = (t.get("mnemonic") or {}).get("extra")
+        if extra is not None and (not isinstance(extra, str) or "<" in extra):
+            fail(f"{f.name}: mnemonic.extra는 문자열(HTML 금지)이어야 함")
         # comparisons.vs 상호참조 검사(존재하는 id인지)는 전체 로드 후
         tid = t["id"]
         full = sum(1 for k in FULL_FIELDS if t.get(k)) >= 2
