@@ -24,7 +24,7 @@
   ]
  },
  "definition": "시장성장률·점유율로 SBU를 4영역으로 구분해 사업 전략을 도출하는 매트릭스",
- "definition_long": "시장성장률과 상대적 점유율로 사업을 4영역 구분해 자원 배분을 결정하는 분석 도구",
+ "definition_long": "사업을 SBU(전략적 사업 단위)로 구분, 성장률·점유율로 자원 배분을 정하는 기법",
  "background": "다사업 포트폴리오의 투자·철수 판단에 객관 기준 필요",
  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">Star<small>고성장 · 고점유</small></div><div class=\"d-box\">Question<small>고성장 · 저점유</small></div></div><div class=\"d-col\"><div class=\"d-box\">Cash Cow<small>저성장 · 고점유</small></div><div class=\"d-box soft\">Dog<small>저성장 · 저점유</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">자원 배분<small>투자 · 철수</small></div></div>",
  "diagram_gloss": "– 성장률×점유율 2×2 구분",
@@ -97,5 +97,34 @@
   "SWOT과 비교",
   "포트폴리오 재편 적용"
  ],
- "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">다사업<br>운영</div><div class=\"d-circle\">투자 판단<br>난립</div><div class=\"d-circle\">자원<br>제약</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">BCG Matrix</div><div class=\"d-box soft\">4영역 구분 (Ⅱ)</div><div class=\"d-box soft\">활용 전략 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">최적 자원 배분<small>투자 · 철수</small></div></div>"
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">다사업<br>운영</div><div class=\"d-circle\">투자 판단<br>난립</div><div class=\"d-circle\">자원<br>제약</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">BCG Matrix</div><div class=\"d-box soft\">4영역 구분 (Ⅱ)</div><div class=\"d-box soft\">활용 전략 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">최적 자원 배분<small>투자 · 철수</small></div></div>",
+ "lead": "SBU 전개 위한 포트폴리오 분석",
+ "sections": [
+  {
+   "title": "BCG Matrix의 장단점",
+   "keys": [
+    "장단점",
+    "장점",
+    "단점",
+    "한계"
+   ],
+   "kind": "t2",
+   "rows": [
+    {
+     "item": "장점",
+     "desc": [
+      "- 포트폴리오 균형 분석",
+      "- 자금 배분 방향 제시"
+     ]
+    },
+    {
+     "item": "단점",
+     "desc": [
+      "- 2축 단순화 오류",
+      "- GE Matrix로 보완"
+     ]
+    }
+   ]
+  }
+ ]
 }

@@ -1,126 +1,127 @@
 {
-  "id": "MG-017",
-  "name": "RTO(Recovery Time Objective)/RPO(Recovery Point Objective)",
-  "aliases": [
-    "RTO /RPO",
-    "Recovery Time Objective",
-    "Recovery Point Objective",
-    "RTO",
-    "RPO",
-    "복구 목표 지표",
-    "알티오 알피오"
-  ],
-  "category": "BCP · 재해복구 > BCP/BCM > RTO, RPO",
-  "keywords": [
-    "재해복구",
-    "업무복구",
-    "업무재계",
-    "비상계획",
-    "RTO",
-    "RPO",
-    "RCO",
-    "RSO",
-    "BCO"
-  ],
-  "mnemonic": {
-    "word": "MHWC",
-    "expansion": [
-      "Mirror(즉시)",
-      "Hot(수시간)",
-      "Warm(수일)",
-      "Cold(수주)"
-    ]
+ "id": "MG-017",
+ "name": "RTO(Recovery Time Objective)/RPO(Recovery Point Objective)",
+ "aliases": [
+  "RTO /RPO",
+  "Recovery Time Objective",
+  "Recovery Point Objective",
+  "RTO",
+  "RPO",
+  "복구 목표 지표",
+  "알티오 알피오"
+ ],
+ "category": "BCP · 재해복구 > BCP/BCM > RTO, RPO",
+ "keywords": [
+  "재해복구",
+  "업무복구",
+  "업무재계",
+  "비상계획",
+  "RTO",
+  "RPO",
+  "RCO",
+  "RSO",
+  "BCO"
+ ],
+ "mnemonic": {
+  "word": "MHWC",
+  "expansion": [
+   "Mirror(즉시)",
+   "Hot(수시간)",
+   "Warm(수일)",
+   "Cold(수주)"
+  ]
+ },
+ "definition": "RTO는 서비스 복구 허용시간, RPO는 데이터 손실 허용시점을 나타내는 지표",
+ "definition_long": "RTO는 서비스 복구까지 허용되는 목표 시간, RPO는 감내 가능한 데이터 손실 시점을 정의하는 재해복구 핵심 지표",
+ "background": "복구 체계 투자 수준 결정 기준 부재 — 업무별 허용 중단·손실의 정량 목표 필요",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">장애 발생 시점</div><div class=\"d-box soft\">← RPO<small>데이터 손실 허용</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">복구 활동<small>DRP 절차 수행</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">서비스 재개</div><div class=\"d-box soft\">RTO →<small>복구 허용 시간</small></div></div></div>",
+ "diagram_gloss": "– 장애 시점 기준 과거(RPO)와 미래(RTO)의 허용 한계 정의",
+ "features": [
+  {
+   "item": "RTO",
+   "desc": "중단→재개까지 목표 시간 — 복구 속도 기준"
   },
-  "definition": "RTO는 서비스 복구 허용시간, RPO는 데이터 손실 허용시점을 나타내는 지표",
-  "definition_long": "RTO는 서비스 복구까지 허용되는 목표 시간, RPO는 감내 가능한 데이터 손실 시점을 정의하는 재해복구 핵심 지표",
-  "background": "복구 체계 투자 수준 결정 기준 부재 — 업무별 허용 중단·손실의 정량 목표 필요",
-  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">장애 발생 시점</div><div class=\"d-box soft\">← RPO<small>데이터 손실 허용</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">복구 활동<small>DRP 절차 수행</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">서비스 재개</div><div class=\"d-box soft\">RTO →<small>복구 허용 시간</small></div></div></div>",
-  "diagram_gloss": "– 장애 시점 기준 과거(RPO)와 미래(RTO)의 허용 한계 정의",
-  "features": [
+  {
+   "item": "RPO",
+   "desc": "마지막 백업→장애 시점 — 손실 허용 기준"
+  },
+  {
+   "item": "RSO·RCO·BCO",
+   "desc": "복구 범위·통신망·업무 연속성 보조 목표"
+  }
+ ],
+ "components": [
+  {
+   "role": "시간",
+   "name": "RTO",
+   "detail": "복구센터 유형·자동화 수준을 결정함"
+  },
+  {
+   "role": "데이터",
+   "name": "RPO",
+   "detail": "백업 주기·복제 방식(동기/비동기) 결정함"
+  },
+  {
+   "role": "범위",
+   "name": "RSO",
+   "detail": "복구 대상 업무·시스템의 범위 목표"
+  },
+  {
+   "role": "통신·업무",
+   "name": "RCO·BCO",
+   "detail": "네트워크 복구·업무 재개 수준 목표"
+  }
+ ],
+ "components_gloss": "– 목표값이 촘촘할수록 비용 급증 — BIA로 업무별 차등 설정",
+ "comparisons": [
+  {
+   "vs": "MG-019",
+   "vs_name": "BIA",
+   "axes": [
     {
-      "item": "RTO",
-      "desc": "중단→재개까지 목표 시간 — 복구 속도 기준"
+     "axis": "성격",
+     "a": "복구 목표 지표(결과)",
+     "b": "영향 분석 활동(과정)"
     },
     {
-      "item": "RPO",
-      "desc": "마지막 백업→장애 시점 — 손실 허용 기준"
+     "axis": "도출",
+     "a": "BIA 결과로 설정됨",
+     "b": "RTO/RPO를 산출함"
     },
     {
-      "item": "RSO·RCO·BCO",
-      "desc": "복구 범위·통신망·업무 연속성 보조 목표"
+     "axis": "활용",
+     "a": "DRS 유형·백업 설계 기준",
+     "b": "복구 우선순위 결정"
     }
-  ],
-  "components": [
-    {
-      "role": "시간",
-      "name": "RTO",
-      "detail": "복구센터 유형·자동화 수준을 결정함"
-    },
-    {
-      "role": "데이터",
-      "name": "RPO",
-      "detail": "백업 주기·복제 방식(동기/비동기) 결정함"
-    },
-    {
-      "role": "범위",
-      "name": "RSO",
-      "detail": "복구 대상 업무·시스템의 범위 목표"
-    },
-    {
-      "role": "통신·업무",
-      "name": "RCO·BCO",
-      "detail": "네트워크 복구·업무 재개 수준 목표"
-    }
-  ],
-  "components_gloss": "– 목표값이 촘촘할수록 비용 급증 — BIA로 업무별 차등 설정",
-  "comparisons": [
-    {
-      "vs": "MG-019",
-      "vs_name": "BIA",
-      "axes": [
-        {
-          "axis": "성격",
-          "a": "복구 목표 지표(결과)",
-          "b": "영향 분석 활동(과정)"
-        },
-        {
-          "axis": "도출",
-          "a": "BIA 결과로 설정됨",
-          "b": "RTO/RPO를 산출함"
-        },
-        {
-          "axis": "활용",
-          "a": "DRS 유형·백업 설계 기준",
-          "b": "복구 우선순위 결정"
-        }
-      ]
-    }
-  ],
-  "usage": [
-    {
-      "item": "DRS 설계",
-      "desc": "Mirror~Cold 복구센터 유형 선정 기준"
-    },
-    {
-      "item": "백업 전략",
-      "desc": "백업 주기·복제 방식 결정 근거"
-    },
-    {
-      "item": "투자 판단",
-      "desc": "복구 수준 대비 비용의 균형점 도출"
-    }
-  ],
-  "conclusion": "RTO/RPO는 기술 지표가 아닌 비즈니스 합의 — BIA 기반으로 업무별 차등 설정이 원칙",
-  "exam_points": [
-    "RTO·RPO 정의와 관계 도식",
-    "복구센터 유형별 RTO/RPO 수준",
-    "BIA와의 연계"
-  ],
-  "related": [
-    "MG-014",
-    "MG-016",
-    "MG-018",
-    "MG-019"
-  ],
-  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">복구 기준<br>부재</div><div class=\"d-circle\">과잉·과소<br>투자</div><div class=\"d-circle\">업무별<br>차등 필요</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">복구 목표 정의</div><div class=\"d-box soft\">지표 체계 (Ⅱ)</div><div class=\"d-box soft\">DRS 설계 반영 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">복구 투자 최적화<small>BIA 기반 차등 설정</small></div></div>"
+   ]
+  }
+ ],
+ "usage": [
+  {
+   "item": "DRS 설계",
+   "desc": "Mirror~Cold 복구센터 유형 선정 기준"
+  },
+  {
+   "item": "백업 전략",
+   "desc": "백업 주기·복제 방식 결정 근거"
+  },
+  {
+   "item": "투자 판단",
+   "desc": "복구 수준 대비 비용의 균형점 도출"
+  }
+ ],
+ "conclusion": "RTO/RPO는 기술 지표가 아닌 비즈니스 합의 — BIA 기반으로 업무별 차등 설정이 원칙",
+ "exam_points": [
+  "RTO·RPO 정의와 관계 도식",
+  "복구센터 유형별 RTO/RPO 수준",
+  "BIA와의 연계"
+ ],
+ "related": [
+  "MG-014",
+  "MG-016",
+  "MG-018",
+  "MG-019"
+ ],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">복구 기준<br>부재</div><div class=\"d-circle\">과잉·과소<br>투자</div><div class=\"d-circle\">업무별<br>차등 필요</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">복구 목표 정의</div><div class=\"d-box soft\">지표 체계 (Ⅱ)</div><div class=\"d-box soft\">DRS 설계 반영 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">복구 투자 최적화<small>BIA 기반 차등 설정</small></div></div>",
+ "lead": "BCP의 핵심 복구 목표 지표"
 }

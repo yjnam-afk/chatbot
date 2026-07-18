@@ -1,144 +1,204 @@
 {
-  "id": "MG-001",
-  "name": "ITSM(Information Technology Service Management)",
-  "aliases": [
-    "ITSM",
-    "Information Technology Service Management",
-    "IT 서비스 관리",
-    "IT서비스관리체계",
-    "아이티에스엠"
-  ],
-  "category": "ITSM · 아웃소싱 > ITSM > ITSM",
-  "keywords": [
-    "ITIL",
-    "ITIL V3",
-    "eSCM",
-    "CMMI",
-    "ISO 20000",
-    "SLA",
-    "SLM",
-    "SOW",
-    "PMO",
-    "HA",
-    "운영 및 유지보수",
-    "MTTF",
-    "MTBF",
-    "MTTR",
-    "QoS",
-    "SPICE",
-    "품질관리"
-  ],
-  "mnemonic": {
-    "word": "이삼씨투",
-    "expansion": [
-      "ITIL(베스트프랙티스)",
-      "eSCM(평가·인증)",
-      "SLM(서비스수준)",
-      "CMMI(품질인증)"
-    ]
-  },
-  "definition": "SLA 수준에 맞춰 IT 서비스 품질을 종합 관리하는 관리 체계",
-  "definition_long": "고객과 합의한 SLA 수준의 고품질 IT 서비스를 ITIL 표준 프로세스로 제공하는 관리 체계",
-  "background": "IT 운영 품질의 정량 관리 요구, 표준 프로세스 부재, 고객 만족 중심 전환 필요",
-  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 품질<br>요구 증대</div><div class=\"d-circle\">운영 표준<br>부재</div><div class=\"d-circle\">고객 요구<br>다양화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">ITSM 도입</div><div class=\"d-box soft\">구성도 · 구성요소 (Ⅱ)</div><div class=\"d-box soft\">특징 · 비교 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">고품질 IT 서비스<small>고객 만족 · SLA 충족</small></div></div>",
-  "diagram_html": "<div class=\"diagram\"><div class=\"d-net\"><div class=\"d-box\">인력<small>People</small></div><span class=\"d-arrow\">↓</span><div class=\"d-box\">조직<small>Organization</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">ITSM<small>ITIL · eSCM · SLM · CMMI</small></div><span class=\"d-arrow\">←</span><div class=\"d-box\">기술<small>Technology</small></div><span class=\"d-arrow\">↑</span><div class=\"d-box\">프로세스<small>Process</small></div></div></div>",
-  "diagram_gloss": "– 4대 축과 표준 모델 연동으로 품질 향상",
-  "features": [
-    {
-      "item": "정량 관리",
-      "desc": "SLA 지표 기반 품질 수치 관리"
-    },
-    {
-      "item": "표준화",
-      "desc": "ITIL 기반 표준 운영 절차 확립"
-    },
-    {
-      "item": "고객 지향",
-      "desc": "서비스 수준 상호 합의·개선"
-    }
-  ],
-  "components": [
-    {
-      "role": "평가 · 인증",
-      "name": "eSCM",
-      "detail": [
-        "소싱 수행 능력 평가·인증",
-        "ISO 20000 연계 제3자 인증"
-      ]
-    },
-    {
-      "role": "평가 · 인증",
-      "name": "CMMI",
-      "detail": [
-        "성숙도 5단계 정량 평가",
-        "조직 역량 단계적 개선"
-      ]
-    },
-    {
-      "role": "수준 관리",
-      "name": "SLA · SLM",
-      "detail": [
-        "SOW 기반 수준 상호 합의",
-        "지표 측정·보고 지속 개선"
-      ]
-    },
-    {
-      "role": "표준 지침",
-      "name": "ITIL",
-      "detail": [
-        "서비스 생명주기 BP 지침",
-        "전략~개선 5단계 프로세스"
-      ]
-    }
-  ],
-  "components_gloss": "– 평가·수준·지침 3범위 검토 모델 활용",
-  "comparisons": [
-    {
-      "vs": "MG-035",
-      "vs_name": "ITIL",
-      "axes": [
-        {
-          "axis": "성격",
-          "a": "관리 체계(What)",
-          "b": "모범 사례집(How)"
-        },
-        {
-          "axis": "범위",
-          "a": "조직 전체 서비스",
-          "b": "프로세스 지침"
-        },
-        {
-          "axis": "관계",
-          "a": "구현 수단으로 채택",
-          "b": "구축 참조 모델"
-        }
-      ]
-    }
-  ],
-  "usage": [
-    {
-      "item": "운영 안정화",
-      "desc": "표준 절차로 장애 감소·MTTR 단축"
-    },
-    {
-      "item": "품질 가시화",
-      "desc": "SLA 보고로 품질 정량 입증"
-    },
-    {
-      "item": "비용 최적화",
-      "desc": "자원 배분 최적화로 운영비 절감"
-    }
-  ],
-  "conclusion": "ITSM은 ITIL 표준화와 SLA 수준 관리로 IT 운영을 서비스 가치 조직으로 전환하는 기반임",
-  "exam_points": [
-    "검토 모델 4종(ITIL·eSCM·CMMI·ISO 20000) 비교",
-    "성공적 구축 요건(관리·기술·서비스·비즈니스·품질 측면)",
-    "SLA/SLM 연계 운영"
-  ],
-  "related": [
-    "MG-004",
-    "MG-005",
-    "MG-035",
-    "MG-079"
+ "id": "MG-001",
+ "name": "ITSM(Information Technology Service Management)",
+ "aliases": [
+  "ITSM",
+  "Information Technology Service Management",
+  "IT 서비스 관리",
+  "IT서비스관리체계",
+  "아이티에스엠"
+ ],
+ "category": "ITSM · 아웃소싱 > ITSM > ITSM",
+ "keywords": [
+  "ITIL",
+  "ITIL V3",
+  "eSCM",
+  "CMMI",
+  "ISO 20000",
+  "SLA",
+  "SLM",
+  "SOW",
+  "PMO",
+  "HA",
+  "운영 및 유지보수",
+  "MTTF",
+  "MTBF",
+  "MTTR",
+  "QoS",
+  "SPICE",
+  "품질관리"
+ ],
+ "mnemonic": {
+  "word": "이삼씨투",
+  "expansion": [
+   "ITIL(베스트프랙티스)",
+   "eSCM(평가·인증)",
+   "SLM(서비스수준)",
+   "CMMI(품질인증)"
   ]
+ },
+ "definition": "SLA 수준에 맞춰 IT 서비스 품질을 종합 관리하는 관리 체계",
+ "definition_long": "고객과 합의한 SLA 수준의 고품질 IT 서비스를 ITIL 표준 프로세스로 제공하는 관리 체계",
+ "background": "IT 운영 품질의 정량 관리 요구, 표준 프로세스 부재, 고객 만족 중심 전환 필요",
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 품질<br>요구 증대</div><div class=\"d-circle\">운영 표준<br>부재</div><div class=\"d-circle\">고객 요구<br>다양화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">ITSM 도입</div><div class=\"d-box soft\">구성도 · 구성요소 (Ⅱ)</div><div class=\"d-box soft\">특징 · 비교 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">고품질 IT 서비스<small>고객 만족 · SLA 충족</small></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-net\"><div class=\"d-box\">인력<small>People</small></div><span class=\"d-arrow\">↓</span><div class=\"d-box\">조직<small>Organization</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">ITSM<small>ITIL · eSCM · SLM · CMMI</small></div><span class=\"d-arrow\">←</span><div class=\"d-box\">기술<small>Technology</small></div><span class=\"d-arrow\">↑</span><div class=\"d-box\">프로세스<small>Process</small></div></div></div>",
+ "diagram_gloss": "– 4대 축과 표준 모델 연동으로 품질 향상",
+ "features": [
+  {
+   "item": "정량 관리",
+   "desc": "SLA 지표 기반 품질 수치 관리"
+  },
+  {
+   "item": "표준화",
+   "desc": "ITIL 기반 표준 운영 절차 확립"
+  },
+  {
+   "item": "고객 지향",
+   "desc": "서비스 수준 상호 합의·개선"
+  }
+ ],
+ "components": [
+  {
+   "role": "평가 · 인증",
+   "name": "eSCM",
+   "detail": [
+    "소싱 수행 능력 평가·인증",
+    "ISO 20000 연계 제3자 인증"
+   ]
+  },
+  {
+   "role": "평가 · 인증",
+   "name": "CMMI",
+   "detail": [
+    "성숙도 5단계 정량 평가",
+    "조직 역량 단계적 개선"
+   ]
+  },
+  {
+   "role": "수준 관리",
+   "name": "SLA · SLM",
+   "detail": [
+    "SOW 기반 수준 상호 합의",
+    "지표 측정·보고 지속 개선"
+   ]
+  },
+  {
+   "role": "표준 지침",
+   "name": "ITIL",
+   "detail": [
+    "서비스 생명주기 BP 지침",
+    "전략~개선 5단계 프로세스"
+   ]
+  }
+ ],
+ "components_gloss": "– 평가·수준·지침 3범위 검토 모델 활용",
+ "comparisons": [
+  {
+   "vs": "MG-035",
+   "vs_name": "ITIL",
+   "axes": [
+    {
+     "axis": "성격",
+     "a": "관리 체계(What)",
+     "b": "모범 사례집(How)"
+    },
+    {
+     "axis": "범위",
+     "a": "조직 전체 서비스",
+     "b": "프로세스 지침"
+    },
+    {
+     "axis": "관계",
+     "a": "구현 수단으로 채택",
+     "b": "구축 참조 모델"
+    }
+   ]
+  },
+  {
+   "vs_name": "전통 IT운영",
+   "axes": [
+    {
+     "axis": "관점",
+     "a": "서비스·프로세스",
+     "b": "기술·시스템"
+    },
+    {
+     "axis": "조직",
+     "a": "프로세스 중심",
+     "b": "기능 조직 중심"
+    },
+    {
+     "axis": "관리",
+     "a": "SLA 기반 품질",
+     "b": "장애 대응 위주"
+    }
+   ]
+  }
+ ],
+ "usage": [
+  {
+   "item": "운영 안정화",
+   "desc": "표준 절차로 장애 감소·MTTR 단축"
+  },
+  {
+   "item": "품질 가시화",
+   "desc": "SLA 보고로 품질 정량 입증"
+  },
+  {
+   "item": "비용 최적화",
+   "desc": "자원 배분 최적화로 운영비 절감"
+  }
+ ],
+ "conclusion": "ITSM은 ITIL 표준화와 SLA 수준 관리로 IT 운영을 서비스 가치 조직으로 전환하는 기반임",
+ "exam_points": [
+  "검토 모델 4종(ITIL·eSCM·CMMI·ISO 20000) 비교",
+  "성공적 구축 요건(관리·기술·서비스·비즈니스·품질 측면)",
+  "SLA/SLM 연계 운영"
+ ],
+ "related": [
+  "MG-004",
+  "MG-005",
+  "MG-035",
+  "MG-079"
+ ],
+ "lead": "IT 서비스 수준 관리 프레임워크",
+ "sections": [
+  {
+   "title": "ITSM 구축 모델별 특징",
+   "keys": [
+    "구축 모델",
+    "모델",
+    "도입전략",
+    "구축"
+   ],
+   "kind": "t3",
+   "rows": [
+    {
+     "role": "표준",
+     "name": "ITIL",
+     "detail": "IT서비스 모범 사례"
+    },
+    {
+     "role": "표준",
+     "name": "ISO 20000",
+     "detail": "ITSM 국제 표준"
+    },
+    {
+     "role": "평가",
+     "name": "eSCM",
+     "detail": "ITO 역량평가 모델"
+    },
+    {
+     "role": "평가",
+     "name": "CMMI",
+     "detail": "개발 성숙도 모델"
+    },
+    {
+     "role": "통제",
+     "name": "COBIT",
+     "detail": "IT 거버넌스 지침"
+    }
+   ]
+  }
+ ]
 }

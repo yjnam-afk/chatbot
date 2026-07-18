@@ -89,5 +89,39 @@
   "사용 마이닝 활용",
   "텍스트 마이닝과 구분"
  ],
- "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">웹 자원<br>폭증</div><div class=\"d-circle\">행태 파악<br>수요</div><div class=\"d-circle\">개인화<br>경쟁</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">웹 마이닝</div><div class=\"d-box soft\">유형 체계 (Ⅱ)</div><div class=\"d-box soft\">활용 방안 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">웹 가치 추출<small>추천 · 최적화</small></div></div>"
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">웹 자원<br>폭증</div><div class=\"d-circle\">행태 파악<br>수요</div><div class=\"d-circle\">개인화<br>경쟁</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">웹 마이닝</div><div class=\"d-box soft\">유형 체계 (Ⅱ)</div><div class=\"d-box soft\">활용 방안 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">웹 가치 추출<small>추천 · 최적화</small></div></div>",
+ "lead": "웹 집단지성 활용 마이닝 기법",
+ "sections": [
+  {
+   "title": "웹 마이닝의 구축절차",
+   "keys": [
+    "구축절차",
+    "절차",
+    "구축"
+   ],
+   "kind": "t3",
+   "rows": [
+    {
+     "role": "1단계",
+     "name": "정보 수집",
+     "detail": "웹 데이터·로그"
+    },
+    {
+     "role": "2단계",
+     "name": "전처리",
+     "detail": "정제·클린징"
+    },
+    {
+     "role": "3단계",
+     "name": "패턴 도출",
+     "detail": "통계·마이닝 적용"
+    },
+    {
+     "role": "4단계",
+     "name": "전략 수립",
+     "detail": "개인화·마케팅"
+    }
+   ]
+  }
+ ]
 }

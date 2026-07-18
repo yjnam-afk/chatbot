@@ -1,121 +1,122 @@
 {
-  "id": "MG-022",
-  "name": "5Force",
-  "aliases": [
-    "5 Force",
-    "5요인 분석",
-    "파이브포스",
-    "산업구조 분석"
-  ],
-  "category": "전략 기획 · 분석도구 > 외부환경분석",
-  "keywords": [
-    "경쟁사",
-    "잠재적 경쟁자",
-    "대체제",
-    "공급업자",
-    "구매자"
-  ],
-  "mnemonic": {
-    "word": "공구기대잠",
-    "expansion": [
-      "공급자 교섭력",
-      "구매자 교섭력",
-      "기존 경쟁자",
-      "대체재 위협",
-      "잠재 진입자"
-    ]
+ "id": "MG-022",
+ "name": "5Force",
+ "aliases": [
+  "5 Force",
+  "5요인 분석",
+  "파이브포스",
+  "산업구조 분석"
+ ],
+ "category": "전략 기획 · 분석도구 > 외부환경분석",
+ "keywords": [
+  "경쟁사",
+  "잠재적 경쟁자",
+  "대체제",
+  "공급업자",
+  "구매자"
+ ],
+ "mnemonic": {
+  "word": "공구기대잠",
+  "expansion": [
+   "공급자 교섭력",
+   "구매자 교섭력",
+   "기존 경쟁자",
+   "대체재 위협",
+   "잠재 진입자"
+  ]
+ },
+ "definition": "조직 외부환경을 5가지 경쟁요인 관점에서 분석해 산업 매력도를 평가하는 기법",
+ "definition_long": "산업의 경쟁 강도를 5가지 경쟁요인으로 분석해 산업 매력도와 경쟁 전략 방향을 도출하는 마이클 포터의 외부환경 분석 기법",
+ "background": "감(感) 의존 시장 진입 판단의 실패 — 산업 수익성의 구조적 결정 요인 분석 필요",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">잠재 진입자<small>진입장벽</small></div><div class=\"d-box\">공급자<small>교섭력</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">기존 경쟁자<small>산업 내 경쟁 강도</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">대체재<small>대체 위협</small></div><div class=\"d-box\">구매자<small>교섭력</small></div></div></div>",
+ "diagram_gloss": "– 4방향 외부 압력과 중심의 경쟁 강도로 산업 매력도 결정",
+ "features": [
+  {
+   "item": "구조 분석",
+   "desc": "개별 기업이 아닌 산업 구조 수준 진단"
   },
-  "definition": "조직 외부환경을 5가지 경쟁요인 관점에서 분석해 산업 매력도를 평가하는 기법",
-  "definition_long": "산업의 경쟁 강도를 5가지 경쟁요인으로 분석해 산업 매력도와 경쟁 전략 방향을 도출하는 마이클 포터의 외부환경 분석 기법",
-  "background": "감(感) 의존 시장 진입 판단의 실패 — 산업 수익성의 구조적 결정 요인 분석 필요",
-  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">잠재 진입자<small>진입장벽</small></div><div class=\"d-box\">공급자<small>교섭력</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">기존 경쟁자<small>산업 내 경쟁 강도</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">대체재<small>대체 위협</small></div><div class=\"d-box\">구매자<small>교섭력</small></div></div></div>",
-  "diagram_gloss": "– 4방향 외부 압력과 중심의 경쟁 강도로 산업 매력도 결정",
-  "features": [
+  {
+   "item": "수익성 예측",
+   "desc": "5요인 강도가 산업 평균 수익성 결정"
+  },
+  {
+   "item": "전략 연계",
+   "desc": "요인별 대응이 곧 경쟁 전략 방향"
+  }
+ ],
+ "components": [
+  {
+   "role": "경쟁",
+   "name": "기존 경쟁자",
+   "detail": "경쟁사 수·성장률·철수장벽이 강도 결정"
+  },
+  {
+   "role": "진입",
+   "name": "잠재 진입자",
+   "detail": "규모의 경제·전환비용 등 진입장벽 평가"
+  },
+  {
+   "role": "대체",
+   "name": "대체재",
+   "detail": "가격·성능 대비 대체 가능성 평가"
+  },
+  {
+   "role": "교섭",
+   "name": "공급자·구매자",
+   "detail": "집중도·정보력에 따른 가격 압박 평가"
+  }
+ ],
+ "components_gloss": "– \"공구기대잠\" — 5요인의 두문자",
+ "comparisons": [
+  {
+   "vs": "MG-033",
+   "vs_name": "PEST 분석",
+   "axes": [
     {
-      "item": "구조 분석",
-      "desc": "개별 기업이 아닌 산업 구조 수준 진단"
+     "axis": "범위",
+     "a": "산업(미시) 경쟁 구조",
+     "b": "거시 환경(정치·경제·사회·기술)"
     },
     {
-      "item": "수익성 예측",
-      "desc": "5요인 강도가 산업 평균 수익성 결정"
+     "axis": "산출",
+     "a": "산업 매력도·경쟁 강도",
+     "b": "환경 기회·위협 요인"
     },
     {
-      "item": "전략 연계",
-      "desc": "요인별 대응이 곧 경쟁 전략 방향"
+     "axis": "활용",
+     "a": "진입·포지셔닝 판단",
+     "b": "SWOT의 O·T 입력"
     }
-  ],
-  "components": [
-    {
-      "role": "경쟁",
-      "name": "기존 경쟁자",
-      "detail": "경쟁사 수·성장률·철수장벽이 강도 결정"
-    },
-    {
-      "role": "진입",
-      "name": "잠재 진입자",
-      "detail": "규모의 경제·전환비용 등 진입장벽 평가"
-    },
-    {
-      "role": "대체",
-      "name": "대체재",
-      "detail": "가격·성능 대비 대체 가능성 평가"
-    },
-    {
-      "role": "교섭",
-      "name": "공급자·구매자",
-      "detail": "집중도·정보력에 따른 가격 압박 평가"
-    }
-  ],
-  "components_gloss": "– \"공구기대잠\" — 5요인의 두문자",
-  "comparisons": [
-    {
-      "vs": "MG-033",
-      "vs_name": "PEST 분석",
-      "axes": [
-        {
-          "axis": "범위",
-          "a": "산업(미시) 경쟁 구조",
-          "b": "거시 환경(정치·경제·사회·기술)"
-        },
-        {
-          "axis": "산출",
-          "a": "산업 매력도·경쟁 강도",
-          "b": "환경 기회·위협 요인"
-        },
-        {
-          "axis": "활용",
-          "a": "진입·포지셔닝 판단",
-          "b": "SWOT의 O·T 입력"
-        }
-      ]
-    }
-  ],
-  "usage": [
-    {
-      "item": "진입 판단",
-      "desc": "신사업·신시장 진입 타당성 평가"
-    },
-    {
-      "item": "전략 수립",
-      "desc": "요인별 대응 전략(차별화·원가우위) 도출"
-    },
-    {
-      "item": "ISP 연계",
-      "desc": "정보화 전략의 외부환경 분석 단계 활용"
-    }
-  ],
-  "conclusion": "5Force는 정태적 산업 스냅숏 — PEST·SWOT과 병행하고 플랫폼 산업엔 보완적 해석 필요",
-  "exam_points": [
-    "5요인 정의와 평가 기준",
-    "PEST·SWOT와의 관계",
-    "산업 매력도 판단 사례"
-  ],
-  "related": [
-    "MG-023",
-    "MG-024",
-    "MG-033",
-    "MG-047",
-    "MG-050"
-  ],
-  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">진입 판단<br>감 의존</div><div class=\"d-circle\">수익 구조<br>미파악</div><div class=\"d-circle\">경쟁<br>심화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">5Force 분석</div><div class=\"d-box soft\">5대 요인 (Ⅱ)</div><div class=\"d-box soft\">전략 도출 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">산업 매력도 평가<small>경쟁 전략 방향</small></div></div>"
+   ]
+  }
+ ],
+ "usage": [
+  {
+   "item": "진입 판단",
+   "desc": "신사업·신시장 진입 타당성 평가"
+  },
+  {
+   "item": "전략 수립",
+   "desc": "요인별 대응 전략(차별화·원가우위) 도출"
+  },
+  {
+   "item": "ISP 연계",
+   "desc": "정보화 전략의 외부환경 분석 단계 활용"
+  }
+ ],
+ "conclusion": "5Force는 정태적 산업 스냅숏 — PEST·SWOT과 병행하고 플랫폼 산업엔 보완적 해석 필요",
+ "exam_points": [
+  "5요인 정의와 평가 기준",
+  "PEST·SWOT와의 관계",
+  "산업 매력도 판단 사례"
+ ],
+ "related": [
+  "MG-023",
+  "MG-024",
+  "MG-033",
+  "MG-047",
+  "MG-050"
+ ],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">진입 판단<br>감 의존</div><div class=\"d-circle\">수익 구조<br>미파악</div><div class=\"d-circle\">경쟁<br>심화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">5Force 분석</div><div class=\"d-box soft\">5대 요인 (Ⅱ)</div><div class=\"d-box soft\">전략 도출 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">산업 매력도 평가<small>경쟁 전략 방향</small></div></div>",
+ "lead": "조직의 외부환경 분석 기법"
 }

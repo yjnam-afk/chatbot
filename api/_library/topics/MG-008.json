@@ -92,5 +92,28 @@
   "이벤트 로그 요건",
   "RPA 연계 활용"
  ],
- "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">설계·실행<br>괴리</div><div class=\"d-circle\">병목<br>미파악</div><div class=\"d-circle\">로그<br>미활용</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">프로세스 마이닝</div><div class=\"d-box soft\">분석 체계 (Ⅱ)</div><div class=\"d-box soft\">활용 방안 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">프로세스 혁신<small>병목 제거</small></div></div>"
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">설계·실행<br>괴리</div><div class=\"d-circle\">병목<br>미파악</div><div class=\"d-circle\">로그<br>미활용</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">프로세스 마이닝</div><div class=\"d-box soft\">분석 체계 (Ⅱ)</div><div class=\"d-box soft\">활용 방안 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">프로세스 혁신<small>병목 제거</small></div></div>",
+ "lead": "기업 경영관리의 필수요소",
+ "comparisons": [
+  {
+   "vs_name": "BPM·RPA",
+   "axes": [
+    {
+     "axis": "개념",
+     "a": "로그로 모델 도출",
+     "b": "관리·자동화"
+    },
+    {
+     "axis": "방식",
+     "a": "Bottom-up",
+     "b": "Top-down·모방"
+    },
+    {
+     "axis": "목표",
+     "a": "프로세스 이해",
+     "b": "성과·업무 대체"
+    }
+   ]
+  }
+ ]
 }

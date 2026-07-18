@@ -1,126 +1,127 @@
 {
-  "id": "MG-023",
-  "name": "7S(Strategy, Structure, Systems, Shared Values, Skills, Staff, Style) Model",
-  "aliases": [
-    "7S Model",
-    "7S 모델",
-    "맥킨지 7S",
-    "세븐에스",
-    "7S",
-    "세븐 에스"
-  ],
-  "category": "전략 기획 · 분석도구 > 전략수립도구 > 7S Model",
-  "keywords": [
-    "Strategy",
-    "Structure",
-    "Systems",
-    "Shared Values",
-    "Skills",
-    "Staff",
-    "Style"
-  ],
-  "mnemonic": {
-    "word": "전구시 공역스인",
-    "expansion": [
-      "전략(Strategy)",
-      "구조(Structure)",
-      "시스템(Systems)",
-      "공유가치(Shared Values)",
-      "역량(Skills)",
-      "스타일(Style)",
-      "인력(Staff)"
-    ]
+ "id": "MG-023",
+ "name": "7S(Strategy, Structure, Systems, Shared Values, Skills, Staff, Style) Model",
+ "aliases": [
+  "7S Model",
+  "7S 모델",
+  "맥킨지 7S",
+  "세븐에스",
+  "7S",
+  "세븐 에스"
+ ],
+ "category": "전략 기획 · 분석도구 > 전략수립도구 > 7S Model",
+ "keywords": [
+  "Strategy",
+  "Structure",
+  "Systems",
+  "Shared Values",
+  "Skills",
+  "Staff",
+  "Style"
+ ],
+ "mnemonic": {
+  "word": "전구시 공역스인",
+  "expansion": [
+   "전략(Strategy)",
+   "구조(Structure)",
+   "시스템(Systems)",
+   "공유가치(Shared Values)",
+   "역량(Skills)",
+   "스타일(Style)",
+   "인력(Staff)"
+  ]
+ },
+ "definition": "변화 대처를 위한 7개 요소의 조화·정렬을 진단하는 내부역량 분석 도구",
+ "definition_long": "조직의 7개 내부 요소의 조화·정렬 상태를 진단해 변화 대처 역량을 평가하는 맥킨지의 내부역량 분석 도구",
+ "background": "전략만 바꾸는 조직 변화의 실패 — 구조·인력·문화의 정합 진단 필요",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">전략<small>Strategy</small></div><div class=\"d-box\">구조<small>Structure</small></div><div class=\"d-box\">시스템<small>Systems</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">공유가치<small>Shared Values</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">역량<small>Skills</small></div><div class=\"d-box\">스타일<small>Style</small></div><div class=\"d-box\">인력<small>Staff</small></div></div></div>",
+ "diagram_gloss": "– 공유가치를 중심으로 Hard 3S와 Soft 3S가 상호 정렬",
+ "features": [
+  {
+   "item": "Hard S",
+   "desc": "전략·구조·시스템 — 제도로 변경 가능"
   },
-  "definition": "변화 대처를 위한 7개 요소의 조화·정렬을 진단하는 내부역량 분석 도구",
-  "definition_long": "조직의 7개 내부 요소의 조화·정렬 상태를 진단해 변화 대처 역량을 평가하는 맥킨지의 내부역량 분석 도구",
-  "background": "전략만 바꾸는 조직 변화의 실패 — 구조·인력·문화의 정합 진단 필요",
-  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">전략<small>Strategy</small></div><div class=\"d-box\">구조<small>Structure</small></div><div class=\"d-box\">시스템<small>Systems</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">공유가치<small>Shared Values</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">역량<small>Skills</small></div><div class=\"d-box\">스타일<small>Style</small></div><div class=\"d-box\">인력<small>Staff</small></div></div></div>",
-  "diagram_gloss": "– 공유가치를 중심으로 Hard 3S와 Soft 3S가 상호 정렬",
-  "features": [
+  {
+   "item": "Soft S",
+   "desc": "가치·역량·스타일·인력 — 변화에 장기간"
+  },
+  {
+   "item": "정합성",
+   "desc": "7요소 간 불일치가 변화 실패의 원인"
+  }
+ ],
+ "components": [
+  {
+   "role": "Hard",
+   "name": "전략·구조·시스템",
+   "detail": "방향·조직 편제·업무 프로세스 진단"
+  },
+  {
+   "role": "중심",
+   "name": "공유가치",
+   "detail": "조직 문화·핵심 이념 — 7S의 구심점"
+  },
+  {
+   "role": "Soft",
+   "name": "역량·스타일",
+   "detail": "핵심 역량과 리더십 방식 진단"
+  },
+  {
+   "role": "Soft",
+   "name": "인력",
+   "detail": "인적 구성·역량 개발 체계 진단"
+  }
+ ],
+ "components_gloss": "– \"전구시 공역스인\" — 7요소의 두문자",
+ "comparisons": [
+  {
+   "vs": "MG-024",
+   "vs_name": "SWOT 분석",
+   "axes": [
     {
-      "item": "Hard S",
-      "desc": "전략·구조·시스템 — 제도로 변경 가능"
+     "axis": "범위",
+     "a": "내부 7요소 정합 진단",
+     "b": "내부+외부 통합 진단"
     },
     {
-      "item": "Soft S",
-      "desc": "가치·역량·스타일·인력 — 변화에 장기간"
+     "axis": "산출",
+     "a": "요소 간 불일치 항목",
+     "b": "SO·ST·WO·WT 전략"
     },
     {
-      "item": "정합성",
-      "desc": "7요소 간 불일치가 변화 실패의 원인"
+     "axis": "활용",
+     "a": "조직 변화·혁신 설계",
+     "b": "전략 대안 도출"
     }
-  ],
-  "components": [
-    {
-      "role": "Hard",
-      "name": "전략·구조·시스템",
-      "detail": "방향·조직 편제·업무 프로세스 진단"
-    },
-    {
-      "role": "중심",
-      "name": "공유가치",
-      "detail": "조직 문화·핵심 이념 — 7S의 구심점"
-    },
-    {
-      "role": "Soft",
-      "name": "역량·스타일",
-      "detail": "핵심 역량과 리더십 방식 진단"
-    },
-    {
-      "role": "Soft",
-      "name": "인력",
-      "detail": "인적 구성·역량 개발 체계 진단"
-    }
-  ],
-  "components_gloss": "– \"전구시 공역스인\" — 7요소의 두문자",
-  "comparisons": [
-    {
-      "vs": "MG-024",
-      "vs_name": "SWOT 분석",
-      "axes": [
-        {
-          "axis": "범위",
-          "a": "내부 7요소 정합 진단",
-          "b": "내부+외부 통합 진단"
-        },
-        {
-          "axis": "산출",
-          "a": "요소 간 불일치 항목",
-          "b": "SO·ST·WO·WT 전략"
-        },
-        {
-          "axis": "활용",
-          "a": "조직 변화·혁신 설계",
-          "b": "전략 대안 도출"
-        }
-      ]
-    }
-  ],
-  "usage": [
-    {
-      "item": "변화 관리",
-      "desc": "M&A·혁신 시 조직 정합성 사전 진단"
-    },
-    {
-      "item": "역량 진단",
-      "desc": "SWOT의 S·W 도출 입력으로 활용"
-    },
-    {
-      "item": "PI 연계",
-      "desc": "프로세스 혁신의 조직 측면 점검"
-    }
-  ],
-  "conclusion": "7S의 요체는 정렬(Alignment) — Hard S 변경 시 Soft S 추진 계획을 반드시 병행",
-  "exam_points": [
-    "7요소와 Hard/Soft 구분",
-    "SWOT·Value Chain과의 비교",
-    "조직 변화 적용 사례"
-  ],
-  "related": [
-    "MG-022",
-    "MG-024",
-    "MG-050",
-    "MG-064"
-  ],
-  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">전략-조직<br>부정합</div><div class=\"d-circle\">변화<br>실패</div><div class=\"d-circle\">무형 요소<br>간과</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">7S 진단</div><div class=\"d-box soft\">7대 요소 (Ⅱ)</div><div class=\"d-box soft\">정렬 · 활용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">조직 정합성 확보<small>변화 대처 역량</small></div></div>"
+   ]
+  }
+ ],
+ "usage": [
+  {
+   "item": "변화 관리",
+   "desc": "M&A·혁신 시 조직 정합성 사전 진단"
+  },
+  {
+   "item": "역량 진단",
+   "desc": "SWOT의 S·W 도출 입력으로 활용"
+  },
+  {
+   "item": "PI 연계",
+   "desc": "프로세스 혁신의 조직 측면 점검"
+  }
+ ],
+ "conclusion": "7S의 요체는 정렬(Alignment) — Hard S 변경 시 Soft S 추진 계획을 반드시 병행",
+ "exam_points": [
+  "7요소와 Hard/Soft 구분",
+  "SWOT·Value Chain과의 비교",
+  "조직 변화 적용 사례"
+ ],
+ "related": [
+  "MG-022",
+  "MG-024",
+  "MG-050",
+  "MG-064"
+ ],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">전략-조직<br>부정합</div><div class=\"d-circle\">변화<br>실패</div><div class=\"d-circle\">무형 요소<br>간과</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">7S 진단</div><div class=\"d-box soft\">7대 요소 (Ⅱ)</div><div class=\"d-box soft\">정렬 · 활용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">조직 정합성 확보<small>변화 대처 역량</small></div></div>",
+ "lead": "7가지 요소 조직 내부 진단 모델"
 }

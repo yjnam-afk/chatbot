@@ -20,10 +20,11 @@
   "expansion": [
    "환경분석",
    "현황분석",
-   "정보화 비전 및 전략 수립",
+   "정보화 비전·전략 수립",
    "목표모델 설계",
    "통합 이행 계획"
-  ]
+  ],
+  "extra": "사실규·필시중 — 사업타당성·실현가능성·규모적정성 검토"
  },
  "definition": "조직 목표 달성을 위한 정보화 전략·비전과 IT 사업·로드맵을 수립하는 활동",
  "definition_long": "조직 비전 달성을 위한 정보화 전략과 IT 과제·이행 로드맵을 수립하는 최상위 기획 활동",
@@ -131,8 +132,96 @@
  "conclusion": "ISP는 ISMP·EA와 연계 운영될 때 실행력과 투자 효과가 확보됨",
  "exam_points": [
   "ISP 절차 5단계",
-  "ISP와 ISMP 비교",
-  "공공 SW사업 발주 연계"
+  "검토 구성항목(123회 기출)",
+  "ISP와 ISMP 비교"
  ],
- "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 투자<br>중복</div><div class=\"d-circle\">전략·IT<br>불일치</div><div class=\"d-circle\">발주 근거<br>부재</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">ISP 수립</div><div class=\"d-box soft\">수행 절차 (Ⅱ)</div><div class=\"d-box soft\">ISMP 연계 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">정보화 실행력<small>전략-IT 정렬</small></div></div>"
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 투자<br>중복</div><div class=\"d-circle\">전략·IT<br>불일치</div><div class=\"d-circle\">발주 근거<br>부재</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">ISP 수립</div><div class=\"d-box soft\">수행 절차 (Ⅱ)</div><div class=\"d-box soft\">ISMP 연계 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">정보화 실행력<small>전략-IT 정렬</small></div></div>",
+ "lead": "조직 목표 달성 위한 계획 수립",
+ "components": [
+  {
+   "role": "환경분석",
+   "name": "환경 조사",
+   "detail": "경영현황·법제도·IT"
+  },
+  {
+   "role": "현황분석",
+   "name": "업무·IS",
+   "detail": "업무·시스템 분석"
+  },
+  {
+   "role": "현황분석",
+   "name": "격차 분석",
+   "detail": "벤치마킹·이슈 통합"
+  },
+  {
+   "role": "비전전략",
+   "name": "비전 수립",
+   "detail": "정보화 비전·전략"
+  },
+  {
+   "role": "목표모델",
+   "name": "To-Be",
+   "detail": "목표모델 5종 설계"
+  },
+  {
+   "role": "이행계획",
+   "name": "구축 계획",
+   "detail": "과제·로드맵 수립"
+  },
+  {
+   "role": "이행계획",
+   "name": "총사업비",
+   "detail": "FP·장비·운영 5년"
+  }
+ ],
+ "components_gloss": "– 산출물: 사업계획서·RFP",
+ "sections": [
+  {
+   "title": "ISP 검토 주요 구성항목",
+   "keys": [
+    "검토",
+    "구성항목",
+    "타당성",
+    "적정성"
+   ],
+   "kind": "t3",
+   "rows": [
+    {
+     "role": "사업타당성",
+     "name": "필요성",
+     "detail": "사업 목적·필요 근거"
+    },
+    {
+     "role": "사업타당성",
+     "name": "시급성",
+     "detail": "추진 시기 적절성"
+    },
+    {
+     "role": "사업타당성",
+     "name": "중복성",
+     "detail": "타 사업 중복 여부"
+    },
+    {
+     "role": "실현가능성",
+     "name": "추진 여건",
+     "detail": "조직·예산 준비도"
+    },
+    {
+     "role": "실현가능성",
+     "name": "기술적정성",
+     "detail": "기술 적용 적정성"
+    },
+    {
+     "role": "규모적정성",
+     "name": "SW 대가",
+     "detail": "SW사업 대가 산정"
+    },
+    {
+     "role": "규모적정성",
+     "name": "HW 규모",
+     "detail": "HW 용량 산정 검토"
+    }
+   ]
+  }
+ ]
 }

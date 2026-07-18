@@ -93,5 +93,6 @@
   "감성 분석 적용",
   "웹·프로세스 마이닝 비교"
  ],
- "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">비정형<br>급증</div><div class=\"d-circle\">수작업<br>한계</div><div class=\"d-circle\">여론 파악<br>수요</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">텍스트 마이닝</div><div class=\"d-box soft\">처리 체계 (Ⅱ)</div><div class=\"d-box soft\">분석 기법 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">텍스트 가치화<small>인사이트 발굴</small></div></div>"
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">비정형<br>급증</div><div class=\"d-circle\">수작업<br>한계</div><div class=\"d-circle\">여론 파악<br>수요</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">텍스트 마이닝</div><div class=\"d-box soft\">처리 체계 (Ⅱ)</div><div class=\"d-box soft\">분석 기법 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">텍스트 가치화<small>인사이트 발굴</small></div></div>",
+ "lead": "대용량 텍스트 정보 추출 기술"
 }

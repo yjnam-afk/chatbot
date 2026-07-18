@@ -1,124 +1,129 @@
 {
-  "id": "MG-083",
-  "name": "IT Governance",
-  "aliases": [
-    "IT 거버넌스",
-    "아이티 거버넌스",
-    "정보기술 거버넌스"
-  ],
-  "category": "거버넌스 · 컴플라이언스 > IT Governance",
-  "keywords": [
-    "전략과 목표달성",
-    "비즈니스와 IT 연계(Alignment)",
-    "지배/통제/관리",
-    "CobIT",
-    "전략적연계",
-    "가치제공",
-    "위험관리",
-    "자원관리",
-    "성과측정"
-  ],
-  "mnemonic": {
-    "word": "전가위자성",
-    "expansion": [
-      "전략적 연계",
-      "가치 제공",
-      "위험 관리",
-      "자원 관리",
-      "성과 측정"
-    ]
-  },
-  "definition": "기업 전략·목표 달성을 위해 IT 자원·프로세스를 통제·관리하는 체계",
-  "definition_long": "기업 전략·목표 달성을 위해 IT 자원과 프로세스를 지배·통제·관리하는 의사결정 체계와 책임 구조",
-  "background": "IT 투자 확대 대비 성과 불투명 — 비즈니스-IT 정렬(Alignment)과 책임 체계 요구",
-  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 투자<br>성과 불명</div><div class=\"d-circle\">비즈-IT<br>단절</div><div class=\"d-circle\">규제<br>준수 요구</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">IT 거버넌스 수립</div><div class=\"d-box soft\">5대 영역 (Ⅱ)</div><div class=\"d-box soft\">프레임워크 · 적용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">전략-IT 정렬<small>가치 · 책임 확보</small></div></div>",
-  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">전략적 연계<small>Biz-IT Alignment</small></div><div class=\"d-box\">가치 제공<small>Value Delivery</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">IT 거버넌스<small>이사회 · IT 위원회</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">위험 · 자원 관리<small>Risk · Resource</small></div><div class=\"d-box soft\">성과 측정<small>IT-BSC</small></div></div></div>",
-  "diagram_gloss": "– \"전가위자성\" — 5대 관심 영역의 상호 순환 구조",
-  "features": [
-    {
-      "item": "책임 구조",
-      "desc": "IT 의사결정 권한·책임의 명확화"
-    },
-    {
-      "item": "정렬",
-      "desc": "비즈니스 전략과 IT 전략의 연계"
-    },
-    {
-      "item": "통제",
-      "desc": "COBIT 등 프레임워크 기반 관리 체계"
-    }
-  ],
-  "components": [
-    {
-      "role": "연계",
-      "name": "전략적 Alignment",
-      "detail": "경영 전략과 IT 계획의 정합 유지"
-    },
-    {
-      "role": "가치",
-      "name": "Value Delivery",
-      "detail": "IT 투자 대비 비즈니스 가치 실현"
-    },
-    {
-      "role": "위험·자원",
-      "name": "Risk·Resource",
-      "detail": "IT 리스크 통제와 자원 최적 배분"
-    },
-    {
-      "role": "성과",
-      "name": "Performance",
-      "detail": "IT-BSC 등으로 성과 측정·보고"
-    }
-  ],
-  "components_gloss": "– 구현 프레임워크: COBIT(통제)·ISO 38500(원칙)·Val IT(가치)",
-  "comparisons": [
-    {
-      "vs": "MG-084",
-      "vs_name": "COBIT5",
-      "axes": [
-        {
-          "axis": "성격",
-          "a": "거버넌스 개념·체계(What)",
-          "b": "구현 프레임워크(How)"
-        },
-        {
-          "axis": "범위",
-          "a": "의사결정 구조·5대 영역",
-          "b": "5원칙·7 Enabler·프로세스"
-        },
-        {
-          "axis": "활용",
-          "a": "체계 설계의 방향",
-          "b": "평가·감사의 실무 기준"
-        }
-      ]
-    }
-  ],
-  "usage": [
-    {
-      "item": "투자 통제",
-      "desc": "IT 포트폴리오의 우선순위·승인 체계"
-    },
-    {
-      "item": "감사 대응",
-      "desc": "컴플라이언스·내부통제 증적 확보"
-    },
-    {
-      "item": "성과 입증",
-      "desc": "IT 기여도의 경영진 보고 체계"
-    }
-  ],
-  "conclusion": "IT 거버넌스는 통제가 아닌 가치 창출 구조 — 이사회 수준의 책임과 COBIT 기반 성숙도 개선이 핵심",
-  "exam_points": [
-    "5대 관심 영역",
-    "COBIT·ISO 38500·Val IT 프레임워크 비교",
-    "IT-BSC 성과 측정"
-  ],
-  "related": [
-    "MG-084",
-    "MG-085",
-    "MG-087",
-    "MG-062",
-    "MG-093"
+ "id": "MG-083",
+ "name": "IT Governance",
+ "aliases": [
+  "IT 거버넌스",
+  "아이티 거버넌스",
+  "정보기술 거버넌스"
+ ],
+ "category": "거버넌스 · 컴플라이언스 > IT Governance",
+ "keywords": [
+  "전략과 목표달성",
+  "비즈니스와 IT 연계(Alignment)",
+  "지배/통제/관리",
+  "CobIT",
+  "전략적연계",
+  "가치제공",
+  "위험관리",
+  "자원관리",
+  "성과측정"
+ ],
+ "mnemonic": {
+  "word": "전가위자성",
+  "expansion": [
+   "전략적 연계",
+   "가치 제공",
+   "위험 관리",
+   "자원 관리",
+   "성과 측정"
   ]
+ },
+ "definition": "기업 전략·목표 달성을 위해 IT 자원·프로세스를 통제·관리하는 체계",
+ "definition_long": "평가·지시·모니터링(ISO 38500)으로 IT를 통제·정렬하는 경영 체계",
+ "background": "IT 투자 확대 대비 성과 불투명 — 비즈니스-IT 정렬(Alignment)과 책임 체계 요구",
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 투자<br>성과 불명</div><div class=\"d-circle\">비즈-IT<br>단절</div><div class=\"d-circle\">규제<br>준수 요구</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">IT 거버넌스 수립</div><div class=\"d-box soft\">5대 영역 (Ⅱ)</div><div class=\"d-box soft\">프레임워크 · 적용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">전략-IT 정렬<small>가치 · 책임 확보</small></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">전략적 연계<small>Biz-IT Alignment</small></div><div class=\"d-box\">가치 제공<small>Value Delivery</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">IT 거버넌스<small>이사회 · IT 위원회</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">위험 · 자원 관리<small>Risk · Resource</small></div><div class=\"d-box soft\">성과 측정<small>IT-BSC</small></div></div></div>",
+ "diagram_gloss": "– \"전가위자성\" — 5대 관심 영역의 상호 순환 구조",
+ "features": [
+  {
+   "item": "책임 구조",
+   "desc": "IT 의사결정 권한·책임의 명확화"
+  },
+  {
+   "item": "정렬",
+   "desc": "비즈니스 전략과 IT 전략의 연계"
+  },
+  {
+   "item": "통제",
+   "desc": "COBIT 등 프레임워크 기반 관리 체계"
+  }
+ ],
+ "components": [
+  {
+   "role": "연계",
+   "name": "전략적 Alignment",
+   "detail": "경영 전략과 IT 계획의 정합 유지"
+  },
+  {
+   "role": "가치",
+   "name": "Value Delivery",
+   "detail": "IT 투자 대비 비즈니스 가치 실현"
+  },
+  {
+   "role": "위험·자원",
+   "name": "Risk·Resource",
+   "detail": "IT 리스크 통제와 자원 최적 배분"
+  },
+  {
+   "role": "성과",
+   "name": "Performance",
+   "detail": "IT-BSC 등으로 성과 측정·보고"
+  }
+ ],
+ "components_gloss": "– 구현 프레임워크: COBIT(통제)·ISO 38500(원칙)·Val IT(가치)",
+ "comparisons": [
+  {
+   "vs": "MG-084",
+   "vs_name": "COBIT5",
+   "axes": [
+    {
+     "axis": "성격",
+     "a": "거버넌스 개념·체계(What)",
+     "b": "구현 프레임워크(How)"
+    },
+    {
+     "axis": "범위",
+     "a": "의사결정 구조·5대 영역",
+     "b": "5원칙·7 Enabler·프로세스"
+    },
+    {
+     "axis": "활용",
+     "a": "체계 설계의 방향",
+     "b": "평가·감사의 실무 기준"
+    }
+   ]
+  }
+ ],
+ "usage": [
+  {
+   "item": "투자 통제",
+   "desc": "IT 투자 우선·승인"
+  },
+  {
+   "item": "준법 연계",
+   "desc": "RegTech·SupTech"
+  },
+  {
+   "item": "감사 대응",
+   "desc": "내부통제 증적 확보"
+  },
+  {
+   "item": "성과 입증",
+   "desc": "IT 기여 경영 보고"
+  }
+ ],
+ "conclusion": "IT 거버넌스는 통제가 아닌 가치 창출 구조 — 이사회 수준의 책임과 COBIT 기반 성숙도 개선이 핵심",
+ "exam_points": [
+  "5대 관심 영역",
+  "COBIT·ISO 38500·Val IT 프레임워크 비교",
+  "IT-BSC 성과 측정"
+ ],
+ "related": [
+  "MG-084",
+  "MG-085",
+  "MG-087",
+  "MG-062",
+  "MG-093"
+ ],
+ "lead": "지속가능 경영 위한 IT 통제"
 }

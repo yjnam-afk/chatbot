@@ -1401,11 +1401,18 @@ async def _assembly_path(message: str, kind: str, points: int,
 
     # 부분 적중 감지(표준 경로 전용): 문제 주제어 중 적중 토픽에 안 잡힌 것.
     # 요구 주도 경로는 요구 단위 부족(deficits)으로 대신 처리한다.
+    # 적중 토픽명의 부분 문자열인 조각은 제외 — "…성과 측정지표"의 "과 " 오분리
+    # 잔여("…성"/"측정지표")가 미등록 주제로 오인되어 플레이스홀더가 생기던 결함.
     missing: list[str] = []
     if not req_mode:
+        matched_names = [_library.norm(x) for t in topics
+                         for x in [t.get("name") or ""] + list(t.get("aliases") or [])]
         subjects = split_subjects(message)
         if len(subjects) >= 2:
             for s in subjects:
+                frag = _library.norm(s)
+                if any(frag and frag in mn for mn in matched_names):
+                    continue
                 r = _library.match(s)
                 if not (set(r["matched"]) & set(matched)):
                     missing.append(s)

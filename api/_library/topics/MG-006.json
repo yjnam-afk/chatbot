@@ -1,122 +1,162 @@
 {
-  "id": "MG-006",
-  "name": "Data Mining",
-  "aliases": [
-    "데이터 마이닝",
-    "데이터마이닝"
-  ],
-  "category": "데이터 · 인텔리전스 > Mining 총론 > Data Mining",
-  "keywords": [
-    "연관성기법(지지도/신뢰도/리프트)",
-    "연속성",
-    "분류",
-    "군집화(Clustering)",
-    "Machine Learning(기 계학습 연계)",
-    "특성화",
-    "의사결정트리"
-  ],
-  "mnemonic": {
-    "word": "AS 분데특신의",
-    "expansion": [
-      "연관성(Association)",
-      "순차(Sequence)",
-      "분류",
-      "군집화",
-      "특성화",
-      "신경망·의사결정트리"
-    ]
-  },
-  "definition": "대량 데이터에 통계·모델링 기법을 적용해 숨겨진 패턴·관계를 도출하는 기법",
-  "definition_long": "대량 데이터에 통계·기계학습 모델링 기법을 적용해 숨겨진 패턴·관계를 도출하는 지식 발견 기법",
-  "background": "데이터 폭증 대비 활용 부재 — 경험 의존 의사결정을 데이터 기반으로 전환 필요",
-  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">데이터<br>폭증</div><div class=\"d-circle\">경험 의존<br>의사결정</div><div class=\"d-circle\">경쟁<br>심화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">Data Mining</div><div class=\"d-box soft\">기법 체계 (Ⅱ)</div><div class=\"d-box soft\">적용 절차 · 활용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">숨겨진 패턴 발견<small>데이터 기반 의사결정</small></div></div>",
-  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">원천 데이터<small>DW · Data Mart</small></div><div class=\"d-box soft\">전처리<small>정제 · 변환</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">마이닝 엔진<small>연관 · 분류 · 군집</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">패턴 · 규칙<small>예측 · 인사이트</small></div></div>",
-  "diagram_gloss": "– DW의 정제 데이터에 기법을 적용해 패턴·규칙을 도출하는 흐름",
-  "features": [
-    {
-      "item": "탐사적",
-      "desc": "가설 없이 데이터에서 미지의 패턴 발견"
-    },
-    {
-      "item": "대용량",
-      "desc": "전수 데이터 기반 — 표본 통계와 차별"
-    },
-    {
-      "item": "학습 연계",
-      "desc": "기계학습(지도·비지도)과 기법 공유"
-    }
-  ],
-  "components": [
-    {
-      "role": "연관성",
-      "name": "장바구니 분석",
-      "detail": "지지도·신뢰도·리프트로 동시 구매 규칙 도출"
-    },
-    {
-      "role": "분류",
-      "name": "의사결정트리, NN",
-      "detail": "레이블 학습으로 신규 데이터 범주 예측"
-    },
-    {
-      "role": "군집화",
-      "name": "Clustering",
-      "detail": "유사도 기반 무레이블 그룹 자동 분할"
-    },
-    {
-      "role": "순차·특성화",
-      "name": "Sequence, 특성화",
-      "detail": "시간 순서 패턴·집단 특징 요약 도출"
-    }
-  ],
-  "components_gloss": "– 목적(예측/설명)과 레이블 유무에 따라 기법 선택",
-  "comparisons": [
-    {
-      "vs": "MG-011",
-      "vs_name": "Text Mining",
-      "axes": [
-        {
-          "axis": "대상",
-          "a": "정형 데이터(수치·범주)",
-          "b": "비정형 텍스트"
-        },
-        {
-          "axis": "전처리",
-          "a": "정제·변환·축소",
-          "b": "형태소 분석·벡터화"
-        },
-        {
-          "axis": "산출",
-          "a": "규칙·모델·군집",
-          "b": "분류·요약·감성"
-        }
-      ]
-    }
-  ],
-  "usage": [
-    {
-      "item": "고객 분석",
-      "desc": "이탈 예측·교차판매 등 CRM 고도화"
-    },
-    {
-      "item": "이상 탐지",
-      "desc": "부정거래·품질 이상의 조기 발견"
-    },
-    {
-      "item": "수요 예측",
-      "desc": "판매·재고의 데이터 기반 계획"
-    }
-  ],
-  "conclusion": "마이닝 성과는 데이터 품질과 문제 정의가 좌우 — CRISP-DM 등 표준 절차 기반 수행이 바람직",
-  "exam_points": [
-    "기법 분류(연관/분류/군집/순차) 비교",
-    "CRISP-DM 절차와의 연계",
-    "기계학습과의 관계"
-  ],
-  "related": [
-    "MG-007",
-    "MG-008",
-    "MG-011",
-    "MG-012",
-    "MG-076"
+ "id": "MG-006",
+ "name": "Data Mining",
+ "aliases": [
+  "데이터 마이닝",
+  "데이터마이닝"
+ ],
+ "category": "데이터 · 인텔리전스 > Mining 총론 > Data Mining",
+ "keywords": [
+  "연관성기법(지지도/신뢰도/리프트)",
+  "연속성",
+  "분류",
+  "군집화(Clustering)",
+  "Machine Learning(기 계학습 연계)",
+  "특성화",
+  "의사결정트리"
+ ],
+ "mnemonic": {
+  "word": "AS 분데특신의",
+  "expansion": [
+   "연관성(Association)",
+   "순차(Sequence)",
+   "분류",
+   "군집화",
+   "특성화",
+   "신경망·의사결정트리"
   ]
+ },
+ "definition": "대량 데이터에 통계·모델링 기법을 적용해 숨겨진 패턴·관계를 도출하는 기법",
+ "definition_long": "대량 데이터에 통계·기계학습 모델링 기법을 적용해 숨겨진 패턴·관계를 도출하는 지식 발견 기법",
+ "background": "데이터 폭증 대비 활용 부재 — 경험 의존 의사결정을 데이터 기반으로 전환 필요",
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">데이터<br>폭증</div><div class=\"d-circle\">경험 의존<br>의사결정</div><div class=\"d-circle\">경쟁<br>심화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">Data Mining</div><div class=\"d-box soft\">기법 체계 (Ⅱ)</div><div class=\"d-box soft\">적용 절차 · 활용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">숨겨진 패턴 발견<small>데이터 기반 의사결정</small></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">원천 데이터<small>DW · Data Mart</small></div><div class=\"d-box soft\">전처리<small>정제 · 변환</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">마이닝 엔진<small>연관 · 분류 · 군집</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">패턴 · 규칙<small>예측 · 인사이트</small></div></div>",
+ "diagram_gloss": "– DW의 정제 데이터에 기법을 적용해 패턴·규칙을 도출하는 흐름",
+ "features": [
+  {
+   "item": "탐사적",
+   "desc": "가설 없이 데이터에서 미지의 패턴 발견"
+  },
+  {
+   "item": "대용량",
+   "desc": "전수 데이터 기반 — 표본 통계와 차별"
+  },
+  {
+   "item": "학습 연계",
+   "desc": "기계학습(지도·비지도)과 기법 공유"
+  }
+ ],
+ "components": [
+  {
+   "role": "연관성",
+   "name": "장바구니 분석",
+   "detail": "지지도·신뢰도·리프트로 동시 구매 규칙 도출"
+  },
+  {
+   "role": "분류",
+   "name": "의사결정트리, NN",
+   "detail": "레이블 학습으로 신규 데이터 범주 예측"
+  },
+  {
+   "role": "군집화",
+   "name": "Clustering",
+   "detail": "유사도 기반 무레이블 그룹 자동 분할"
+  },
+  {
+   "role": "순차·특성화",
+   "name": "Sequence, 특성화",
+   "detail": "시간 순서 패턴·집단 특징 요약 도출"
+  }
+ ],
+ "components_gloss": "– 목적(예측/설명)과 레이블 유무에 따라 기법 선택",
+ "comparisons": [
+  {
+   "vs": "MG-011",
+   "vs_name": "Text Mining",
+   "axes": [
+    {
+     "axis": "대상",
+     "a": "정형 데이터(수치·범주)",
+     "b": "비정형 텍스트"
+    },
+    {
+     "axis": "전처리",
+     "a": "정제·변환·축소",
+     "b": "형태소 분석·벡터화"
+    },
+    {
+     "axis": "산출",
+     "a": "규칙·모델·군집",
+     "b": "분류·요약·감성"
+    }
+   ]
+  }
+ ],
+ "usage": [
+  {
+   "item": "고객 분석",
+   "desc": "이탈 예측·교차판매 등 CRM 고도화"
+  },
+  {
+   "item": "이상 탐지",
+   "desc": "부정거래·품질 이상의 조기 발견"
+  },
+  {
+   "item": "수요 예측",
+   "desc": "판매·재고의 데이터 기반 계획"
+  }
+ ],
+ "conclusion": "마이닝 성과는 데이터 품질과 문제 정의가 좌우 — CRISP-DM 등 표준 절차 기반 수행이 바람직",
+ "exam_points": [
+  "기법 분류(연관/분류/군집/순차) 비교",
+  "CRISP-DM 절차와의 연계",
+  "기계학습과의 관계"
+ ],
+ "related": [
+  "MG-007",
+  "MG-008",
+  "MG-011",
+  "MG-012",
+  "MG-076"
+ ],
+ "lead": "효율적 의사결정 위한 정보 추출",
+ "sections": [
+  {
+   "title": "Data Mining의 수행단계",
+   "keys": [
+    "수행단계",
+    "단계",
+    "절차",
+    "과정"
+   ],
+   "kind": "t3",
+   "rows": [
+    {
+     "role": "1단계",
+     "name": "Sampling",
+     "detail": "대표 표본 추출"
+    },
+    {
+     "role": "2단계",
+     "name": "정제",
+     "detail": "오류 제거·무결성"
+    },
+    {
+     "role": "3단계",
+     "name": "변환",
+     "detail": "정규화·차원 축소"
+    },
+    {
+     "role": "4단계",
+     "name": "Modeling",
+     "detail": "통계·기계학습"
+    },
+    {
+     "role": "5단계",
+     "name": "시각화",
+     "detail": "패턴 보고·해석"
+    }
+   ]
+  }
+ ]
 }

@@ -12,16 +12,14 @@
   "PDCA 사이클 적용"
  ],
  "mnemonic": {
-  "word": "피디씨에이",
+  "word": "조리계지운성개",
   "expansion": [
-   "Plan(수립)",
-   "Do(운영)",
-   "Check(검토)",
-   "Act(개선)"
-  ]
+   "조직·리더십·계획수립·지원·운영·성과평가·개선(7조항)"
+  ],
+  "extra": "PDCA — 계획(P)·운영(D)·성과평가(C)·개선(A) 매핑"
  },
  "definition": "BCP 수립·운영·검토·개선 요구사항을 규정한 비즈니스 연속성 국제표준",
- "definition_long": "BCP의 수립·운영·검토·개선 요구사항을 PDCA 사이클로 규정한 비즈니스 연속성 경영시스템(BCMS) 국제표준",
+ "definition_long": "BCP 수립부터 운영·검토·개선까지 요구사항을 규정한 BCMS 국제표준",
  "background": "조직별 상이한 연속성 체계 — 객관적 심사·인증 가능한 공통 요구사항 필요",
  "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">Plan<small>정책 · BIA · 전략</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">Do<small>절차 구현 · 훈련</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">Check<small>모니터링 · 심사</small></div><span class=\"d-arrow\">→</span><div class=\"d-box soft\">Act<small>시정 · 개선</small></div></div>",
  "diagram_gloss": "– BCMS를 PDCA 사이클로 수립·운영·검토·개선",
@@ -41,27 +39,42 @@
  ],
  "components": [
   {
-   "role": "조직 상황",
-   "name": "이해관계자·범위",
-   "detail": "내·외부 이슈와 BCMS 적용 범위 정의"
+   "role": "P 계획",
+   "name": "조직 상황",
+   "detail": "이해관계자·범위 정의"
   },
   {
-   "role": "기획",
-   "name": "BIA·리스크 평가",
-   "detail": "중단 영향 분석과 연속성 전략 수립"
+   "role": "P 계획",
+   "name": "리더십",
+   "detail": "경영진 의지·정책"
   },
   {
-   "role": "운영",
-   "name": "절차·훈련",
-   "detail": "대응 구조·연속성 절차 구현과 연습"
+   "role": "P 계획",
+   "name": "계획수립",
+   "detail": "목표·리스크 대응"
   },
   {
-   "role": "평가·개선",
-   "name": "심사·시정조치",
-   "detail": "성과 평가·내부심사·지속 개선"
+   "role": "P 계획",
+   "name": "지원",
+   "detail": "자원·역량·문서화"
+  },
+  {
+   "role": "D 운영",
+   "name": "운영",
+   "detail": "BIA·RA, BCP·훈련"
+  },
+  {
+   "role": "C 평가",
+   "name": "성과평가",
+   "detail": "모니터링·내부심사"
+  },
+  {
+   "role": "A 개선",
+   "name": "개선",
+   "detail": "부적합 시정·개선"
   }
  ],
- "components_gloss": "– 요구사항 조항(4~10장)이 PDCA에 대응",
+ "components_gloss": "– 7조항이 시험 정답 축(암기)",
  "comparisons": [
   {
    "vs": "MG-014",
@@ -153,5 +166,6 @@
     "- 지속 개선"
    ]
   }
- ]
+ ],
+ "lead": "비즈니스 연속성 관리 국제표준"
 }

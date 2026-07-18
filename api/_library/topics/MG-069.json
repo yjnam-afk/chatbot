@@ -96,5 +96,6 @@
   "단계별 활동",
   "지속 개선 체계"
  ],
- "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">일회성<br>개선</div><div class=\"d-circle\">품질<br>편차</div><div class=\"d-circle\">관리<br>비체계</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">PDCA 사이클</div><div class=\"d-box soft\">4단계 구성 (Ⅱ)</div><div class=\"d-box soft\">적용 방안 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">지속 개선<small>관리체계 정착</small></div></div>"
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">일회성<br>개선</div><div class=\"d-circle\">품질<br>편차</div><div class=\"d-circle\">관리<br>비체계</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">PDCA 사이클</div><div class=\"d-box soft\">4단계 구성 (Ⅱ)</div><div class=\"d-box soft\">적용 방안 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">지속 개선<small>관리체계 정착</small></div></div>",
+ "lead": "지속 개선 위한 관리 사이클"
 }

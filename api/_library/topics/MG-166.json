@@ -16,80 +16,86 @@
  "mnemonic": {
   "word": "비업",
   "expansion": [
-   "비용측면",
-   "업무측면"
+   "비용: 운영적정·유지보수·비용효율",
+   "업무: 사용편의·업무적합·성과달성"
   ]
  },
  "definition": "비용·업무 관점 성과측정으로 정보시스템 유지·폐기를 결정하는 지표",
- "definition_long": "운영 정보시스템을 비용·업무 측면에서 측정해 유지·폐기를 판단하는 지표 체계",
+ "definition_long": "전자정부법 68조 기반, 구축 1년 이상 시스템을 비용·업무 지표로 판정하는 체계",
  "background": "노후 시스템 방치로 운영비 증가 — 정량 근거 기반 처분 판단 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-vs\"><div class=\"d-zone\"><div class=\"d-zt\">비용측면</div><div class=\"d-box\">운영비 절감</div><div class=\"d-box soft\">TCO 분석</div></div><div class=\"d-link\"><span class=\"d-arrow\">↔</span>종합 평가<br>유지·폐기</div><div class=\"d-zone\"><div class=\"d-zt\">업무측면</div><div class=\"d-box\">업무 효율</div><div class=\"d-box soft\">활용도·만족도</div></div></div></div>",
- "diagram_gloss": "– 비용·업무 양 측면 종합 판정",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-flow\"><div class=\"d-box\">대상<small>구축 1년 이상</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">비용측면<small>3개 지표</small></div><div class=\"d-box\">업무측면<small>3개 지표</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">판정<small>유지·고도화·재개발·폐기</small></div></div></div>",
+ "diagram_gloss": "– 6개 지표 측정 후 4개 판정",
  "components": [
   {
    "role": "비용측면",
-   "name": "운영비용",
-   "detail": [
-    "- 유지보수비 추이",
-    "- 절감률 측정"
-   ]
+   "name": "운영 적정성",
+   "detail": "운영 조직·절차"
   },
   {
    "role": "비용측면",
-   "name": "TCO",
-   "detail": "총소유비용 환산 비교"
+   "name": "유지보수성",
+   "detail": "변경·수리 용이"
+  },
+  {
+   "role": "비용측면",
+   "name": "비용 효율성",
+   "detail": "운영비 대비 효과"
   },
   {
    "role": "업무측면",
-   "name": "업무 효율",
-   "detail": [
-    "- 처리시간 단축",
-    "- 오류율 감소"
-   ]
+   "name": "사용 편의성",
+   "detail": "이용자 편리성"
   },
   {
    "role": "업무측면",
-   "name": "활용도",
-   "detail": [
-    "- 이용률·가용성",
-    "- 사용자 만족도"
-   ]
+   "name": "업무 적합성",
+   "detail": "업무 지원 부합"
+  },
+  {
+   "role": "업무측면",
+   "name": "성과 달성도",
+   "detail": "목표 달성 수준"
   }
  ],
- "components_gloss": "– 측면별 지표로 정량 판단",
+ "components_gloss": "– 행안부 공식 6개 평가지표",
  "features": [
   {
-   "item": "정량 평가",
-   "desc": "지표 기반 객관 측정"
+   "item": "유지",
+   "desc": "비용·업무 모두 우수"
   },
   {
-   "item": "수명 연계",
-   "desc": "유지·폐기 의사결정 근거"
+   "item": "고도화",
+   "desc": "업무 우수·비용 미달"
   },
   {
-   "item": "환류 체계",
-   "desc": "예산·개선 계획에 반영"
+   "item": "재개발",
+   "desc": "비용 우수·업무 미달"
+  },
+  {
+   "item": "폐기",
+   "desc": "비용·업무 모두 미달"
   }
  ],
  "usage": [
   {
-   "item": "처분 판단",
-   "desc": "재개발·폐기 결정 근거"
+   "item": "정부",
+   "desc": "운영 효율·예산 절감"
   },
   {
-   "item": "예산 편성",
-   "desc": "운영예산 산정 기초자료"
+   "item": "국민",
+   "desc": "서비스 품질·만족"
   },
   {
-   "item": "운영 개선",
-   "desc": "저성과 시스템 개선 도출"
+   "item": "기업",
+   "desc": "재개발 사업 기회"
   }
  ],
- "conclusion": "성과측정은 EA·예산 프로세스와 연계될 때 실효성 확보됨",
+ "conclusion": "판정 결과는 유지·고도화·재개발·폐기와 차년 예산에 환류됨",
  "exam_points": [
-  "비용·업무 측면 지표",
-  "측정 결과 환류",
-  "노후 시스템 처분 판단"
+  "공식 6개 지표(비용·업무)",
+  "판정 매트릭스 4결과",
+  "구축 1년 이상 대상 기준"
  ],
- "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">노후 IS<br>누적</div><div class=\"d-circle\">운영비<br>증가</div><div class=\"d-circle\">처분 근거<br>부재</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">성과 측정지표</div><div class=\"d-box soft\">측정 체계 (Ⅱ)</div><div class=\"d-box soft\">측면별 지표 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">합리적 처분<small>유지 · 폐기</small></div></div>"
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">노후 IS<br>누적</div><div class=\"d-circle\">운영비<br>증가</div><div class=\"d-circle\">처분 근거<br>부재</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">성과 측정지표</div><div class=\"d-box soft\">측정 체계 (Ⅱ)</div><div class=\"d-box soft\">측면별 지표 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">합리적 처분<small>유지 · 폐기</small></div></div>",
+ "lead": "전자정부법 기반 운영성과 평가"
 }

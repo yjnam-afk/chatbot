@@ -1,118 +1,119 @@
 {
-  "id": "MG-024",
-  "name": "SWOT(Strengths, Weaknesses, Opportunities, Threats) 분석",
-  "aliases": [
-    "SWOT 분석",
-    "SWOT",
-    "스왓 분석",
-    "강점 약점 기회 위협 분석"
-  ],
-  "category": "전략 기획 · 분석도구 > 전략수립도구 > SWOT 분석",
-  "keywords": [
-    "Strengths",
-    "Weaknesses",
-    "Opportunities",
-    "Threats"
-  ],
-  "mnemonic": {
-    "word": "강약기위",
-    "expansion": [
-      "강점(S)",
-      "약점(W)",
-      "기회(O)",
-      "위협(T)"
-    ]
+ "id": "MG-024",
+ "name": "SWOT(Strengths, Weaknesses, Opportunities, Threats) 분석",
+ "aliases": [
+  "SWOT 분석",
+  "SWOT",
+  "스왓 분석",
+  "강점 약점 기회 위협 분석"
+ ],
+ "category": "전략 기획 · 분석도구 > 전략수립도구 > SWOT 분석",
+ "keywords": [
+  "Strengths",
+  "Weaknesses",
+  "Opportunities",
+  "Threats"
+ ],
+ "mnemonic": {
+  "word": "강약기위",
+  "expansion": [
+   "강점(S)",
+   "약점(W)",
+   "기회(O)",
+   "위협(T)"
+  ]
+ },
+ "definition": "내부 강·약점과 외부 기회·위협을 분석해 전략 대안을 도출하는 기법",
+ "definition_long": "조직 내부의 강점·약점과 외부 환경의 기회·위협을 매트릭스로 분석해 SO·ST·WO·WT 전략을 도출하는 전략수립 기법",
+ "background": "내·외부 환경의 체계적 진단 없이 수립된 전략의 실패 위험 — 균형 잡힌 상황 분석 필요",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">S 강점<small>내부 · 긍정</small></div><div class=\"d-box\">W 약점<small>내부 · 부정</small></div></div><div class=\"d-col\"><div class=\"d-box\">O 기회<small>외부 · 긍정</small></div><div class=\"d-box\">T 위협<small>외부 · 부정</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">전략 도출<small>SO · ST · WO · WT</small></div></div>",
+ "diagram_gloss": "– 내부(S·W)×외부(O·T) 2×2 매트릭스 교차로 4개 전략 도출",
+ "features": [
+  {
+   "item": "내부 관점",
+   "desc": "자원·역량 기반의 강점(S)·약점(W) 진단"
   },
-  "definition": "내부 강·약점과 외부 기회·위협을 분석해 전략 대안을 도출하는 기법",
-  "definition_long": "조직 내부의 강점·약점과 외부 환경의 기회·위협을 매트릭스로 분석해 SO·ST·WO·WT 전략을 도출하는 전략수립 기법",
-  "background": "내·외부 환경의 체계적 진단 없이 수립된 전략의 실패 위험 — 균형 잡힌 상황 분석 필요",
-  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">S 강점<small>내부 · 긍정</small></div><div class=\"d-box\">W 약점<small>내부 · 부정</small></div></div><div class=\"d-col\"><div class=\"d-box\">O 기회<small>외부 · 긍정</small></div><div class=\"d-box\">T 위협<small>외부 · 부정</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">전략 도출<small>SO · ST · WO · WT</small></div></div>",
-  "diagram_gloss": "– 내부(S·W)×외부(O·T) 2×2 매트릭스 교차로 4개 전략 도출",
-  "features": [
+  {
+   "item": "외부 관점",
+   "desc": "시장·환경 기반의 기회(O)·위협(T) 진단"
+  },
+  {
+   "item": "교차 전략",
+   "desc": "요인 결합으로 실행 가능한 전략 대안 도출"
+  }
+ ],
+ "components": [
+  {
+   "role": "SO 전략",
+   "name": "강점×기회",
+   "detail": "강점으로 기회를 극대화하는 공격 전략"
+  },
+  {
+   "role": "ST 전략",
+   "name": "강점×위협",
+   "detail": "강점으로 위협을 회피·최소화하는 다각화 전략"
+  },
+  {
+   "role": "WO 전략",
+   "name": "약점×기회",
+   "detail": "약점을 보완해 기회를 활용하는 전환 전략"
+  },
+  {
+   "role": "WT 전략",
+   "name": "약점×위협",
+   "detail": "약점·위협을 최소화하는 방어·철수 전략"
+  }
+ ],
+ "components_gloss": "– 교차 전략 4종은 자원 배분 우선순위 결정의 근거로 활용",
+ "comparisons": [
+  {
+   "vs": "MG-033",
+   "vs_name": "PEST 분석",
+   "axes": [
     {
-      "item": "내부 관점",
-      "desc": "자원·역량 기반의 강점(S)·약점(W) 진단"
+     "axis": "범위",
+     "a": "내부+외부 통합 진단",
+     "b": "거시 외부환경 한정"
     },
     {
-      "item": "외부 관점",
-      "desc": "시장·환경 기반의 기회(O)·위협(T) 진단"
+     "axis": "산출물",
+     "a": "SO·ST·WO·WT 전략",
+     "b": "정치·경제·사회·기술 요인"
     },
     {
-      "item": "교차 전략",
-      "desc": "요인 결합으로 실행 가능한 전략 대안 도출"
+     "axis": "활용",
+     "a": "전략 대안 직접 도출",
+     "b": "SWOT의 O·T 입력으로 활용"
     }
-  ],
-  "components": [
-    {
-      "role": "SO 전략",
-      "name": "강점×기회",
-      "detail": "강점으로 기회를 극대화하는 공격 전략"
-    },
-    {
-      "role": "ST 전략",
-      "name": "강점×위협",
-      "detail": "강점으로 위협을 회피·최소화하는 다각화 전략"
-    },
-    {
-      "role": "WO 전략",
-      "name": "약점×기회",
-      "detail": "약점을 보완해 기회를 활용하는 전환 전략"
-    },
-    {
-      "role": "WT 전략",
-      "name": "약점×위협",
-      "detail": "약점·위협을 최소화하는 방어·철수 전략"
-    }
-  ],
-  "components_gloss": "– 교차 전략 4종은 자원 배분 우선순위 결정의 근거로 활용",
-  "comparisons": [
-    {
-      "vs": "MG-033",
-      "vs_name": "PEST 분석",
-      "axes": [
-        {
-          "axis": "범위",
-          "a": "내부+외부 통합 진단",
-          "b": "거시 외부환경 한정"
-        },
-        {
-          "axis": "산출물",
-          "a": "SO·ST·WO·WT 전략",
-          "b": "정치·경제·사회·기술 요인"
-        },
-        {
-          "axis": "활용",
-          "a": "전략 대안 직접 도출",
-          "b": "SWOT의 O·T 입력으로 활용"
-        }
-      ]
-    }
-  ],
-  "usage": [
-    {
-      "item": "전략 수립",
-      "desc": "사업·IT 전략 대안 도출의 표준 출발점"
-    },
-    {
-      "item": "ISP 연계",
-      "desc": "정보화 전략계획의 환경분석 단계 활용"
-    },
-    {
-      "item": "제안·심사",
-      "desc": "사업 타당성·경쟁력 평가 프레임"
-    }
-  ],
-  "conclusion": "SWOT은 5Force·PEST 등 환경분석과 병행할 때 요인 도출의 객관성 확보",
-  "exam_points": [
-    "SO/ST/WO/WT 교차 전략 도출",
-    "5Force·PEST·7S 등 타 전략 도구와의 비교",
-    "ISP 환경분석 단계 적용"
-  ],
-  "related": [
-    "MG-022",
-    "MG-023",
-    "MG-033",
-    "MG-047"
-  ],
-  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">내부 역량<br>미파악</div><div class=\"d-circle\">외부 환경<br>변화</div><div class=\"d-circle\">전략 근거<br>부재</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">SWOT 분석</div><div class=\"d-box soft\">4대 요인 (Ⅱ)</div><div class=\"d-box soft\">교차 전략 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">전략 대안 도출<small>SO · ST · WO · WT</small></div></div>"
+   ]
+  }
+ ],
+ "usage": [
+  {
+   "item": "전략 수립",
+   "desc": "사업·IT 전략 대안 도출의 표준 출발점"
+  },
+  {
+   "item": "ISP 연계",
+   "desc": "정보화 전략계획의 환경분석 단계 활용"
+  },
+  {
+   "item": "제안·심사",
+   "desc": "사업 타당성·경쟁력 평가 프레임"
+  }
+ ],
+ "conclusion": "SWOT은 5Force·PEST 등 환경분석과 병행할 때 요인 도출의 객관성 확보",
+ "exam_points": [
+  "SO/ST/WO/WT 교차 전략 도출",
+  "5Force·PEST·7S 등 타 전략 도구와의 비교",
+  "ISP 환경분석 단계 적용"
+ ],
+ "related": [
+  "MG-022",
+  "MG-023",
+  "MG-033",
+  "MG-047"
+ ],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">내부 역량<br>미파악</div><div class=\"d-circle\">외부 환경<br>변화</div><div class=\"d-circle\">전략 근거<br>부재</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">SWOT 분석</div><div class=\"d-box soft\">4대 요인 (Ⅱ)</div><div class=\"d-box soft\">교차 전략 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">전략 대안 도출<small>SO · ST · WO · WT</small></div></div>",
+ "lead": "기업 내·외부 환경 분석 기법"
 }

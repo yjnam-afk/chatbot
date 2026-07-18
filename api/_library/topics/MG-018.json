@@ -1,116 +1,166 @@
 {
-  "id": "MG-018",
-  "name": "DRP(Disaster Recovery Plan)",
-  "aliases": [
-    "DRP",
-    "Disaster Recovery Plan",
-    "재해복구계획",
-    "Disaster Recovery Plan 수립",
-    "디알피"
-  ],
-  "category": "BCP · 재해복구 > BCP > DRP",
-  "keywords": [
-    "Disaster Recovery Plan",
-    "정기/비정기 훈련"
-  ],
-  "mnemonic": {
-    "word": "디복훈(DRS, 복구계획서, 훈련계획서)",
-    "expansion": [
-      "DRS(복구 체계)",
-      "복구계획서(절차 문서)",
-      "훈련계획서(정기/비정기)"
-    ]
+ "id": "MG-018",
+ "name": "DRP(Disaster Recovery Plan)",
+ "aliases": [
+  "DRP",
+  "Disaster Recovery Plan",
+  "재해복구계획",
+  "Disaster Recovery Plan 수립",
+  "디알피"
+ ],
+ "category": "BCP · 재해복구 > BCP > DRP",
+ "keywords": [
+  "Disaster Recovery Plan",
+  "정기/비정기 훈련"
+ ],
+ "mnemonic": {
+  "word": "디복훈(DRS, 복구계획서, 훈련계획서)",
+  "expansion": [
+   "DRS(복구 체계)",
+   "복구계획서(절차 문서)",
+   "훈련계획서(정기/비정기)"
+  ]
+ },
+ "definition": "재해 발생 시 체계적 업무복구를 위한 절차와 문서를 수립한 재해복구계획",
+ "definition_long": "재해 발생 시 체계적 업무 복구를 위해 절차·조직·자원을 문서화하고 훈련으로 검증하는 재해복구계획",
+ "background": "복구 시스템이 있어도 절차·역할 부재 시 혼란 — 문서화된 계획과 반복 훈련 필요",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">비상 대응<small>선포 · 소집</small></div><div class=\"d-box\">복구 절차<small>시스템 · 데이터</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">DRP 문서<small>조직 · 절차 · 자원</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">모의 훈련<small>정기 · 비정기</small></div><div class=\"d-box soft\">개정 · 보완<small>훈련 결과 반영</small></div></div></div>",
+ "diagram_gloss": "– 대응·복구 절차를 문서화하고 훈련-보완의 순환으로 실효성 유지",
+ "features": [
+  {
+   "item": "문서화",
+   "desc": "복구 절차·연락체계·자원의 명문화"
   },
-  "definition": "재해 발생 시 체계적 업무복구를 위한 절차와 문서를 수립한 재해복구계획",
-  "definition_long": "재해 발생 시 체계적 업무 복구를 위해 절차·조직·자원을 문서화하고 훈련으로 검증하는 재해복구계획",
-  "background": "복구 시스템이 있어도 절차·역할 부재 시 혼란 — 문서화된 계획과 반복 훈련 필요",
-  "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">비상 대응<small>선포 · 소집</small></div><div class=\"d-box\">복구 절차<small>시스템 · 데이터</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">DRP 문서<small>조직 · 절차 · 자원</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">모의 훈련<small>정기 · 비정기</small></div><div class=\"d-box soft\">개정 · 보완<small>훈련 결과 반영</small></div></div></div>",
-  "diagram_gloss": "– 대응·복구 절차를 문서화하고 훈련-보완의 순환으로 실효성 유지",
-  "features": [
+  {
+   "item": "역할 정의",
+   "desc": "비상 조직(복구반·통제반) 편성"
+  },
+  {
+   "item": "훈련 검증",
+   "desc": "정기·비정기 훈련으로 계획 실효성 확인"
+  }
+ ],
+ "components": [
+  {
+   "role": "대응",
+   "name": "비상 대응 절차",
+   "detail": "재해 선포 기준·초동 대응·소집 체계"
+  },
+  {
+   "role": "복구",
+   "name": "복구 절차서",
+   "detail": "시스템·데이터 복구 순서와 상세 절차"
+  },
+  {
+   "role": "조직",
+   "name": "비상 조직",
+   "detail": "복구반·지원반의 역할·책임 정의"
+  },
+  {
+   "role": "검증",
+   "name": "훈련 계획",
+   "detail": "시나리오 훈련과 결과 기반 개정"
+  }
+ ],
+ "components_gloss": "– \"디복훈\" — 체계·문서·훈련의 3요소",
+ "comparisons": [
+  {
+   "vs": "MG-016",
+   "vs_name": "DRS",
+   "axes": [
     {
-      "item": "문서화",
-      "desc": "복구 절차·연락체계·자원의 명문화"
+     "axis": "성격",
+     "a": "절차·계획(문서)",
+     "b": "복구 인프라(시스템)"
     },
     {
-      "item": "역할 정의",
-      "desc": "비상 조직(복구반·통제반) 편성"
+     "axis": "초점",
+     "a": "누가 어떤 순서로 복구하나",
+     "b": "무엇으로 복구하나"
     },
     {
-      "item": "훈련 검증",
-      "desc": "정기·비정기 훈련으로 계획 실효성 확인"
+     "axis": "검증",
+     "a": "모의 훈련",
+     "b": "이중화·복제 테스트"
     }
-  ],
-  "components": [
+   ]
+  }
+ ],
+ "usage": [
+  {
+   "item": "혼란 방지",
+   "desc": "재해 시 역할·절차의 즉시 실행"
+  },
+  {
+   "item": "RTO 달성",
+   "desc": "숙련된 절차로 복구 시간 단축"
+  },
+  {
+   "item": "감사 대응",
+   "desc": "연속성 규제·심사의 필수 증적"
+  }
+ ],
+ "conclusion": "DRP는 훈련하지 않으면 문서에 불과 — 훈련 결과의 계획 환류(개정)까지가 완성",
+ "exam_points": [
+  "DRP 구성 항목",
+  "훈련 유형(정기/비정기·시나리오)",
+  "BCP·DRS와의 관계"
+ ],
+ "related": [
+  "MG-014",
+  "MG-016",
+  "MG-017",
+  "MG-019"
+ ],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">절차 부재<br>혼란</div><div class=\"d-circle\">역할<br>불명확</div><div class=\"d-circle\">훈련<br>미흡</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">DRP 수립</div><div class=\"d-box soft\">구성요소 (Ⅱ)</div><div class=\"d-box soft\">훈련 · 개정 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">신속한 업무 복구<small>RTO 달성</small></div></div>",
+ "lead": "체계적인 재해복구 계획",
+ "sections": [
+  {
+   "title": "재난 종류별 대응방안",
+   "keys": [
+    "재난",
+    "대응"
+   ],
+   "kind": "t2",
+   "rows": [
     {
-      "role": "대응",
-      "name": "비상 대응 절차",
-      "detail": "재해 선포 기준·초동 대응·소집 체계"
+     "item": "시스템",
+     "desc": "클러스터링 구성"
     },
     {
-      "role": "복구",
-      "name": "복구 절차서",
-      "detail": "시스템·데이터 복구 순서와 상세 절차"
+     "item": "디스크",
+     "desc": "RAID·미러링"
     },
     {
-      "role": "조직",
-      "name": "비상 조직",
-      "detail": "복구반·지원반의 역할·책임 정의"
+     "item": "네트워크",
+     "desc": "경로·장비 이중화"
     },
     {
-      "role": "검증",
-      "name": "훈련 계획",
-      "detail": "시나리오 훈련과 결과 기반 개정"
+     "item": "센터 재해",
+     "desc": "원격지 데이터 복제"
     }
-  ],
-  "components_gloss": "– \"디복훈\" — 체계·문서·훈련의 3요소",
-  "comparisons": [
+   ]
+  },
+  {
+   "title": "DRP 테스트 유형",
+   "keys": [
+    "테스트"
+   ],
+   "kind": "t2",
+   "rows": [
     {
-      "vs": "MG-016",
-      "vs_name": "DRS",
-      "axes": [
-        {
-          "axis": "성격",
-          "a": "절차·계획(문서)",
-          "b": "복구 인프라(시스템)"
-        },
-        {
-          "axis": "초점",
-          "a": "누가 어떤 순서로 복구하나",
-          "b": "무엇으로 복구하나"
-        },
-        {
-          "axis": "검증",
-          "a": "모의 훈련",
-          "b": "이중화·복제 테스트"
-        }
-      ]
-    }
-  ],
-  "usage": [
-    {
-      "item": "혼란 방지",
-      "desc": "재해 시 역할·절차의 즉시 실행"
+     "item": "체크리스트",
+     "desc": "계획서 절차 점검"
     },
     {
-      "item": "RTO 달성",
-      "desc": "숙련된 절차로 복구 시간 단축"
+     "item": "구조 점검",
+     "desc": "관리자 회의 검토"
     },
     {
-      "item": "감사 대응",
-      "desc": "연속성 규제·심사의 필수 증적"
+     "item": "모의훈련",
+     "desc": "모의 상황 복구 훈련"
     }
-  ],
-  "conclusion": "DRP는 훈련하지 않으면 문서에 불과 — 훈련 결과의 계획 환류(개정)까지가 완성",
-  "exam_points": [
-    "DRP 구성 항목",
-    "훈련 유형(정기/비정기·시나리오)",
-    "BCP·DRS와의 관계"
-  ],
-  "related": [
-    "MG-014",
-    "MG-016",
-    "MG-017",
-    "MG-019"
-  ],
-  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">절차 부재<br>혼란</div><div class=\"d-circle\">역할<br>불명확</div><div class=\"d-circle\">훈련<br>미흡</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">DRP 수립</div><div class=\"d-box soft\">구성요소 (Ⅱ)</div><div class=\"d-box soft\">훈련 · 개정 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">신속한 업무 복구<small>RTO 달성</small></div></div>"
+   ]
+  }
+ ]
 }
