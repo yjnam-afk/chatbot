@@ -320,42 +320,76 @@ def _layout(body_html: str, kind: str,
 
 
 def _pull_tail(pages: list[dict]) -> None:
-    """마지막 페이지가 두문자 박스(±빈 줄)뿐이면 직전 페이지로 당겨 앉힌다.
+    """꼬리("이하 빈칸"·두문자 박스)가 단독 페이지로 밀리면 직전 페이지로 당겨 앉힌다.
 
-    자리 확보 순서(단계적): ① 직전 페이지의 남는 줄 ② 직전 페이지 단락 간 .gap 제거
-    ③ 최후 수단으로 "끝" 직후 여백 1줄 축약 — 박스 단독 페이지보다 "끝" 바로 아래
-    박스가 낫다는 판단(발주자 검수 2026-07). 그래도 안 들어가면 현행(별도 페이지) 유지.
+    자리 확보 사다리 (세아 반려 2026-07-19 — "암기박스 단독 페이지 0" 원칙 복원 +
+    인쇄 빈 쪽 금지: 두문자는 인쇄 제외라 단독 쪽이 인쇄 PDF에서 괘선만 남는다):
+    ① 직전 페이지 남는 줄 ② 직전 페이지 단락 여백(.gap) 제거 ③ 꼬리 선행 여백 축약
+    ④ 두문자 박스 3줄→2줄 축소(둘째 풀이 줄 생략) ⑤ 두문자 시트 생략(화면 레일의
+    두문자 카드가 있어 정보 손실 없음 — 코디 승인 2026-07-19) ⑥ "이하 빈칸"마저 안
+    들어가면 생략(직전 페이지가 만석 종료 — 의미상 불필요) 후 꼬리 페이지 제거.
     """
     if len(pages) < 2:
         return
     last, prev = pages[-1], pages[-2]
-    # "이하 빈칸"(fill 1줄)은 두문자와 한 몸인 꼬리로 취급 (W5b·W5c 배치)
-    nongap = [b for b in last["blocks"]
-              if b != _GAP_HTML and not b.lstrip().startswith('<p class="fill"')]
-    if not nongap or not all(b.lstrip().startswith('<div class="mnemonic') for b in nongap):
-        return
-    tail_blocks = list(last["blocks"])
+
+    def is_fill(b: str) -> bool:
+        return b.lstrip().startswith('<p class="fill"')
+
+    def is_mn(b: str) -> bool:
+        return b.lstrip().startswith('<div class="mnemonic')
+
+    nong = [b for b in last["blocks"] if b != _GAP_HTML]
+    if not nong or not all(is_fill(b) or is_mn(b) for b in nong):
+        return  # 꼬리 전용 페이지가 아님 (본문 블록 존재)
+    tail = list(last["blocks"])
     need = last["used"]
-    deficit = need - (prev["cap"] - prev["used"])
-    if deficit > 0:
+
+    def deficit() -> int:
+        return need - (prev["cap"] - prev["used"])
+
+    # ② 직전 페이지의 여백(.gap) 회수 — 단락 여백·끝 뒤 여백 모두
+    if deficit() > 0:
         blocks = prev["blocks"]
-        para_gaps = [i for i, b in enumerate(blocks)
-                     if b == _GAP_HTML and not (i > 0 and 'class="end"' in blocks[i - 1])]
-        end_gaps = [i for i, b in enumerate(blocks)
-                    if b == _GAP_HTML and (i > 0 and 'class="end"' in blocks[i - 1])]
-        lead_gap = 1 if tail_blocks and tail_blocks[0] == _GAP_HTML else 0
-        if len(para_gaps) + len(end_gaps) + lead_gap < deficit:
-            return  # 여백 제거로도 확보 불가 — 현행 유지
-        take = sorted((para_gaps + end_gaps)[:deficit])  # 단락 여백 우선, 끝-뒤 여백은 최후
+        take = [i for i, b in enumerate(blocks) if b == _GAP_HTML][: deficit()]
         for i in reversed(take):
             del blocks[i]
         prev["used"] -= len(take)
-        deficit -= len(take)
-        if deficit > 0 and lead_gap:
-            tail_blocks.pop(0)  # 넘어온 꼬리의 선행 여백 축약
-            need -= 1
-    prev["blocks"].extend(tail_blocks)
-    prev["used"] += need
+    # ③ 꼬리 선행 여백 축약
+    while deficit() > 0 and tail and tail[0] == _GAP_HTML:
+        tail.pop(0)
+        need -= 1
+    # ④ 두문자 박스 3줄 → 2줄(mn2) 축소
+    if deficit() > 0:
+        for i, b in enumerate(tail):
+            if is_mn(b) and "mn2" not in b.lstrip()[:40]:
+                label = re.search(r'<div class="mn-label">.*?</div>', b, re.S)
+                first_p = re.search(r"<p\b.*?</p>", b, re.S)
+                if label and first_p:
+                    tail[i] = ('<div class="mnemonic mn2">\n' + label.group()
+                               + "\n" + first_p.group() + "\n</div>")
+                    need -= 1
+                break
+    # ⑤ 두문자 시트 생략 (인쇄 빈 쪽 금지 최우선)
+    if deficit() > 0:
+        for i, b in enumerate(tail):
+            if is_mn(b):
+                need -= 2 if "mn2" in b.lstrip()[:40] else 3
+                del tail[i]
+                break
+    # ⑥ "이하 빈칸" 생략 — 직전 페이지 만석 종료면 표기 자체가 불필요
+    if deficit() > 0:
+        kept = [b for b in tail if not is_fill(b)]
+        need -= len(tail) - len(kept)
+        tail = kept
+    while tail and tail[-1] == _GAP_HTML:
+        tail.pop()
+        need -= 1
+    if deficit() > 0:
+        return  # 확보 불가(이례) — 현행 유지. 이 경우 꼬리에 fill이 남아 인쇄 가시 블록 존재
+    if tail:
+        prev["blocks"].extend(tail)
+        prev["used"] += need
     pages.pop()
 
 
@@ -686,18 +720,17 @@ body {
 .tcmp th:nth-child(2) { width: 40%; }
 .texp th:nth-child(1) { width: 20%; }
 .texp th:nth-child(2) { width: 19%; }
-/* 구성도 6줄 충전 (발주자 직접 규격 2026-07-18): 그림이 6줄 높이를 꽉 채우고
-   상하 빈 줄을 남기지 않는다 — 컨테이너 stretch + 내부 열 space-evenly 분배 */
+/* 구성도 6줄 충전 (발주자 직접 규격 2026-07-18 + 세아 개선): 컨테이너·열은 6줄
+   높이를 채우되 낱개 도형은 실물처럼 납작 유지 — 상하 여백은 space-evenly 균등
+   분배로 해소한다 (단일 박스가 세로 기둥이 되는 조합 금지) */
 .diagram {
   height: calc(6 * var(--lh)); border: 1.5px solid var(--ink);
   display: flex; align-items: stretch; justify-content: center;
   gap: 22px; padding: 6px 12px; overflow: hidden;
 }
 .diagram.d7 { height: calc(7 * var(--lh)); }
-.diagram > .d-arrow, .diagram > .d-turn { align-self: center; }
-.diagram > .d-box { display: flex; flex-direction: column; justify-content: center; }
-.d-col { justify-content: space-evenly; }
-.d-col > .d-box { display: flex; flex-direction: column; justify-content: center; flex: 1 1 auto; max-height: 46%; }
+.diagram > .d-arrow, .diagram > .d-turn, .diagram > .d-box { align-self: center; }
+.d-col { justify-content: space-around; }
 /* 화살표 라벨 (발주자 규격: 화살표마다 텍스트) — 기호 위/아래 소자 라벨 */
 .d-arrow, .d-turn { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .d-arrow small, .d-turn small { font-size: 10px; font-weight: 400; line-height: 1.2; letter-spacing: 0; }
@@ -721,15 +754,15 @@ body {
 .d-flow { display: flex; align-items: stretch; justify-content: center; gap: 8px; width: 100%; } /* ①흐름 — 세로 충전 */
 .d-flow .d-box { flex: 1; padding: 4px 6px; font-size: 12px; display: flex; flex-direction: column; justify-content: center; }
 .d-flow .d-arrow { align-self: center; }
-.d-flow .d-col { justify-content: space-evenly; }
+.d-flow .d-col { justify-content: space-around; }
 .d-out { border: 1px dashed var(--ink); background: #fff; font-size: 10.5px; font-weight: 400; padding: 1px 8px; text-align: center; } /* 산출물 병기 칩 */
 .d-bar { border: 1.5px solid var(--ink); background: #fff; font-weight: 700; font-size: 13px; text-align: center; padding: 3px 10px; width: 72%; } /* ②대분류 긴 사각 */
 .d-bar small { display: block; font-size: 11px; font-weight: 400; }
-.d-tree { display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; width: 100%; } /* ②계층/분류 — 세로 충전 */
+.d-tree { display: flex; flex-direction: column; align-items: center; justify-content: space-around; width: 100%; } /* ②계층/분류 — 세로 충전 */
 .d-stem { width: 0; height: 10px; border-left: 1.5px solid var(--ink); }
 .d-branch { width: 72%; height: 10px; border: 1.5px solid var(--ink); border-bottom: none; }
 .d-tree .d-row { align-items: stretch; gap: 10px; }
-.d-stack { display: flex; flex-direction: column; justify-content: space-evenly; gap: 6px; width: 72%; } /* ③레이어 — 세로 충전 */
+.d-stack { display: flex; flex-direction: column; justify-content: space-around; gap: 6px; width: 72%; } /* ③레이어 — 세로 충전 */
 .d-stack .d-box { width: 100%; padding: 3px 10px; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; }
 .d-cycle { display: grid; grid-template-columns: auto 1fr auto 1fr auto; gap: 8px 10px; align-items: stretch; align-content: stretch; justify-items: center; width: 88%; } /* ④순환(4단계) — 세로 충전 */
 .d-cycle .d-box { display: flex; flex-direction: column; justify-content: center; }
@@ -1176,8 +1209,11 @@ def _verify_assembly(body: str, sheet: str, kind: str) -> list[str]:
             break
     if re.search(r"https?://|<script", sheet, re.I):
         warnings.append("외부 리소스/스크립트 감지")
-    if 'class="mnemonic' not in sheet:  # mn2(2줄 박스) 변형 포함
-        warnings.append("암기 박스 누락")
+    # 암기 박스: 꼬리 배선 누락 검출. 만석 시트에서 _pull_tail 사다리가 두문자를
+    # 생략하는 경우(인쇄 빈 쪽 금지 — 화면 레일 카드로 대체)는 "이하 빈칸"이 남으므로
+    # 둘 다 없을 때만 경고 (세아 반려 2026-07-19 반영)
+    if 'class="mnemonic' not in sheet and "이하 빈칸" not in sheet:
+        warnings.append("암기 박스·이하 빈칸 꼬리 누락")
     return warnings
 
 
