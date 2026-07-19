@@ -175,6 +175,27 @@ Stage.onReady = () => {
       mnBody.append(w, e);
     });
     mnCard.hidden = false;
+  } else if (lastMeta && lastMeta.sheet && Array.isArray(lastMeta.sheet.mnemonic)
+             && lastMeta.sheet.mnemonic.length) {
+    // 만석 시트에서 두문자 박스가 생략된 경우(_pull_tail 사다리 — 인쇄 빈 쪽 금지):
+    // reply.sheet.mnemonic 데이터로 레일 카드만 렌더 (세아 반려 2026-07-19)
+    lastMeta.sheet.mnemonic.forEach((l) => {
+      if (!l.word && !l.exp) return;
+      const w = document.createElement("span");
+      w.className = "mn-word";
+      w.textContent = l.word || "두문자";
+      w.title = "시트가 꽉 차 답안지에는 싣지 않은 암기 보조입니다";
+      const e = document.createElement("p");
+      e.className = "mn-exp";
+      e.textContent = l.exp;
+      mnBody.append(w, e);
+    });
+    const note = document.createElement("p");
+    note.className = "mn-exp";
+    note.style.opacity = ".62";
+    note.textContent = "※ 시트 생략(만석) — 화면 전용";
+    mnBody.append(note);
+    mnCard.hidden = false;
   } else {
     mnCard.hidden = true;
   }

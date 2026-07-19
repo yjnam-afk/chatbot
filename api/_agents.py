@@ -1479,6 +1479,23 @@ def _strip_summary(kind: str, topics: list[dict], parsed: dict | None,
     return fallback
 
 
+def _mnemonic_data(mnemonic_html: str) -> list[dict]:
+    """두문자 박스 HTML → reply 데이터 [{word, exp}] (세아 반려 2026-07-19 대응).
+
+    만석 시트에서 _pull_tail 사다리가 두문자 박스를 생략하면 레일 카드가 시트
+    DOM 추출에 실패하므로, reply.sheet.mnemonic으로 항상 원데이터를 내려보내
+    프런트가 폴백 렌더("시트 생략 — 화면 전용")할 수 있게 한다.
+    """
+    out = []
+    for m in re.finditer(r"<p>(?:<b>(.*?)</b>)?\s*(?:—\s*)?(.*?)</p>",
+                         mnemonic_html or "", re.S):
+        word = html_mod.unescape(re.sub(r"<[^>]+>", "", m.group(1) or "")).strip()
+        exp = html_mod.unescape(re.sub(r"<[^>]+>", "", m.group(2) or "")).strip(" —-")
+        if word or exp:
+            out.append({"word": word, "exp": exp})
+    return out
+
+
 def _qmeta(parsed: dict | None) -> dict | None:
     """reply 노출용 파싱 메타 (question-spec 2-6)."""
     if not parsed:
@@ -1713,7 +1730,8 @@ async def _assembly_path(message: str, kind: str, points: int,
         "llm_calls": llm_calls,
         "review": {"passed": not warnings, "warnings": warnings},
         "sheet": {"kind": kind, "points": points, "pages": vol["pages"],
-                  "lines": vol["line_in_page"], "target_pages": vol["target_pages"]},
+                  "lines": vol["line_in_page"], "target_pages": vol["target_pages"],
+                  "mnemonic": _mnemonic_data(result["mnemonic_html"])},
         "artifact": {"title": result["title"], "html": sheet},
     }
 
@@ -1914,6 +1932,7 @@ async def _live_exam(message: str, kind: str, points: int,
         "review": {"score": score, "rounds": rounds, "weak_points": weak,
                    "volume": {"lines": vol["lines"], "pages": vol["pages_frac"]}},
         "sheet": {"kind": kind, "points": points, "pages": vol["pages"],
-                  "lines": vol["line_in_page"], "target_pages": vol["target_pages"]},
+                  "lines": vol["line_in_page"], "target_pages": vol["target_pages"],
+                  "mnemonic": _mnemonic_data(_mnemonic_html(design.get("mnemonic")))},
         "artifact": {"title": topic, "html": sheet},
     }
