@@ -31,7 +31,7 @@
  "definition_long": "재무·고객·내부프로세스·학습성장의 4관점 KPI로 전략을 실행 지표로 번역해 균형 있게 성과를 관리하는 전략 성과관리 기법",
  "background": "재무 지표 편중 성과관리의 한계 — 미래 역량·비재무 가치의 균형 측정 필요",
  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">재무지표<br>편중</div><div class=\"d-circle\">전략-실행<br>단절</div><div class=\"d-circle\">무형자산<br>미측정</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">BSC 도입</div><div class=\"d-box soft\">4관점 · KPI (Ⅱ)</div><div class=\"d-box soft\">구축 절차 · 고려사항 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">전략의 실행 관리<small>균형 성과 측정</small></div></div>",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">재무<small>수익성 · 성장</small></div><div class=\"d-box\">고객<small>만족 · 유지율</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">비전 · 전략<small>전략맵 · CSF · KPI</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">내부 프로세스<small>품질 · 리드타임</small></div><div class=\"d-box\">학습·성장<small>역량 · 정보시스템</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">재무<small>수익성 · 성장</small></div><div class=\"d-box\">고객<small>만족 · 유지율</small></div></div><span class=\"d-arrow\">→<small>정렬</small></span><div class=\"d-box d-hub\">비전 · 전략<small>전략맵 · CSF · KPI</small></div><span class=\"d-arrow\">←<small>환류</small></span><div class=\"d-col\"><div class=\"d-box\">내부 프로세스<small>품질 · 리드타임</small></div><div class=\"d-box\">학습·성장<small>역량 · 정보시스템</small></div></div></div>",
  "diagram_gloss": "– 비전·전략을 중심으로 4관점이 인과관계(전략맵)로 연결",
  "features": [
   {

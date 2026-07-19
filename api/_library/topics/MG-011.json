@@ -22,7 +22,7 @@
  "definition": "비정형 텍스트 집단에서 자동으로 정보를 추출해 새 정보를 발견하는 기술",
  "definition_long": "비정형 텍스트에서 언어처리 기반으로 의미 있는 정보를 추출·발견하는 마이닝 기술",
  "background": "비정형 텍스트 데이터 급증 — 자동 분석·활용 체계 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-flow\"><div class=\"d-box\">수집<small>문서·SNS</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">전처리<small>형태소</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">분석<small>분류·군집</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">활용<small>인사이트</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-flow\"><div class=\"d-box\">수집<small>문서·SNS</small></div><span class=\"d-arrow\">→<small>정제</small></span><div class=\"d-box\">전처리<small>형태소</small></div><span class=\"d-arrow\">→<small>모델링</small></span><div class=\"d-box d-hub\">분석<small>분류·군집</small></div><span class=\"d-arrow\">→<small>도출</small></span><div class=\"d-box\">활용<small>인사이트</small></div></div></div>",
  "diagram_gloss": "– 전처리 후 분류·군집 분석 수행",
  "components": [
   {

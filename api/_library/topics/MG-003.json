@@ -31,7 +31,7 @@
  "definition": "SLA의 세부 범위·작업내용을 규정하는 작업명세서로 서비스 수준관리 문서",
  "definition_long": "SLA의 세부 범위와 작업 내용·산출물·책임을 규정하는 작업명세서로 서비스 수준관리의 기초 문서",
  "background": "SLA만으로는 작업 범위·책임 경계가 모호 — 분쟁 예방을 위한 세부 명세 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">RFP<small>요구 정의</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">SoW<small>범위 · 산출물 · 책임</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">SLA<small>수준 합의</small></div><div class=\"d-box soft\">SLM<small>측정 · 개선</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">RFP<small>요구 정의</small></div><span class=\"d-arrow\">→<small>구체화</small></span><div class=\"d-box d-hub\">SoW<small>범위 · 산출물 · 책임</small></div><span class=\"d-arrow\">→<small>관리</small></span><div class=\"d-col\"><div class=\"d-box\">SLA<small>수준 합의</small></div><div class=\"d-box soft\">SLM<small>측정 · 개선</small></div></div></div>",
  "diagram_gloss": "– RFP의 요구를 SoW로 상세화하고 SLA·SLM으로 수준 관리",
  "features": [
   {

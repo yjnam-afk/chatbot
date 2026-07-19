@@ -32,7 +32,7 @@
  "definition_long": "재해·재난 발생 시 핵심 업무의 연속성 확보를 위해 데이터·시스템을 복제·복구하는 \"재해복구 체계\"",
  "background": "자연재해·사이버 공격 등 비상사태 증가, 서비스 중단의 비즈니스 손실 직결",
  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">자연재해<br>화재</div><div class=\"d-circle\">사이버<br>공격</div><div class=\"d-circle\">시스템<br>장애</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">DRS 구축</div><div class=\"d-box soft\">복구센터 유형 (Ⅱ)</div><div class=\"d-box soft\">복구 목표 지표 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">업무 연속성<small>RTO · RPO 보장</small></div></div>",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">메인센터<small>운영 시스템</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">실시간 복제<small>DWDM · 네트워크 이중화</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">DR센터<small>Mirror · Hot</small></div><div class=\"d-box soft\">백업센터<small>Warm · Cold</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">메인센터<small>운영 시스템</small></div><span class=\"d-arrow\">→<small>복제</small></span><div class=\"d-box d-hub\">실시간 복제<small>DWDM · 네트워크 이중화</small></div><span class=\"d-arrow\">→<small>절체</small></span><div class=\"d-col\"><div class=\"d-box\">DR센터<small>Mirror · Hot</small></div><div class=\"d-box soft\">백업센터<small>Warm · Cold</small></div></div></div>",
  "diagram_gloss": "– 메인센터-DR센터 이중화와 실시간 데이터 복제로 업무연속성 확보",
  "features": [
   {

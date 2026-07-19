@@ -26,7 +26,7 @@
  "definition": "사용자 요구를 파악해 서비스·프로세스·조직역량·기술을 통합 관리하는 체계",
  "definition_long": "SLA에 합의된 서비스 수준을 측정·평가·개선하는 순환 프로세스로 서비스 품질을 지속 관리하는 체계",
  "background": "SLA는 계약일 뿐 — 이행 여부의 상시 측정·평가·개선 체계 없이는 실효성 부재",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">계획<small>SLR 수집</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">설계<small>SLA 합의</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">운영<small>측정 · 보고</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">지속 평가<small>개선 · 재협상</small></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">계획<small>SLR 수집</small></div><span class=\"d-arrow\">→<small>합의</small></span><div class=\"d-box\">설계<small>SLA 합의</small></div><span class=\"d-arrow\">→<small>측정</small></span><div class=\"d-box d-hub\">운영<small>측정 · 보고</small></div><span class=\"d-arrow\">→<small>개선</small></span><div class=\"d-box\">지속 평가<small>개선 · 재협상</small></div></div>",
  "diagram_gloss": "– 계획→설계→운영→지속적 평가의 순환으로 서비스 수준 유지·개선",
  "features": [
   {

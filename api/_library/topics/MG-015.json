@@ -21,7 +21,7 @@
  "definition": "BCP 수립·운영·검토·개선 요구사항을 규정한 비즈니스 연속성 국제표준",
  "definition_long": "BCP 수립부터 운영·검토·개선까지 요구사항을 규정한 BCMS 국제표준",
  "background": "조직별 상이한 연속성 체계 — 객관적 심사·인증 가능한 공통 요구사항 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">Plan<small>정책 · BIA · 전략</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">Do<small>절차 구현 · 훈련</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">Check<small>모니터링 · 심사</small></div><span class=\"d-arrow\">→</span><div class=\"d-box soft\">Act<small>시정 · 개선</small></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">Plan<small>정책 · BIA · 전략</small></div><span class=\"d-arrow\">→<small>구현</small></span><div class=\"d-box d-hub\">Do<small>절차 구현 · 훈련</small></div><span class=\"d-arrow\">→<small>점검</small></span><div class=\"d-box\">Check<small>모니터링 · 심사</small></div><span class=\"d-arrow\">→<small>개선</small></span><div class=\"d-box soft\">Act<small>시정 · 개선</small></div></div>",
  "diagram_gloss": "– BCMS를 PDCA 사이클로 수립·운영·검토·개선",
  "features": [
   {

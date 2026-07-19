@@ -26,7 +26,7 @@
  "definition": "시장성장률·점유율로 SBU를 4영역으로 구분해 사업 전략을 도출하는 매트릭스",
  "definition_long": "사업을 SBU(전략적 사업 단위)로 구분, 성장률·점유율로 자원 배분을 정하는 기법",
  "background": "다사업 포트폴리오의 투자·철수 판단에 객관 기준 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">Star<small>고성장 · 고점유</small></div><div class=\"d-box\">Question<small>고성장 · 저점유</small></div></div><div class=\"d-col\"><div class=\"d-box\">Cash Cow<small>저성장 · 고점유</small></div><div class=\"d-box soft\">Dog<small>저성장 · 저점유</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">자원 배분<small>투자 · 철수</small></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">Star<small>고성장 · 고점유</small></div><div class=\"d-box\">Question<small>고성장 · 저점유</small></div></div><div class=\"d-col\"><div class=\"d-box\">Cash Cow<small>저성장 · 고점유</small></div><div class=\"d-box soft\">Dog<small>저성장 · 저점유</small></div></div><span class=\"d-arrow\">→<small>판정</small></span><div class=\"d-box d-hub\">자원 배분<small>투자 · 철수</small></div></div>",
  "diagram_gloss": "– 성장률×점유율 2×2 구분",
  "components": [
   {

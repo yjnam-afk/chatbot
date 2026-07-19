@@ -27,7 +27,7 @@
  "definition_long": "위기 상황에도 핵심 업무를 지속하기 위해 계획(BCP)·시스템(DRS)·표준(ISO 22301)을 아우르는 전사적 연속성 경영체계",
  "background": "재해·사이버 공격 시 업무 중단이 기업 생존 직결 — 복구를 넘어 '중단 없는 경영' 요구",
  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">재해<br>재난</div><div class=\"d-circle\">사이버<br>공격</div><div class=\"d-circle\">규제<br>강화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">BCM 체계 수립</div><div class=\"d-box soft\">구성요소 (Ⅱ)</div><div class=\"d-box soft\">수립 절차 · 고려사항 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">핵심 업무 무중단<small>기업 생존성 확보</small></div></div>",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">BIA<small>영향 분석</small></div><div class=\"d-box\">RA<small>위험 평가</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">BCP 수립<small>전략 · 절차 · 조직</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">DRS · DRP<small>복구 체계</small></div><div class=\"d-box soft\">훈련 · 개선<small>PDCA</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">BIA<small>영향 분석</small></div><div class=\"d-box\">RA<small>위험 평가</small></div></div><span class=\"d-arrow\">→<small>수립</small></span><div class=\"d-box d-hub\">BCP 수립<small>전략 · 절차 · 조직</small></div><span class=\"d-arrow\">→<small>이행</small></span><div class=\"d-col\"><div class=\"d-box\">DRS · DRP<small>복구 체계</small></div><div class=\"d-box soft\">훈련 · 개선<small>PDCA</small></div></div></div>",
  "diagram_gloss": "– BIA·위험평가로 우선순위를 정하고 계획-복구-훈련의 PDCA 순환",
  "features": [
   {

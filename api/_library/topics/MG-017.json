@@ -34,7 +34,7 @@
  "definition": "RTO는 서비스 복구 허용시간, RPO는 데이터 손실 허용시점을 나타내는 지표",
  "definition_long": "RTO는 서비스 복구까지 허용되는 목표 시간, RPO는 감내 가능한 데이터 손실 시점을 정의하는 재해복구 핵심 지표",
  "background": "복구 체계 투자 수준 결정 기준 부재 — 업무별 허용 중단·손실의 정량 목표 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">장애 발생 시점</div><div class=\"d-box soft\">← RPO<small>데이터 손실 허용</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">복구 활동<small>DRP 절차 수행</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">서비스 재개</div><div class=\"d-box soft\">RTO →<small>복구 허용 시간</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">장애 발생 시점</div><div class=\"d-box soft\">← RPO<small>데이터 손실 허용</small></div></div><span class=\"d-arrow\">→<small>복구</small></span><div class=\"d-box d-hub\">복구 활동<small>DRP 절차 수행</small></div><span class=\"d-arrow\">→<small>재개</small></span><div class=\"d-col\"><div class=\"d-box\">서비스 재개</div><div class=\"d-box soft\">RTO →<small>복구 허용 시간</small></div></div></div>",
  "diagram_gloss": "– 장애 시점 기준 과거(RPO)와 미래(RTO)의 허용 한계 정의",
  "features": [
   {

@@ -27,7 +27,7 @@
  "definition": "비즈니스 업무의 재해영향도를 평가해 복구우선순위·목표를 정의하는 활동",
  "definition_long": "핵심 업무의 중단 영향도를 정량·정성 평가해 복구 우선순위와 복구 목표(RTO/RPO)를 정의하는 연속성 계획의 출발 활동",
  "background": "모든 업무의 동시 복구는 불가능 — 한정 자원의 투입 우선순위 근거 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">업무 식별<small>프로세스 · 자원</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">영향 평가<small>재무 · 운영 · 법규</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">우선순위<small>핵심 업무 선정</small></div><div class=\"d-box soft\">복구 목표<small>RTO · RPO 설정</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">업무 식별<small>프로세스 · 자원</small></div><span class=\"d-arrow\">→<small>평가</small></span><div class=\"d-box d-hub\">영향 평가<small>재무 · 운영 · 법규</small></div><span class=\"d-arrow\">→<small>도출</small></span><div class=\"d-col\"><div class=\"d-box\">우선순위<small>핵심 업무 선정</small></div><div class=\"d-box soft\">복구 목표<small>RTO · RPO 설정</small></div></div></div>",
  "diagram_gloss": "– 업무 식별→영향 평가→우선순위·복구 목표 도출의 순차 수행",
  "features": [
   {

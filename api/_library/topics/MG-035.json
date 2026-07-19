@@ -33,7 +33,7 @@
  "definition_long": "IT 서비스의 전략-설계-전환-운영-개선 생명주기 전반의 모범 사례(Best Practice)를 집대성한 IT 서비스 관리 지침서",
  "background": "조직마다 상이한 IT 운영 방식과 품질 편차 — 검증된 표준 프로세스 참조 모델 필요",
  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">운영 방식<br>비표준</div><div class=\"d-circle\">서비스 품질<br>편차</div><div class=\"d-circle\">비용<br>비효율</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">ITIL 도입</div><div class=\"d-box soft\">생명주기 5단계 (Ⅱ)</div><div class=\"d-box soft\">도입 방안 · 효과 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">표준 프로세스<small>ITSM 구현</small></div></div>",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">서비스 전략<small>포트폴리오 · 재무</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">설계<small>SLM · 가용성</small></div><div class=\"d-box\">전환<small>변경 · 배포</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">운영<small>인시던트 · 문제</small></div><span class=\"d-arrow\">→</span><div class=\"d-box soft\">지속적 개선<small>CSI</small></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">서비스 전략<small>포트폴리오 · 재무</small></div><span class=\"d-arrow\">→<small>설계</small></span><div class=\"d-col\"><div class=\"d-box\">설계<small>SLM · 가용성</small></div><div class=\"d-box\">전환<small>변경 · 배포</small></div></div><span class=\"d-arrow\">→<small>구축</small></span><div class=\"d-box d-hub\">운영<small>인시던트 · 문제</small></div><span class=\"d-arrow\">→<small>개선</small></span><div class=\"d-box soft\">지속적 개선<small>CSI</small></div></div>",
  "diagram_gloss": "– \"전설전운지\" — 전략을 중심으로 순환하는 서비스 생명주기",
  "features": [
   {

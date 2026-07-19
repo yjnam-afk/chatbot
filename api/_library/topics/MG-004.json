@@ -36,7 +36,7 @@
  "definition": "IT서비스 제공자와 사용자 간 서비스 수준을 정량적으로 합의한 계약서",
  "definition_long": "IT 서비스 제공자와 사용자 간 제공할 서비스의 수준을 정량적 지표로 상호 합의한 \"서비스 수준 계약서\"",
  "background": "아웃소싱 확대에 따른 서비스 품질 분쟁 예방, 객관적 평가·보상 기준 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">기본계약서<small>계약 조건</small></div><div class=\"d-box\">서비스 카탈로그<small>서비스 정의</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">SLA<small>서비스 수준 합의</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">SLO · Metric<small>목표 · 지표</small></div><div class=\"d-box soft\">보상체계<small>패널티 · 인센티브</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">기본계약서<small>계약 조건</small></div><div class=\"d-box\">서비스 카탈로그<small>서비스 정의</small></div></div><span class=\"d-arrow\">→<small>합의</small></span><div class=\"d-box d-hub\">SLA<small>서비스 수준 합의</small></div><span class=\"d-arrow\">→<small>측정</small></span><div class=\"d-col\"><div class=\"d-box\">SLO · Metric<small>목표 · 지표</small></div><div class=\"d-box soft\">보상체계<small>패널티 · 인센티브</small></div></div></div>",
  "diagram_gloss": "– 기본계약·카탈로그 기반으로 목표수준(SLO)과 지표·보상체계를 합의",
  "features": [
   {

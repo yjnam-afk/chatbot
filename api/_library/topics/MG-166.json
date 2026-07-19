@@ -23,7 +23,7 @@
  "definition": "비용·업무 관점 성과측정으로 정보시스템 유지·폐기를 결정하는 지표",
  "definition_long": "전자정부법 68조 기반, 구축 1년 이상 시스템을 비용·업무 지표로 판정하는 체계",
  "background": "노후 시스템 방치로 운영비 증가 — 정량 근거 기반 처분 판단 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-flow\"><div class=\"d-box\">대상<small>구축 1년 이상</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">비용측면<small>3개 지표</small></div><div class=\"d-box\">업무측면<small>3개 지표</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">판정<small>유지·고도화·재개발·폐기</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-flow\"><div class=\"d-box\">대상<small>구축 1년 이상</small></div><span class=\"d-arrow\">→<small>측정</small></span><div class=\"d-col\"><div class=\"d-box\">비용측면<small>3개 지표</small></div><div class=\"d-box\">업무측면<small>3개 지표</small></div></div><span class=\"d-arrow\">→<small>판정</small></span><div class=\"d-box d-hub\">판정<small>유지·고도화·재개발·폐기</small></div></div></div>",
  "diagram_gloss": "– 6개 지표 측정 후 4개 판정",
  "components": [
   {

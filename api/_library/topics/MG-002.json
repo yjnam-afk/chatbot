@@ -31,7 +31,7 @@
  "definition_long": "기업 Value Chain의 비전략적 IT 부분을 외부 전문기업에 위탁해 핵심역량에 집중하는 정보기술 위탁서비스",
  "background": "IT 운영 비용 증가와 전문성 부족 — 핵심역량 집중과 비용 최적화 필요",
  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 비용<br>증가</div><div class=\"d-circle\">전문성<br>부족</div><div class=\"d-circle\">핵심역량<br>집중</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">IT Outsourcing</div><div class=\"d-box soft\">유형 · 구성요소 (Ⅱ)</div><div class=\"d-box soft\">취약점 · 개선방안 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">비용 절감<small>SLA 기반 품질 확보</small></div></div>",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">발주사<small>핵심역량 집중</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">아웃소싱 계약<small>SoW · SLA · SLM</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">수탁사<small>운영 · 유지보수</small></div><div class=\"d-box soft\">평가 · 보상<small>ITIL · eSCM</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-box\">발주사<small>핵심역량 집중</small></div><span class=\"d-arrow\">→<small>위탁</small></span><div class=\"d-box d-hub\">아웃소싱 계약<small>SoW · SLA · SLM</small></div><span class=\"d-arrow\">→<small>제공</small></span><div class=\"d-col\"><div class=\"d-box\">수탁사<small>운영 · 유지보수</small></div><div class=\"d-box soft\">평가 · 보상<small>ITIL · eSCM</small></div></div></div>",
  "diagram_gloss": "– SoW로 범위, SLA로 수준을 합의하고 SLM으로 상시 관리하는 구조",
  "features": [
   {

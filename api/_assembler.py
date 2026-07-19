@@ -319,6 +319,26 @@ def _composite_intro(topics: list[dict], joined: str) -> str:
             f'<div class="d-box">상호 관계 이해<small>활용 · 전망 (Ⅳ)</small></div></div>')
 
 
+def _feature_line(t: dict) -> str | None:
+    """1교시 Ⅰ 특징 1줄 — 키워드 2~3개 (발주자 직접 규격 2026-07-18).
+
+    features의 item(없으면 keywords)을 손글씨 1줄 폭(간글 상한 20) 안에서
+    2~3개 나열한다. 2개 미만이면 None(생략).
+    """
+    items = [str(f.get("item") or "").strip() for f in (t.get("features") or [])]
+    items = [i for i in items if i] or [str(k).strip() for k in (t.get("keywords") or [])]
+    picked: list[str] = []
+    for it in items:
+        if len(picked) >= 3:
+            break
+        cand = "– 특징: " + " · ".join(picked + [it])
+        if _wlen(cand) <= 19:
+            picked.append(it)
+    if len(picked) < 2:
+        return None
+    return "– 특징: " + " · ".join(picked)
+
+
 def assemble(question: str, kind: str, points: int, topics: list[dict],
              missing_names: list[str] | None = None,
              extra_sections: dict[str, str] | None = None,
@@ -345,20 +365,16 @@ def assemble(question: str, kind: str, points: int, topics: list[dict],
         kws = t.get("keywords") or []
         title = s
         if is_terms:
-            # ---- 1교시형 3단락 (스펙 §4)
-            # Ⅰ 제목은 "정의"형 — "개요·개념"은 방법론이 명시한 나쁜 사례 (체크리스트 M5)
-            parts.append(f"<h2>{_esc(s)}의 정의</h2>")
+            # ---- 1교시형 3단락 — 1단락 = 정의 2줄 + 특징 1줄(키워드 2~3개)
+            # (발주자 직접 규격 2026-07-18. 제목은 W3 재판정: lead 있으면 "리드문, ○○의
+            #  개요", 없으면 "정의"형 — 수식구 없는 단독 "○○의 개요"만 지양(M5))
+            lead = str(t.get("lead") or "").strip()
+            parts.append(f"<h2>{_esc(lead + ', ' + s + '의 개요' if lead else s + '의 정의')}</h2>")
             parts.append(f'<p class="def">{_emph(t.get("definition"), kws, quote=True)}</p>')
             slots += 2
-            feats = t.get("features") or []
-            if feats:
-                d0 = feats[0].get("desc") or ""
-                if isinstance(d0, (list, tuple)):  # 개조식 list desc는 첫 항목으로 축약
-                    d0 = str(d0[0]) if d0 else ""
-                parts.append(f"<h3>{_esc(s)}의 특징</h3>")
-                parts.append('<p class="def">'
-                             + _esc(" · ".join(f.get("item", "") for f in feats[:4])
-                                    + " 특성 보유 — " + d0) + "</p>")
+            fl = _feature_line(t)
+            if fl:
+                parts.append(f'<p class="gloss">{_esc(fl)}</p>')
                 slots += 1
             if _slot_structure(t, parts, warnings, r2=False,
                                core=core_sections.get(t.get("id"))):
@@ -368,6 +384,11 @@ def assemble(question: str, kind: str, points: int, topics: list[dict],
                 parts.append(_t2(t["usage"], ("활용", "설명"), kws=kws))
             if t.get("conclusion"):
                 parts.append(f'<p class="def">{_emph(t["conclusion"], kws, limit=1)}</p>')
+            elif t.get("usage"):
+                # 결론성 간글 1줄 폴백 (W4e — 실물: 마지막 표 아래 간글로 문항을 닫음)
+                its = [str(u.get("item") or "") for u in t["usage"][:2] if u.get("item")]
+                if its:
+                    parts.append(f'<p class="gloss">– {_esc("·".join(its))} 중심 활용 권고</p>')
             slots += 1
         else:
             # ---- 2교시형 4단락 (스펙 §5)

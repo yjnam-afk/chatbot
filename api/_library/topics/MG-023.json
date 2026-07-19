@@ -34,7 +34,7 @@
  "definition": "변화 대처를 위한 7개 요소의 조화·정렬을 진단하는 내부역량 분석 도구",
  "definition_long": "조직의 7개 내부 요소의 조화·정렬 상태를 진단해 변화 대처 역량을 평가하는 맥킨지의 내부역량 분석 도구",
  "background": "전략만 바꾸는 조직 변화의 실패 — 구조·인력·문화의 정합 진단 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">전략<small>Strategy</small></div><div class=\"d-box\">구조<small>Structure</small></div><div class=\"d-box\">시스템<small>Systems</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">공유가치<small>Shared Values</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">역량<small>Skills</small></div><div class=\"d-box\">스타일<small>Style</small></div><div class=\"d-box\">인력<small>Staff</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">전략<small>Strategy</small></div><div class=\"d-box\">구조<small>Structure</small></div><div class=\"d-box\">시스템<small>Systems</small></div></div><span class=\"d-arrow\">→<small>정렬</small></span><div class=\"d-box d-hub\">공유가치<small>Shared Values</small></div><span class=\"d-arrow\">←<small>조화</small></span><div class=\"d-col\"><div class=\"d-box\">역량<small>Skills</small></div><div class=\"d-box\">스타일<small>Style</small></div><div class=\"d-box\">인력<small>Staff</small></div></div></div>",
  "diagram_gloss": "– 공유가치를 중심으로 Hard 3S와 Soft 3S가 상호 정렬",
  "features": [
   {

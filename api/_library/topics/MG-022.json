@@ -28,7 +28,7 @@
  "definition": "조직 외부환경을 5가지 경쟁요인 관점에서 분석해 산업 매력도를 평가하는 기법",
  "definition_long": "산업의 경쟁 강도를 5가지 경쟁요인으로 분석해 산업 매력도와 경쟁 전략 방향을 도출하는 마이클 포터의 외부환경 분석 기법",
  "background": "감(感) 의존 시장 진입 판단의 실패 — 산업 수익성의 구조적 결정 요인 분석 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">잠재 진입자<small>진입장벽</small></div><div class=\"d-box\">공급자<small>교섭력</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">기존 경쟁자<small>산업 내 경쟁 강도</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">대체재<small>대체 위협</small></div><div class=\"d-box\">구매자<small>교섭력</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">잠재 진입자<small>진입장벽</small></div><div class=\"d-box\">공급자<small>교섭력</small></div></div><span class=\"d-arrow\">→<small>압력</small></span><div class=\"d-box d-hub\">기존 경쟁자<small>산업 내 경쟁 강도</small></div><span class=\"d-arrow\">←<small>교섭</small></span><div class=\"d-col\"><div class=\"d-box\">대체재<small>대체 위협</small></div><div class=\"d-box\">구매자<small>교섭력</small></div></div></div>",
  "diagram_gloss": "– 4방향 외부 압력과 중심의 경쟁 강도로 산업 매력도 결정",
  "features": [
   {

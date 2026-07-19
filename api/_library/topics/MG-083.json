@@ -32,7 +32,7 @@
  "definition_long": "평가·지시·모니터링(ISO 38500)으로 IT를 통제·정렬하는 경영 체계",
  "background": "IT 투자 확대 대비 성과 불투명 — 비즈니스-IT 정렬(Alignment)과 책임 체계 요구",
  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">IT 투자<br>성과 불명</div><div class=\"d-circle\">비즈-IT<br>단절</div><div class=\"d-circle\">규제<br>준수 요구</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">IT 거버넌스 수립</div><div class=\"d-box soft\">5대 영역 (Ⅱ)</div><div class=\"d-box soft\">프레임워크 · 적용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">전략-IT 정렬<small>가치 · 책임 확보</small></div></div>",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">전략적 연계<small>Biz-IT Alignment</small></div><div class=\"d-box\">가치 제공<small>Value Delivery</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">IT 거버넌스<small>이사회 · IT 위원회</small></div><span class=\"d-arrow\">←</span><div class=\"d-col\"><div class=\"d-box\">위험 · 자원 관리<small>Risk · Resource</small></div><div class=\"d-box soft\">성과 측정<small>IT-BSC</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">전략적 연계<small>Biz-IT Alignment</small></div><div class=\"d-box\">가치 제공<small>Value Delivery</small></div></div><span class=\"d-arrow\">→<small>지시</small></span><div class=\"d-box d-hub\">IT 거버넌스<small>이사회 · IT 위원회</small></div><span class=\"d-arrow\">←<small>평가</small></span><div class=\"d-col\"><div class=\"d-box\">위험 · 자원 관리<small>Risk · Resource</small></div><div class=\"d-box soft\">성과 측정<small>IT-BSC</small></div></div></div>",
  "diagram_gloss": "– \"전가위자성\" — 5대 관심 영역의 상호 순환 구조",
  "features": [
   {

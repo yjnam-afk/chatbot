@@ -28,7 +28,7 @@
  "definition": "동태적·순환적 인과관계 시각으로 현상을 이해·시뮬레이션하는 방법론",
  "definition_long": "동태적·순환적 인과관계의 시각으로 현상을 이해·설명하고 컴퓨터로 시뮬레이션하는 방법론이자 현상 분석 프레임워크",
  "background": "선형·정태적 분석으로는 사회·경영 현상의 순환 구조 설명 불가 — 피드백 관점 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">요소 A<small>원인 변수</small></div><div class=\"d-box\">요소 B<small>결과 변수</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">피드백 루프<small>강화(R) · 균형(B)</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">인과지도<small>CLD, +/- 표기</small></div><div class=\"d-box soft\">SFD<small>Level · Rate 시뮬레이션</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">요소 A<small>원인 변수</small></div><div class=\"d-box\">요소 B<small>결과 변수</small></div></div><span class=\"d-arrow\">→<small>인과</small></span><div class=\"d-box d-hub\">피드백 루프<small>강화(R) · 균형(B)</small></div><span class=\"d-arrow\">→<small>모형화</small></span><div class=\"d-col\"><div class=\"d-box\">인과지도<small>CLD, +/- 표기</small></div><div class=\"d-box soft\">SFD<small>Level · Rate 시뮬레이션</small></div></div></div>",
  "diagram_gloss": "– 인과지도(CLD)로 구조를 그리고 SFD(저량·유량)로 시뮬레이션",
  "features": [
   {

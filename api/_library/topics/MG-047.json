@@ -29,7 +29,7 @@
  "definition": "조직 목표 달성을 위한 정보화 전략·비전과 IT 사업·로드맵을 수립하는 활동",
  "definition_long": "조직 비전 달성을 위한 정보화 전략과 IT 과제·이행 로드맵을 수립하는 최상위 기획 활동",
  "background": "경영전략과 IT 정렬, 정보화 투자 중복·부실 방지 근거 확보 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-flow\"><div class=\"d-box\">환경분석<small>외부 동향</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">현황분석<small>As-Is</small></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">비전·전략</div><span class=\"d-arrow\">→</span><div class=\"d-box\">목표모델<small>To-Be</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">이행계획<small>로드맵</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-flow\"><div class=\"d-box\">환경분석<small>외부 동향</small></div><span class=\"d-arrow\">→<small>분석</small></span><div class=\"d-box\">현황분석<small>As-Is</small></div><span class=\"d-arrow\">→<small>수립</small></span><div class=\"d-box d-hub\">비전·전략</div><span class=\"d-arrow\">→<small>설계</small></span><div class=\"d-box\">목표모델<small>To-Be</small></div><span class=\"d-arrow\">→<small>이행</small></span><div class=\"d-box\">이행계획<small>로드맵</small></div></div></div>",
  "diagram_gloss": "– 분석에서 이행까지 5단계 체계",
  "procedure": [
   {

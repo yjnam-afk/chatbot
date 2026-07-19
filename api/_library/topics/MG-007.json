@@ -35,7 +35,7 @@
  "definition": "비즈니스 이해 중심의 6단계로 구성된 데이터 마이닝 표준 프로세스 방법론",
  "definition_long": "비즈니스 이해에서 배포까지 6단계로 구성된 산업 표준 데이터 마이닝 프로세스 방법론",
  "background": "분석 프로젝트의 시행착오 반복 — 재현 가능한 표준 절차 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">Biz 이해</div><div class=\"d-box\">Data 이해</div></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">데이터 준비</div><div class=\"d-box d-hub\">Modeling</div></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">Evaluation</div><div class=\"d-box soft\">Deployment</div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">Biz 이해</div><div class=\"d-box\">Data 이해</div></div><span class=\"d-arrow\">→<small>분석</small></span><div class=\"d-col\"><div class=\"d-box\">데이터 준비</div><div class=\"d-box d-hub\">Modeling</div></div><span class=\"d-arrow\">→<small>평가</small></span><div class=\"d-col\"><div class=\"d-box\">Evaluation</div><div class=\"d-box soft\">Deployment</div></div></div>",
  "diagram_gloss": "– 단계 간 반복(iterative) 순환 — 평가 결과에 따라 앞 단계로 회귀",
  "features": [
   {

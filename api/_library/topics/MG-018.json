@@ -24,7 +24,7 @@
  "definition": "재해 발생 시 체계적 업무복구를 위한 절차와 문서를 수립한 재해복구계획",
  "definition_long": "재해 발생 시 체계적 업무 복구를 위해 절차·조직·자원을 문서화하고 훈련으로 검증하는 재해복구계획",
  "background": "복구 시스템이 있어도 절차·역할 부재 시 혼란 — 문서화된 계획과 반복 훈련 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">비상 대응<small>선포 · 소집</small></div><div class=\"d-box\">복구 절차<small>시스템 · 데이터</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">DRP 문서<small>조직 · 절차 · 자원</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">모의 훈련<small>정기 · 비정기</small></div><div class=\"d-box soft\">개정 · 보완<small>훈련 결과 반영</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">비상 대응<small>선포 · 소집</small></div><div class=\"d-box\">복구 절차<small>시스템 · 데이터</small></div></div><span class=\"d-arrow\">→<small>문서화</small></span><div class=\"d-box d-hub\">DRP 문서<small>조직 · 절차 · 자원</small></div><span class=\"d-arrow\">→<small>검증</small></span><div class=\"d-col\"><div class=\"d-box\">모의 훈련<small>정기 · 비정기</small></div><div class=\"d-box soft\">개정 · 보완<small>훈련 결과 반영</small></div></div></div>",
  "diagram_gloss": "– 대응·복구 절차를 문서화하고 훈련-보완의 순환으로 실효성 유지",
  "features": [
   {

@@ -258,11 +258,14 @@ def _layout(body_html: str, kind: str,
         seq[-1] = (blk0.rstrip()[:-4] + end_span + "</p>", ln0)
     else:
         seq.append((f"<p>{end_span.strip()}</p>", 1))
-    seq.append((_GAP_HTML, 1))
+    # "끝" 다음 줄 중앙 "이하 빈칸" (W5b — 실물 표기·쌍따옴표. 종전 꼬리 여백+이하여백를
+    # 대체: 줄 계측에 포함되는 1줄 블록이라 페이지 배치와 정합) — 두문자 박스는 그 아래
+    # (W5c: 실물에 없는 창작 요소임을 답안 본문 밖으로 명시)
+    seq.append(('<p class="fill">"이하 빈칸"</p>', 1))
     # 두문자 박스는 라벨 1줄 + 풀이 p 줄수(1~2) — 풀이 1줄이면 2줄 박스(mn2)로 낭비 제거
     n_mn = 1 + max(1, min(2, mnemonic_html.count("<p")))
     mn_cls = "mnemonic" if n_mn >= 3 else "mnemonic mn2"
-    seq.append((f'<div class="{mn_cls}">\n<div class="mn-label">두문자 암기 포인트</div>\n'
+    seq.append((f'<div class="{mn_cls}">\n<div class="mn-label">두문자 암기 보조 — 인쇄 제외</div>\n'
                 f"{mnemonic_html}\n</div>", n_mn))
 
     pages: list[dict] = []
@@ -311,10 +314,8 @@ def _layout(body_html: str, kind: str,
         if pg["used"] >= pg["cap"] and last.startswith("<table"):
             pg["blocks"][-1] = re.sub(r'(<table[^>]*class=")', r"\1tend ",
                                       pg["blocks"][-1], count=1)
-    # 최종 답안(꼬리 포함) 아래 줄이 남으면 중앙에 "이하여백" (체크리스트 U5 — 공단·실물).
-    # 답안 줄 수가 아니므로 used(분량 계측)에는 넣지 않는다 — 남는 첫 괘선 줄에 얹힌다.
-    if pages and pages[-1]["used"] < pages[-1]["cap"]:
-        pages[-1]["blocks"].append('<p class="fill">이하여백</p>')
+    # ("이하 빈칸"은 seq 단계에서 "끝" 다음 줄로 물질화 — W5b. 종전의 페이지 말미
+    #  이하여백 덧붙임은 폐지: 두문자 박스 아래 잔여 줄은 빈 괘선으로 남긴다)
     return pages
 
 
@@ -328,7 +329,9 @@ def _pull_tail(pages: list[dict]) -> None:
     if len(pages) < 2:
         return
     last, prev = pages[-1], pages[-2]
-    nongap = [b for b in last["blocks"] if b != _GAP_HTML]
+    # "이하 빈칸"(fill 1줄)은 두문자와 한 몸인 꼬리로 취급 (W5b·W5c 배치)
+    nongap = [b for b in last["blocks"]
+              if b != _GAP_HTML and not b.lstrip().startswith('<p class="fill"')]
     if not nongap or not all(b.lstrip().startswith('<div class="mnemonic') for b in nongap):
         return
     tail_blocks = list(last["blocks"])
@@ -413,6 +416,20 @@ def _lint_format(body_html: str, kind: str) -> list[str]:
     long_style = len(re.findall(r"(?:합니다|입니다)", text))
     if long_style >= 3:
         issues.append(f"만연체 {long_style}회 — 개조식(~임/~함/~됨) 종결 필요")
+    # 6-1) 1교시형 발주자 직접 규격 (2026-07-18): Ⅰ 특징 1줄(키워드 2~3개) + 구성요소 3단표
+    if is_terms:
+        if not re.search(r'<p class="gloss">–\s*특징', body):
+            issues.append("1교시 Ⅰ 특징 1줄(키워드 2~3개) 누락 — 발주자 규격")
+        if not re.search(r'<table class="t3"', body, re.I):
+            issues.append("구성요소 3단표(3열 구조) 없음 — 발주자 규격")
+    # 6-2) 구성도 화살표 라벨 (발주자 규격: "화살표에는 각각 텍스트") — 본문 diagram 한정
+    #      (서론 로드맵 d7은 순서 연결 화살표라 제외)
+    for b in _split_blocks(body):
+        head = b.lstrip().lower()[:60]
+        if head.startswith("<div") and 'class="diagram"' in head:
+            if re.search(r'<span class="d-(?:arrow|turn)">\s*[→←↑↓↔]+\s*</span>', b):
+                issues.append("구성도 화살표에 라벨 없음 — 화살표마다 텍스트 필수(발주자 규격)")
+                break
     # 7) 간글: 본문 개념도 직후 간글 1줄 필수(체크리스트 G1 — "간글은 다 빼먹었냐?"),
     #    서론 로드맵(d7) 직후는 (정의) p.def 2줄이 간글을 대체(G2 — 복합 조립은 h3 뒤 정의)
     blocks = _split_blocks(body)
@@ -639,11 +656,13 @@ body {
 .content h3 { font-weight: 700; padding-left: 18px; }
 /* 2교시형 단락(h2) 사이 1줄 여백은 서버가 .gap 블록으로 물질화한다 (페이지 분할 정합) */
 .ans { font-weight: 700; }
-.def { min-height: calc(2 * var(--lh)); padding-left: 18px; }
-.gloss { padding-left: 18px; }
-.end { font-weight: 700; } /* "끝"은 답안이 끝난 지점 바로 옆 인라인 (체크리스트 U4) */
+/* 들여쓰기 3단 (W4a — 공단 좌측 세로 3줄 가이드): Ⅰ.=0 / 가.=1칸(18px) / 본문 문단=2칸(36px).
+   표·그림은 전폭 유지 (실물 관행) */
+.def { min-height: calc(2 * var(--lh)); padding-left: 36px; }
+.gloss { padding-left: 36px; }
+.end { font-weight: 700; } /* "끝"은 답안이 끝난 지점 바로 옆 인라인 (체크리스트 U4·W5a) */
 .content span.end { margin-left: 10px; }
-.fill { text-align: center; letter-spacing: 0.5em; text-indent: 0.5em; } /* "이하여백" 중앙 (U5) */
+.fill { text-align: center; letter-spacing: 0.5em; text-indent: 0.5em; padding-left: 0 !important; } /* "이하 빈칸" 중앙 (U5·W5b) */
 .gap { height: var(--lh); }
 .content u, .content .keyword {
   text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px;
@@ -667,12 +686,21 @@ body {
 .tcmp th:nth-child(2) { width: 40%; }
 .texp th:nth-child(1) { width: 20%; }
 .texp th:nth-child(2) { width: 19%; }
+/* 구성도 6줄 충전 (발주자 직접 규격 2026-07-18): 그림이 6줄 높이를 꽉 채우고
+   상하 빈 줄을 남기지 않는다 — 컨테이너 stretch + 내부 열 space-evenly 분배 */
 .diagram {
   height: calc(6 * var(--lh)); border: 1.5px solid var(--ink);
-  display: flex; align-items: center; justify-content: center;
-  gap: 22px; padding: 0 12px; overflow: hidden;
+  display: flex; align-items: stretch; justify-content: center;
+  gap: 22px; padding: 6px 12px; overflow: hidden;
 }
 .diagram.d7 { height: calc(7 * var(--lh)); }
+.diagram > .d-arrow, .diagram > .d-turn { align-self: center; }
+.diagram > .d-box { display: flex; flex-direction: column; justify-content: center; }
+.d-col { justify-content: space-evenly; }
+.d-col > .d-box { display: flex; flex-direction: column; justify-content: center; flex: 1 1 auto; max-height: 46%; }
+/* 화살표 라벨 (발주자 규격: 화살표마다 텍스트) — 기호 위/아래 소자 라벨 */
+.d-arrow, .d-turn { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.d-arrow small, .d-turn small { font-size: 10px; font-weight: 400; line-height: 1.2; letter-spacing: 0; }
 .d-circle {
   width: 60px; height: 60px; border-radius: 50%;
   border: 1.5px solid var(--ink); background: #fff;
@@ -690,23 +718,28 @@ body {
 /* ---- 개념도 패턴 키트 (docs/diagram-spec.md, 실물 MG 표본 34건 역설계) ----
    모든 패턴은 고정 높이 .diagram(6줄)/.d7(7줄) 안의 flex/grid 배치 —
    컨테이너 높이가 불변이라 페이지 줄 계측(_layout)과 충돌하지 않는다. */
-.d-flow { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; } /* ①흐름 */
-.d-flow .d-box { flex: 1; padding: 4px 6px; font-size: 12px; }
+.d-flow { display: flex; align-items: stretch; justify-content: center; gap: 8px; width: 100%; } /* ①흐름 — 세로 충전 */
+.d-flow .d-box { flex: 1; padding: 4px 6px; font-size: 12px; display: flex; flex-direction: column; justify-content: center; }
+.d-flow .d-arrow { align-self: center; }
+.d-flow .d-col { justify-content: space-evenly; }
 .d-out { border: 1px dashed var(--ink); background: #fff; font-size: 10.5px; font-weight: 400; padding: 1px 8px; text-align: center; } /* 산출물 병기 칩 */
 .d-bar { border: 1.5px solid var(--ink); background: #fff; font-weight: 700; font-size: 13px; text-align: center; padding: 3px 10px; width: 72%; } /* ②대분류 긴 사각 */
 .d-bar small { display: block; font-size: 11px; font-weight: 400; }
-.d-tree { display: flex; flex-direction: column; align-items: center; width: 100%; } /* ②계층/분류 */
+.d-tree { display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; width: 100%; } /* ②계층/분류 — 세로 충전 */
 .d-stem { width: 0; height: 10px; border-left: 1.5px solid var(--ink); }
 .d-branch { width: 72%; height: 10px; border: 1.5px solid var(--ink); border-bottom: none; }
 .d-tree .d-row { align-items: stretch; gap: 10px; }
-.d-stack { display: flex; flex-direction: column; gap: 6px; width: 72%; } /* ③레이어 */
-.d-stack .d-box { width: 100%; padding: 3px 10px; }
-.d-cycle { display: grid; grid-template-columns: auto 1fr auto 1fr auto; gap: 8px 10px; align-items: center; justify-items: center; width: 88%; } /* ④순환(4단계) */
+.d-stack { display: flex; flex-direction: column; justify-content: space-evenly; gap: 6px; width: 72%; } /* ③레이어 — 세로 충전 */
+.d-stack .d-box { width: 100%; padding: 3px 10px; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; }
+.d-cycle { display: grid; grid-template-columns: auto 1fr auto 1fr auto; gap: 8px 10px; align-items: stretch; align-content: stretch; justify-items: center; width: 88%; } /* ④순환(4단계) — 세로 충전 */
+.d-cycle .d-box { display: flex; flex-direction: column; justify-content: center; }
+.d-cycle .d-arrow { align-self: center; }
 .d-cycle.c6 { grid-template-columns: auto 1fr auto 1fr auto 1fr auto; } /* 6단계 */
 .d-cycle .d-box { width: 100%; padding: 3px 6px; font-size: 12px; }
 .d-turn { grid-row: 1 / 3; font-weight: 700; font-size: 17px; } /* 순환 좌우 회귀 화살표 */
-.d-net { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px 12px; align-items: center; justify-items: center; width: 100%; } /* ⑤허브 3×3 */
-.d-net .d-box { width: 100%; padding: 3px 8px; font-size: 12px; }
+.d-net { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px 12px; align-items: stretch; align-content: stretch; justify-items: center; width: 100%; } /* ⑤허브 3×3 — 세로 충전 */
+.d-net .d-box { width: 100%; padding: 3px 8px; font-size: 12px; display: flex; flex-direction: column; justify-content: center; }
+.d-net .d-arrow { align-self: center; }
 .d-net .d-box.d-hub { width: auto; font-size: 14px; padding: 8px 16px; }
 .d-vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: stretch; width: 100%; } /* ⑥비교대칭 */
 .d-zone { border: 1px dashed var(--ink); padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
@@ -723,6 +756,7 @@ body {
   body { background: #fff; padding: 0; }
   .page { width: auto; margin: 0; border: none; box-shadow: none; page-break-after: always; }
   .page:last-child { page-break-after: auto; }
+  .mnemonic { display: none; } /* W5c — 두문자 박스는 창작 요소: 인쇄(실물 충실) 시 제외 */
 }
 </style>
 </head>
@@ -808,6 +842,8 @@ _BODY_RULES = """[답안 본문 HTML 규칙 — 실물 답안지 줄 그리드 �
   div class="diagram d7"  2교시 서론 로드맵 전용 7줄 컨테이너 (서론에 1개만)
     내부 전용: div.d-row / div.d-col / div.d-box(+.soft 점선 보조, +.d-hub 중심 강조) /
                div.d-circle(등장배경 원형) / span.d-sep(구분 점선) / span.d-arrow(→ ← ↓ ↔ 텍스트)
+    본문 구성도(diagram)의 화살표는 **모두 라벨 필수**: <span class="d-arrow">→<small>라벨</small></span>
+    (발주자 규격 — 빈 화살표는 형식 위반. 라벨은 2~4자 동작어: 합의/측정/전개 등)
     패턴 키트(docs/diagram-spec.md — 토픽 성격에 맞는 것 하나를 선택, 박스 일렬 나열 금지):
       div.d-flow  ①흐름/절차(단계 좌→우, 산출물은 d-col 안 div.d-out 칩으로 병기)
       div.d-tree  ②계층/분류(div.d-bar 대분류 긴 사각 + div.d-stem 수직선 + div.d-branch 갈래 + d-row 하위)
@@ -823,15 +859,19 @@ _BODY_RULES = """[답안 본문 HTML 규칙 — 실물 답안지 줄 그리드 �
 - **행 높이 = 내용 밀도 (손글씨 기준)**: 표 셀은 손글씨 폭 — 구분열 3~4자, 구성요소열 5~7자,
   설명열 한 줄 ~10자. 설명이 11자 이하면 1줄 행(tr), "- " 항목 2개(각 10자 내외)면 2줄 행(tr.r2).
   r2 셀 합계 20자 상한 — 넘치면 손으로 못 베낀다(위반). 내용 1구절뿐인 r2도 금지.
-- 문체: 개조식("~임/~함/~됨" 종결). 정의·설명은 키워드 나열형 — 문장을 만들지 말 것.
+- 문체: **명사(체언) 종결 기본**("…관리체계", "…확보", "…필요" — 실물 압도적 관행 W4b),
+  ~임/~함/~됨은 보조. "~합니다/입니다" 금지. 정의·설명은 키워드 나열형 — 문장을 만들지 말 것.
 - 본문 개념도(diagram) 직후에는 p.gloss 간글 1줄 필수(서론 d7 뒤는 (정의) p.def가 대체).
   h2 사이에 빈 줄·gap을 직접 넣지 말 것(서버가 페이지 배치 시 자동 삽입).
 
-[1교시형(용어, 10점) — 3단락, 26~30줄]
+[1교시형(용어, 10점) — 3단락, 22~30줄 — 발주자 직접 규격 2026-07-18]
 <p class="ans">답)</p>
-I. 리드문형 제목 "○○를 위한 △△의 개요" (h2) → 가. 정의 (h3 + p.def 키워드 나열형) → 나. 특징/목적 (h3 + p.def)
-II. 개념도·구성요소 (h2) → 가. 개념도 (h3 + div.diagram + p.gloss) → 나. 구성요소 (h3 + table.t3 헤더1+행 4~6)
-III. 활용/비교/결론 (h2 + table 또는 p.def) — 수직 확장·인접 기술 비교로 차별화
+I. 리드문형 제목 "○○를 위한 △△의 개요" (h2) → 정의 p.def 2줄(한 줄 17~19자)
+   → 특징 1줄: <p class="gloss">– 특징: 키워드 · 키워드 · 키워드</p> (키워드 2~3개, 문장 금지)
+II. 개념도·구성요소 (h2) → 가. 개념도 (h3 + div.diagram — 6줄을 꽉 채울 것, 상하 빈 공간
+   금지, 화살표마다 라벨 + p.gloss) → 나. 구성요소 (h3 + table.t3 — 반드시 3열, 헤더1+행 4~6)
+III. 활용/비교/결론 (h2 + table 또는 p.def) — 수직 확장·인접 기술 비교로 차별화,
+   마지막 표 아래 결론성 간글 1줄 관행(W4e)
 
 [2교시형(서술, 25점) — 4단락, 66~77줄]  ※ 3·4교시 문제도 동일 취급
 I. 서론 0.5쪽: 리드문형 제목(h2) + 로드맵 그림(div.diagram.d7 — 물어본 항목들을 하나의 그림으로,
@@ -1377,6 +1417,32 @@ async def _chat_path(history: list[dict], message: str) -> AsyncIterator[dict]:
            "library": bool(topic), "matched": [topic["id"]] if topic else []}
 
 
+def _strip_summary(kind: str, topics: list[dict], parsed: dict | None,
+                   fallback: str) -> str:
+    """문제 스트립 요약 전사 (W1 — 실물: 전문이 아니라 요약).
+
+    1교시: `문 N) 토픽 Full Name(영문 병기)` — name 원문 그대로(복수는 쉼표).
+    2교시: `문 N) 토픽 + 요구 키워드 나열` ≤20자 내외 — 요구 2건 이상일 때 파서
+    요구에서 키워드 추출, 단순형은 현행 제목 유지. 전문·배점 칩은 제품 장치로 존치.
+    """
+    if "1교시" in kind:
+        names = [str(t.get("name") or short_name(t)) for t in topics[:2]]
+        return ", ".join(n for n in names if n) or fallback
+    reqs = (parsed or {}).get("requirements") or []
+    if topics and len(reqs) >= 2:
+        base = short_name(topics[0])
+        tags: list[str] = []
+        for r in reqs[:4]:
+            tag = _question.req_tag(r)
+            if tag not in tags:
+                tags.append(tag)
+        cand = f"{base}의 {', '.join(tags)}"
+        if len(cand) <= 22:
+            return cand
+        return f"{base} 외 요구 {len(reqs)}건"
+    return fallback
+
+
 def _qmeta(parsed: dict | None) -> dict | None:
     """reply 노출용 파싱 메타 (question-spec 2-6)."""
     if not parsed:
@@ -1454,7 +1520,7 @@ async def _assembly_path(message: str, kind: str, points: int,
                 "각 html은 답안지 줄 그리드 계약(§7) 프래그먼트: 허용 태그는 h3/p(class "
                 "def|gloss)/table(class t3|t2|tcmp)/thead/tbody/tr(2줄 행 class r2)/th/td/u/br/"
                 "small만. h2 금지(서버가 지문 어구로 스탬프). 표는 헤더 1행+행 3~4개, "
-                "문체는 개조식(~임/~함), 표 설명셀 한 줄 10자·2줄 행 20자·p.def 38자 이내"
+                "문체는 명사 종결 기본(~임/함 보조), 표 설명셀 한 줄 10자·2줄 행 20자·p.def 38자 이내"
                 "(공백 제외, 영문 반각 환산). sub_points가 있으면 표 구분열로 반영.",
                 [{"role": "user", "content":
                     f"문제: {message}\n부족 요구 목록: "
@@ -1489,10 +1555,11 @@ async def _assembly_path(message: str, kind: str, points: int,
                 "HTML 프래그먼트로만 출력하세요.\n"
                 "구조(순서 고정): <h2>토픽명의 구성도 및 구성요소</h2> → <h3>토픽명의 구성도</h3> → "
                 "<div class=\"diagram\">개념도(내부: div.d-row/d-col/d-box(+.soft 점선/.d-hub 중심)/"
-                "span.d-arrow(→ ← ↓), 박스 3~6개)</div> → <p class=\"gloss\">– 간글 1줄(공백 제외 19자 이내)</p> → "
+                "span.d-arrow — 화살표는 반드시 <span class=\"d-arrow\">→<small>라벨 2~4자</small></span> 형태, "
+                "박스 3~6개)</div> → <p class=\"gloss\">– 간글 1줄(공백 제외 19자 이내)</p> → "
                 "<h3>토픽명의 구성요소</h3> → <table class=\"t3\"><thead><tr><th>구분</th><th>구성요소</th>"
                 "<th>설명</th></tr></thead><tbody><tr class=\"r2\">…</tr> 4행</tbody></table>\n"
-                "문체는 개조식(~임/~함), 표 설명셀 한 줄 10자·2줄 행 20자 이내(공백 제외, 영문 반각 환산). 다른 태그·설명·코드 펜스 금지.",
+                "문체는 명사 종결 기본(~임/함 보조), 표 설명셀 한 줄 10자·2줄 행 20자 이내(공백 제외, 영문 반각 환산). 다른 태그·설명·코드 펜스 금지.",
                 [{"role": "user", "content":
                     f"문제: {message}\n토픽명: {short_name(sk)}\n"
                     f"정의: {sk.get('definition') or ''}\n"
@@ -1559,7 +1626,9 @@ async def _assembly_path(message: str, kind: str, points: int,
     # 세아 — 규칙 검증 (0콜)
     yield _ev("reviewer", "working", "검증 중…")
     await asyncio.sleep(0.12)
-    sheet = render_answer(question=message, title=result["title"], kind=kind, points=points,
+    sheet = render_answer(question=message,
+                          title=_strip_summary(kind, topics, parsed, result["title"]),
+                          kind=kind, points=points,
                           body=result["body"], mnemonic_html=result["mnemonic_html"])
     warnings = result["warnings"] + _verify_assembly(result["body"], sheet, kind)
     if req_mode:

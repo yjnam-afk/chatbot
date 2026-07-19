@@ -24,7 +24,7 @@
  "definition": "정보시스템 로그 분석을 통해 업무 프로세스를 도출하고 개선하는 분석 기법",
  "definition_long": "정보시스템 이벤트 로그를 분석해 실제 프로세스를 발견·검증·개선하는 기법",
  "background": "설계 프로세스와 실제 수행의 괴리 — 로그 기반 객관 진단 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-flow\"><div class=\"d-box\">이벤트 로그<small>IS 기록</small></div><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box\">발견<small>모델 도출</small></div><div class=\"d-box\">적합성<small>모델 대사</small></div><div class=\"d-box\">향상<small>개선 반영</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">프로세스 혁신</div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-flow\"><div class=\"d-box\">이벤트 로그<small>IS 기록</small></div><span class=\"d-arrow\">→<small>분석</small></span><div class=\"d-col\"><div class=\"d-box\">발견<small>모델 도출</small></div><div class=\"d-box\">적합성<small>모델 대사</small></div><div class=\"d-box\">향상<small>개선 반영</small></div></div><span class=\"d-arrow\">→<small>개선</small></span><div class=\"d-box d-hub\">프로세스 혁신</div></div></div>",
  "diagram_gloss": "– 로그 기반 3대 분석 활동",
  "components": [
   {

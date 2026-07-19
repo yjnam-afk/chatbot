@@ -30,7 +30,7 @@
  "definition_long": "대량 데이터에 통계·기계학습 모델링 기법을 적용해 숨겨진 패턴·관계를 도출하는 지식 발견 기법",
  "background": "데이터 폭증 대비 활용 부재 — 경험 의존 의사결정을 데이터 기반으로 전환 필요",
  "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">데이터<br>폭증</div><div class=\"d-circle\">경험 의존<br>의사결정</div><div class=\"d-circle\">경쟁<br>심화</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">Data Mining</div><div class=\"d-box soft\">기법 체계 (Ⅱ)</div><div class=\"d-box soft\">적용 절차 · 활용 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">숨겨진 패턴 발견<small>데이터 기반 의사결정</small></div></div>",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">원천 데이터<small>DW · Data Mart</small></div><div class=\"d-box soft\">전처리<small>정제 · 변환</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">마이닝 엔진<small>연관 · 분류 · 군집</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">패턴 · 규칙<small>예측 · 인사이트</small></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">원천 데이터<small>DW · Data Mart</small></div><div class=\"d-box soft\">전처리<small>정제 · 변환</small></div></div><span class=\"d-arrow\">→<small>정제</small></span><div class=\"d-box d-hub\">마이닝 엔진<small>연관 · 분류 · 군집</small></div><span class=\"d-arrow\">→<small>도출</small></span><div class=\"d-box\">패턴 · 규칙<small>예측 · 인사이트</small></div></div>",
  "diagram_gloss": "– DW의 정제 데이터에 기법을 적용해 패턴·규칙을 도출하는 흐름",
  "features": [
   {

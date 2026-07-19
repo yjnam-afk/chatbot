@@ -25,7 +25,7 @@
  "definition": "계획-실행-평가-개선의 사이클로 품질·생산을 관리하는 방법론",
  "definition_long": "계획-실행-점검-조치의 반복 사이클로 품질·프로세스를 지속 개선하는 관리 기법",
  "background": "일회성 개선의 한계 극복 — 반복 사이클로 개선을 체계화할 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-cycle\"><span class=\"d-turn\">↑</span><div class=\"d-box\">Plan<small>목표·계획</small></div><span class=\"d-arrow\">→</span><div class=\"d-box\">Do<small>실행</small></div><span class=\"d-turn\">↓</span><div class=\"d-box\">Act<small>표준화·조치</small></div><span class=\"d-arrow\">←</span><div class=\"d-box\">Check<small>점검·평가</small></div></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-cycle\"><span class=\"d-turn\">↑<small>환류</small></span><div class=\"d-box\">Plan<small>목표·계획</small></div><span class=\"d-arrow\">→<small>이행</small></span><div class=\"d-box\">Do<small>실행</small></div><span class=\"d-turn\">↓<small>측정</small></span><div class=\"d-box\">Act<small>표준화·조치</small></div><span class=\"d-arrow\">←<small>시정</small></span><div class=\"d-box\">Check<small>점검·평가</small></div></div></div>",
  "diagram_gloss": "– 4단계 순환으로 지속 개선 실현",
  "components": [
   {

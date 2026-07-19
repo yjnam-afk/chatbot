@@ -26,7 +26,7 @@
  "definition": "내부 강·약점과 외부 기회·위협을 분석해 전략 대안을 도출하는 기법",
  "definition_long": "조직 내부의 강점·약점과 외부 환경의 기회·위협을 매트릭스로 분석해 SO·ST·WO·WT 전략을 도출하는 전략수립 기법",
  "background": "내·외부 환경의 체계적 진단 없이 수립된 전략의 실패 위험 — 균형 잡힌 상황 분석 필요",
- "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">S 강점<small>내부 · 긍정</small></div><div class=\"d-box\">W 약점<small>내부 · 부정</small></div></div><div class=\"d-col\"><div class=\"d-box\">O 기회<small>외부 · 긍정</small></div><div class=\"d-box\">T 위협<small>외부 · 부정</small></div></div><span class=\"d-arrow\">→</span><div class=\"d-box d-hub\">전략 도출<small>SO · ST · WO · WT</small></div></div>",
+ "diagram_html": "<div class=\"diagram\"><div class=\"d-col\"><div class=\"d-box\">S 강점<small>내부 · 긍정</small></div><div class=\"d-box\">W 약점<small>내부 · 부정</small></div></div><div class=\"d-col\"><div class=\"d-box\">O 기회<small>외부 · 긍정</small></div><div class=\"d-box\">T 위협<small>외부 · 부정</small></div></div><span class=\"d-arrow\">→<small>교차</small></span><div class=\"d-box d-hub\">전략 도출<small>SO · ST · WO · WT</small></div></div>",
  "diagram_gloss": "– 내부(S·W)×외부(O·T) 2×2 매트릭스 교차로 4개 전략 도출",
  "features": [
   {
