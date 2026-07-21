@@ -747,7 +747,9 @@ body {
 .content h2 { font-weight: 700; }
 .content h3 { font-weight: 700; padding-left: 0; } /* 가나가 거터로 이동 — 본문 열은 제목 텍스트만 */
 /* 2교시형 단락(h2) 사이 1줄 여백은 서버가 .gap 블록으로 물질화한다 (페이지 분할 정합) */
-.ans { font-weight: 700; padding-left: 0; } /* "답)"은 거터 안쪽 칸 — 본문 첫 줄은 빈 괘선 */
+/* "답)"은 거터 안쪽 칸 — 본문 열은 빈 괘선. 흐름 콘텐츠가 없어도 1줄을 점유해야
+   페이지 계측과 일치한다 (절대배치 gut만 남으면 줄이 0높이로 접히는 결함 방지) */
+.ans { font-weight: 700; padding-left: 0; min-height: var(--lh); }
 /* 들여쓰기 (W4a 조정): 번호가 거터로 가면서 본문 문단만 1칸(18px) — 표·그림 전폭 */
 .def { min-height: calc(2 * var(--lh)); padding-left: 18px; }
 .gloss { padding-left: 18px; }
