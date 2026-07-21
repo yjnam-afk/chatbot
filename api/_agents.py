@@ -635,9 +635,7 @@ _ANSWER_TEMPLATE = """<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<!-- 답안지는 리플로우 금지 — 설계 고정폭(794) 렌더. 좁은 화면은 뷰어(stage.js)가
-     균등 축소(scale)로 통째 표시한다 (발주자 실기기 반려 2026-07-21: 도형 잘림·줄바꿈 변형) -->
-<meta name="viewport" content="width=794">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} — 기술사 답안지</title>
 <style>
 /* 기술사 답안지 — 실물 줄 그리드 템플릿 (docs/answer-template-spec.md, v2 서버 페이지 분할)
@@ -650,13 +648,11 @@ _ANSWER_TEMPLATE = """<!DOCTYPE html>
 }
 /* 목차 번호(h2 로마자 · h3 가나다)는 서버가 텍스트로 스탬프한다 — CSS 카운터는
    페이지 분할(.content 다중화) 시 브라우저 카운터 스코프 결함으로 폐기 (2026-07 검수) */
-html { -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  -webkit-text-size-adjust: 100%; text-size-adjust: 100%; } /* iOS 폰트 부스팅 차단 — 리플로우 금지 */
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 body {
   background: #e6e5e0; color: var(--ink);
   font-family: "Noto Serif KR", "Noto Serif CJK KR", "Nanum Myeongjo", "Source Han Serif K", Batang, AppleMyungjo, serif;
   font-size: 15px; padding: 36px 12px 48px; word-break: keep-all;
-  min-width: 794px; /* 설계 고정폭 — 좁은 화면 리플로우 대신 뷰어가 균등 축소 */
 }
 .page {
   width: min(794px, 100%); margin: 0 auto 26px;

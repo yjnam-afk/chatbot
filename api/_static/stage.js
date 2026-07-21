@@ -18,30 +18,6 @@ const Stage = (() => {
   let current = null; // {title, html}
   let pageTops = []; // 무대 스크롤 좌표계의 각 쪽 시작 위치
   let curPage = 0;
-  // 답안지는 리플로우 금지 — iframe은 항상 설계 고정폭으로 렌더하고, 좁은 화면은
-  // 균등 축소(transform: scale)로 통째 표시 (발주자 실기기 반려 2026-07-21:
-  // 개념도 도형 잘림·정의 줄바꿈 변형). 데스크톱(scale=1)은 종전과 픽셀 동일.
-  const DESIGN_W = 794; // 종전 데스크톱 iframe 폭
-  let scale = 1;
-
-  function applyScale() {
-    const w = wrap.clientWidth || stageEl.clientWidth || DESIGN_W;
-    scale = Math.min(1, w / DESIGN_W);
-    frame.style.width = DESIGN_W + "px";
-    // transform은 레이아웃 박스를 줄이지 않으므로 wrap 높이를 축소분만큼 잘라준다
-    let h = 0;
-    try { h = frame.contentDocument.documentElement.scrollHeight; } catch (e) { h = frame.offsetHeight; }
-    if (scale < 1) {
-      frame.style.transform = "scale(" + scale + ")";
-      frame.style.transformOrigin = "top left";
-      wrap.style.height = Math.ceil(h * scale) + "px";
-      wrap.style.overflow = "hidden";
-    } else {
-      frame.style.transform = "";
-      wrap.style.height = "";
-      wrap.style.overflow = "";
-    }
-  }
 
   function blobUrl(art) {
     return URL.createObjectURL(new Blob([art.html], { type: "text/html" }));
@@ -73,7 +49,7 @@ const Stage = (() => {
         return;
       }
       const base = wrap.offsetTop;
-      pageTops = pages.map((p) => base + Math.round(p.offsetTop * scale)); // 축소 반영 좌표
+      pageTops = pages.map((p) => base + p.offsetTop);
       navEl.hidden = false;
       updatePageNav();
     } catch (e) {
@@ -110,7 +86,6 @@ const Stage = (() => {
     frame.classList.add("enter");
     frame.onload = () => {
       syncHeight();
-      applyScale();
       buildPageNav();
       requestAnimationFrame(() => frame.classList.remove("enter"));
       if (typeof Stage.onReady === "function") Stage.onReady(); // 레일 목차·두문자 갱신 훅
@@ -205,7 +180,6 @@ const Stage = (() => {
   });
   window.addEventListener("resize", () => {
     syncHeight();
-    applyScale();
     buildPageNav();
   });
 
