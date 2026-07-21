@@ -37,7 +37,16 @@ button { font-family: inherit; cursor: pointer; }
   display: flex; flex-direction: column;
   padding: 22px 16px 16px;
   z-index: 30;
+  /* 즉답기 다이어트: 사이드바는 기본 접힘 — ☰로 열고 localStorage로 기억 */
+  position: fixed; left: 0; top: 0; bottom: 0;
+  transform: translateX(-100%); transition: transform 0.18s ease;
 }
+.side.open { transform: translateX(0); }
+.chatitem {
+  margin-top: 10px; width: 100%; background: #20242e; border: 1px solid #2c313d;
+  color: #c6c9d0; font-size: 13px; font-weight: 700; border-radius: 10px; padding: 10px 0;
+}
+.chatitem:hover { border-color: var(--accent); color: #fff; }
 .brand { font-weight: 900; font-size: 16px; padding: 0 6px; letter-spacing: -0.2px; }
 .brand small { display: block; color: var(--side-mut2); font-weight: 500; font-size: 12px; margin-top: 5px; letter-spacing: 0.2px; }
 .newbtn {
@@ -124,10 +133,62 @@ button { font-family: inherit; cursor: pointer; }
 .ritem .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ritem small { color: var(--side-mut); flex: none; }
 
+/* ---- 답안지 상단 얇은 메타 한 줄 (접이식) */
+.meta-bar { margin: 6px 26px 0; }
+.meta-line {
+  width: 100%; display: flex; align-items: center; gap: 8px;
+  background: #fff; border: 1px solid var(--border); border-radius: 10px;
+  padding: 8px 14px; font-size: 12.5px; color: #565a63; text-align: left;
+}
+.meta-line b { color: #23262d; }
+.meta-line i { margin-left: auto; font-style: normal; color: #9a9da5; }
+.meta-detail {
+  display: flex; gap: 26px; background: #fff; border: 1px solid var(--border);
+  border-top: none; border-radius: 0 0 10px 10px; padding: 12px 16px; font-size: 12.5px;
+}
+.md-col { flex: 1; min-width: 0; }
+.md-h { font-size: 11px; color: #9a9da5; letter-spacing: 1px; font-weight: 700; margin: 8px 0 6px; }
+.md-h:first-child { margin-top: 0; }
+.meta-detail .toc button { color: #444852; }
+.meta-detail .toc button:hover { background: #f4f4f2; color: #111; }
+.meta-detail .toc .n { color: var(--accent); }
+.meta-detail .toc .pg { color: #9a9da5; }
+.meta-detail .mn-word { background: #f7f4ea; border-color: #e0d8bd; color: #8a6d1a; }
+.meta-detail .mn-exp { color: #6b6f78; }
+.meta-detail .gbar { background: #eceae4; }
+.meta-detail .gv { color: #6b6f78; }
+.meta-detail .gv b { color: #23262d; }
+
+/* ---- 인쇄/PDF 플로팅 (답안지 호버 시 — 모바일은 하단 고정 바) */
+.float-tools {
+  position: sticky; top: 8px; z-index: 9; float: right; margin-right: 2px;
+  display: flex; gap: 6px; opacity: 0; transition: opacity 0.15s; pointer-events: none;
+}
+.stage:hover .float-tools, .float-tools:focus-within { opacity: 1; pointer-events: auto; }
+.float-tools button {
+  background: rgba(21, 24, 31, 0.9); color: #e8e9ec; border: none; border-radius: 9px;
+  font-size: 12px; font-weight: 700; padding: 8px 13px; box-shadow: 0 6px 18px rgba(20,20,20,.18);
+}
+.float-tools button.pri { background: var(--accent); }
+.float-tools button:disabled { opacity: 0.4; cursor: default; }
+
+/* ---- 붙여넣기 자동 작성 취소 토스트 */
+.paste-toast {
+  position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); z-index: 60;
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(21, 24, 31, 0.95); color: #fff; font-size: 13px;
+  border-radius: 999px; padding: 10px 18px; box-shadow: 0 10px 30px rgba(20,20,20,.3);
+}
+.paste-toast button {
+  background: none; border: 1px solid #4a505e; color: #ffd479;
+  border-radius: 999px; font-size: 12px; font-weight: 700; padding: 4px 12px;
+}
+.paste-toast button:hover { border-color: #ffd479; }
+
 /* ==================== 메인 ==================== */
 .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .bar { display: flex; gap: 12px; padding: 16px 26px 8px; align-items: flex-start; }
-.hamb { display: none; background: none; border: none; font-size: 20px; color: #4c5058; padding: 10px 4px 0; }
+.hamb { background: none; border: none; font-size: 20px; color: #4c5058; padding: 10px 4px 0; }
 .askline {
   flex: 1; display: flex; gap: 10px; align-items: flex-start; position: relative; min-width: 0;
 }
@@ -248,17 +309,17 @@ button { font-family: inherit; cursor: pointer; }
 .chat-mini button { background: var(--side-bg); color: #fff; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; padding: 0 18px; }
 .scrim { position: fixed; inset: 0; background: rgba(15, 17, 22, 0.35); z-index: 25; }
 
-/* ==================== 모바일 (사이드바 햄버거 접힘) ==================== */
+/* ==================== 모바일 ==================== */
 @media (max-width: 860px) {
-  .side {
-    position: fixed; left: 0; top: 0; bottom: 0;
-    transform: translateX(-100%); transition: transform 0.2s ease;
-  }
-  .side.open { transform: translateX(0); }
-  .hamb { display: block; }
   .bar { padding: 12px 14px 6px; }
   .statusline { margin: 4px 14px 0; }
-  .stage { padding: 8px 10px 30px; }
+  .meta-bar { margin: 6px 14px 0; }
+  .meta-detail { flex-direction: column; gap: 8px; }
+  .stage { padding: 8px 10px 76px; }
   .kinds { display: none !important; } /* 좁은 화면은 자동 판별만 */
-  .qbtn { padding: 0 13px; }
+  /* 인쇄/PDF: 호버 없음 — 하단 고정 소형 바 */
+  .float-tools {
+    position: fixed; left: 50%; bottom: 14px; top: auto; float: none; margin: 0;
+    transform: translateX(-50%); opacity: 1; pointer-events: auto;
+  }
 }

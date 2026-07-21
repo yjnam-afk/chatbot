@@ -3,43 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>기술사 답안 사무소 — 답안지 작성</title>
+  <title>기술사 답안 사무소 — 답안지 즉답기</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- ==================== 다크 사이드바 (리디자인 ② — scratchpad/re2.html 기준) ==================== -->
+  <!-- ==================== 사이드바 (기본 접힘 — 서랍·최근·질문 전부, ☰ 토글) ==================== -->
   <aside class="side" id="side">
     <div class="brand">기술사 답안 사무소<small id="side-stats">토픽 불러오는 중…</small></div>
     <button type="button" class="newbtn" id="new-btn">＋ 새 답안지</button>
+    <button type="button" class="chatitem" id="chat-open-side">💬 질문하기 — 토픽 개념·공부법</button>
 
     <div class="side-scroll" id="side-scroll">
-      <!-- 이번 답안 (결과 상태 — 빈 상태에선 미표시) -->
-      <div id="now-sec" hidden>
-        <div class="sec">이번 답안</div>
-        <div class="sum-line" id="sum-line"></div>
-        <div class="toc" id="toc"></div>
-        <div id="mn-card" hidden>
-          <div class="sec sub">두문자 암기</div>
-          <div id="mn-body"></div>
-        </div>
-        <div class="gauge">
-          <div class="gbar"><i id="gauge-fill"></i></div>
-          <div class="gv" id="gauge-text"></div>
-        </div>
-        <div class="exports">
-          <button type="button" id="ex-print" class="pri" disabled>🖨️ 인쇄</button>
-          <button type="button" id="ex-pdf" disabled title="인쇄 대화상자에서 'PDF로 저장'을 선택하세요">PDF</button>
-          <button type="button" id="ex-tab" disabled>새 탭</button>
-        </div>
-      </div>
-
-      <!-- 토픽 서랍 -->
       <div class="sec">토픽 서랍</div>
       <input id="drawer-search" class="dsearch" type="text" placeholder="토픽 검색 — 이름·두문자·정의" autocomplete="off" />
       <div id="drawer-folders"></div>
       <div id="drawer-list"></div>
 
-      <!-- 최근 답안지 (localStorage — 서버 무상태) -->
       <div class="sec">최근 답안지</div>
       <div id="recent-list"><div class="side-empty">아직 없어요 — 첫 답안지를 만들어 보세요</div></div>
     </div>
@@ -50,12 +29,12 @@
     </div>
   </aside>
 
-  <!-- ==================== 메인 (상단 바 + 무대) ==================== -->
+  <!-- ==================== 메인: 입력줄 + 답안지 (즉답기 — 화면 다이어트) ==================== -->
   <div class="main">
     <div class="bar">
-      <button type="button" id="side-toggle" class="hamb" title="메뉴">☰</button>
+      <button type="button" id="side-toggle" class="hamb" title="토픽 서랍 · 최근 답안지 · 질문">☰</button>
       <form class="askline" id="chat-form">
-        <textarea id="chat-input" rows="1" placeholder="기출 문제를 통째로 붙여넣으세요 — 지문·소문항(가·나·다) 포함, Ctrl+Enter 작성"></textarea>
+        <textarea id="chat-input" rows="1" autofocus placeholder="기출 문제를 붙여넣으면 바로 답안지가 나옵니다 — 지문·소문항(가·나·다) 포함"></textarea>
         <div class="kinds" id="kind-chips">
           <button type="button" class="kchip on" data-kind="">자동 판별</button>
           <button type="button" class="kchip" data-kind="1교시형">1교시형 10점</button>
@@ -63,9 +42,30 @@
         </div>
         <button type="submit" id="ask-btn" class="go">작성</button>
       </form>
-      <button type="button" id="chat-toggle" class="qbtn">질문</button>
     </div>
     <div id="status-line" class="statusline" hidden></div>
+
+    <!-- 답안지 상단 얇은 메타 한 줄 (접이식: 목차·두문자·분량) -->
+    <div id="meta-bar" class="meta-bar" hidden>
+      <button type="button" id="meta-line" class="meta-line"><span id="sum-line"></span><i id="meta-caret">▾</i></button>
+      <div id="meta-detail" class="meta-detail" hidden>
+        <div class="md-col">
+          <div class="md-h">목차 (클릭 시 이동)</div>
+          <div class="toc" id="toc"></div>
+        </div>
+        <div class="md-col">
+          <div id="mn-card" hidden>
+            <div class="md-h">두문자 암기</div>
+            <div id="mn-body"></div>
+          </div>
+          <div class="md-h">분량</div>
+          <div class="gauge">
+            <div class="gbar"><i id="gauge-fill"></i></div>
+            <div class="gv" id="gauge-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <section class="stage" id="stage">
       <div id="page-nav" class="page-nav" hidden>
@@ -73,7 +73,13 @@
         <span id="pn-label">1 / 1 쪽</span>
         <button type="button" id="pn-next" title="다음 쪽">▶</button>
       </div>
-      <!-- 빈 상태: 실제 답안지 1쪽 고스트 (re2 그대로 — 맨 괘선·웹 카드 금지) -->
+      <!-- 인쇄/PDF — 답안지 호버 플로팅 (모바일은 하단 고정 소형 바) -->
+      <div id="float-tools" class="float-tools" hidden>
+        <button type="button" id="ex-print" class="pri" disabled>🖨️ 인쇄</button>
+        <button type="button" id="ex-pdf" disabled title="인쇄 대화상자에서 'PDF로 저장'을 선택하세요">PDF</button>
+        <button type="button" id="ex-tab" disabled>새 탭</button>
+      </div>
+      <!-- 빈 상태: 실물 답안지 1쪽 고스트 -->
       <div id="stage-empty" class="stage-empty">
         <div class="psheet">
           <!-- 실물 공단 용지는 상단 머리행 없음 (발주자 손답안 사진 2026-07-21) -->
@@ -84,12 +90,12 @@
           <div class="ps-body">
             <div class="ps-ans ghost">답)</div>
             <div class="empty-note">
-              <p class="en-title">문제를 붙여넣으면<br>이 답안지가 3초 안에 채워집니다</p>
-              <p class="en-sub">왼쪽 서랍에서 등록 토픽을 골라도 돼요</p>
+              <p class="en-title">기출 문제를 붙여넣는 순간<br>이 답안지가 채워집니다</p>
+              <p class="en-sub">클릭할 것 없어요 — 붙여넣기만 하면 자동으로 작성돼요</p>
               <div class="examples">
                 <button type="button" class="ex-btn">SLA에 대하여 설명하시오 (25점)</button>
                 <button type="button" class="ex-btn">ITSM에 대하여 설명하시오 (25점)</button>
-                <button type="button" class="ex-btn">SWOT 분석에 대하여 약술하시오 (10점)</button>
+                <button type="button" class="ex-btn">리만의 소프트웨어 변화 원리에 대하여 약술하시오 (10점)</button>
               </div>
             </div>
           </div>
@@ -102,7 +108,13 @@
     </section>
   </div>
 
-  <!-- ==================== 질문 슬라이드 패널 (챗 겸용 — 발주자 확정, 평시 숨김) ==================== -->
+  <!-- 붙여넣기 자동 작성 취소 토스트 -->
+  <div id="paste-toast" class="paste-toast" hidden>
+    <span>답안지 작성 중…</span>
+    <button type="button" id="paste-cancel">취소</button>
+  </div>
+
+  <!-- ==================== 질문 슬라이드 패널 (평시 완전 숨김) ==================== -->
   <aside class="chat-panel" id="chat-panel" hidden>
     <div class="cp-head">
       <b>질문</b><span class="cp-sub">토픽 개념·공부법을 물어보세요</span>

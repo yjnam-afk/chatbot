@@ -9,7 +9,11 @@ const askBtn = document.getElementById("ask-btn");
 const badgeEl = document.getElementById("mode-badge");
 const statusEl = document.getElementById("status-line");
 
-const nowSec = document.getElementById("now-sec");
+const metaBar = document.getElementById("meta-bar");
+const metaLine = document.getElementById("meta-line");
+const metaDetail = document.getElementById("meta-detail");
+const metaCaret = document.getElementById("meta-caret");
+const floatTools = document.getElementById("float-tools");
 const sumLine = document.getElementById("sum-line");
 const tocEl = document.getElementById("toc");
 const mnCard = document.getElementById("mn-card");
@@ -19,7 +23,6 @@ const recentEl = document.getElementById("recent-list");
 const sideEl = document.getElementById("side");
 const scrimEl = document.getElementById("scrim");
 const chatPanel = document.getElementById("chat-panel");
-const chatToggle = document.getElementById("chat-toggle");
 const chatLog = document.getElementById("chat-log");
 const miniForm = document.getElementById("chat-mini");
 const miniInput = document.getElementById("chat-mini-input");
@@ -40,31 +43,39 @@ fetch("/api/agents")
 
 Drawer.load();
 
-// ---------------------------------------------------------- 사이드바 (모바일 햄버거)
-document.getElementById("side-toggle").onclick = () => {
-  sideEl.classList.toggle("open");
-  scrimEl.hidden = !sideEl.classList.contains("open");
-};
+// ---------------------------------------------------------- 사이드바 (기본 접힘 · ☰ 토글 · 상태 기억)
+const SIDE_KEY = "gisulsa.side.v1";
+function setSide(open, remember) {
+  sideEl.classList.toggle("open", open);
+  scrimEl.hidden = !open && !chatPanel.classList.contains("open");
+  if (remember) {
+    try { localStorage.setItem(SIDE_KEY, open ? "open" : "closed"); } catch (e) { /* 무시 */ }
+  }
+}
+document.getElementById("side-toggle").onclick = () =>
+  setSide(!sideEl.classList.contains("open"), true);
 scrimEl.onclick = () => {
-  sideEl.classList.remove("open");
+  setSide(false, false);
   closeChat();
   scrimEl.hidden = true;
 };
+// 데스크톱에서 사이드바를 열어두고 쓰는 사용자 기억 (모바일은 항상 접힘 시작)
+try {
+  if (localStorage.getItem(SIDE_KEY) === "open" && window.innerWidth > 860) setSide(true, false);
+} catch (e) { /* 무시 */ }
 
 // ---------------------------------------------------------- 질문 슬라이드 패널
 function openChat() {
   chatPanel.hidden = false;
   requestAnimationFrame(() => chatPanel.classList.add("open"));
-  chatToggle.classList.add("on");
   chatLog.scrollTop = chatLog.scrollHeight;
   miniInput.focus();
 }
 function closeChat() {
   chatPanel.classList.remove("open");
-  chatToggle.classList.remove("on");
   setTimeout(() => { if (!chatPanel.classList.contains("open")) chatPanel.hidden = true; }, 220);
 }
-chatToggle.onclick = () => (chatPanel.classList.contains("open") ? closeChat() : openChat());
+document.getElementById("chat-open-side").onclick = () => { setSide(false, false); openChat(); };
 document.getElementById("chat-close").onclick = closeChat;
 
 // ---------------------------------------------------------- 새 답안지 (빈 상태 복귀)
@@ -72,12 +83,19 @@ document.getElementById("new-btn").onclick = () => {
   document.getElementById("stage-wrap").hidden = true;
   document.getElementById("stage-empty").hidden = false;
   document.getElementById("page-nav").hidden = true;
-  nowSec.hidden = true;
+  metaBar.hidden = true;
+  floatTools.hidden = true;
   inputEl.value = "";
   autosize();
-  sideEl.classList.remove("open");
+  setSide(false, false);
   scrimEl.hidden = true;
   inputEl.focus();
+};
+
+// ---------------------------------------------------------- 메타 한 줄 (접이식)
+metaLine.onclick = () => {
+  metaDetail.hidden = !metaDetail.hidden;
+  metaCaret.textContent = metaDetail.hidden ? "▾" : "▴";
 };
 
 // ---------------------------------------------------------- 최근 답안지 (localStorage ≤10건)
@@ -126,7 +144,7 @@ function renderRecent() {
     div.append(nm, pg);
     div.onclick = () => {
       applyReply(r, null); // 저장분 재렌더 (서버 호출 없음)
-      sideEl.classList.remove("open");
+      setSide(false, false);
       scrimEl.hidden = true;
     };
     recentEl.appendChild(div);
@@ -236,7 +254,7 @@ Stage.onReady = () => {
     b.onclick = () => Stage.gotoPage(item.page);
     tocEl.appendChild(b);
   });
-  nowSec.hidden = false;
+  metaBar.hidden = false;
 
   const mn = Stage.mnemonic();
   mnBody.innerHTML = "";
@@ -281,6 +299,7 @@ function applyReply(ev, secs) {
   Stage.render(ev.artifact); // onReady 훅이 목차·두문자를 채운다
   Stage.gauge(ev.sheet);
   sumLine.innerHTML = buildMeta(ev, secs);
+  floatTools.hidden = false;
 }
 
 // ---------------------------------------------------------- 제출 + 스트림
@@ -399,9 +418,52 @@ window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeChat();
 });
 
+// ---------------------------------------------------------- 붙여넣기 = 자동 생성 (즉답기 1원칙)
+// 시험 문제 근사 판별 (백엔드 is_exam_request의 프런트 축약) — 오인식은 1초 취소 토스트로 방어
+const pasteToast = document.getElementById("paste-toast");
+let pasteTimer = 0;
+function looksLikeExam(text) {
+  if (!text || text.length < 8) return false;
+  if (/(하시오|하라\.|서술하|약술하|논하시오|설명하|기술하)/.test(text)) return true;
+  if (/\(\s*\d{1,3}\s*점\s*\)/.test(text)) return true;
+  if (/답안지|모범답안/.test(text)) return true;
+  if (/(^|\s)가\.\s.+(\s나\.\s)/.test(text)) return true; // 소문항 마커
+  return false;
+}
+function cancelPasteAuto() {
+  clearTimeout(pasteTimer);
+  pasteTimer = 0;
+  pasteToast.hidden = true;
+}
+document.getElementById("paste-cancel").onclick = cancelPasteAuto;
+inputEl.addEventListener("paste", () => {
+  // paste 반영 후의 값으로 판별
+  setTimeout(() => {
+    const text = inputEl.value.trim();
+    if (!looksLikeExam(text) || busy) return;
+    autosize();
+    cancelPasteAuto();
+    pasteToast.hidden = false;
+    pasteTimer = setTimeout(() => {
+      pasteToast.hidden = true;
+      pasteTimer = 0;
+      inputEl.blur();
+      send(text);
+    }, 1000);
+  }, 0);
+});
+["input", "keydown"].forEach((evName) =>
+  inputEl.addEventListener(evName, (e) => {
+    if (pasteTimer && e.isTrusted && e.type === "keydown") cancelPasteAuto(); // 이어서 타이핑 = 자동 제출 취소
+  }));
+
+// 로드 즉시 입력 대기 (즉답기 3원칙)
+window.addEventListener("load", () => inputEl.focus());
+
 window.App = {
   ask(text) {
     inputEl.value = text;
+    setSide(false, false);
     send(text);
   },
 };
