@@ -206,14 +206,18 @@ _GANADA = "가나다라마바사아자차"
 
 
 def _stamp(blk: str, tag: str, n: int) -> str:
-    """h2/h3 여는 태그 뒤에 목차 번호를 텍스트로 스탬프한다.
+    """h2/h3 여는 태그 뒤에 목차 번호를 스탬프한다.
 
     번호는 서버가 결정 — h2마다 가나다가 리셋되고 페이지 경계와 무관하게 정확하다.
     (CSS 카운터는 페이지 분할 시 브라우저 카운터 스코프 결함으로 폐기, 2026-07 검수)
+    단락 로마자(h2)는 본문 인라인이 아니라 **좌측 번호칸(거터) 표기** — span.gut을
+    절대배치로 거터에 앉힌다 (발주자 확정 2026-07-21: "답)과 넘버링 위치"). 같은 줄
+    높이의 인라인 요소라 줄 그리드·페이지 계측에는 영향 없다. 가나(h3)는 본문 유지.
     """
     marks = _ROMANS if tag == "h2" else _GANADA
     mark = marks[min(n, len(marks)) - 1]
-    return re.sub(rf"(<{tag}[^>]*>)", lambda m: m.group(1) + f"{mark}. ", blk, count=1)
+    prefix = (f'<span class="gut">{mark}.</span>' if tag == "h2" else f"{mark}. ")
+    return re.sub(rf"(<{tag}[^>]*>)", lambda m: m.group(1) + prefix, blk, count=1)
 
 
 def _is_heading(blk: str) -> bool:
@@ -631,7 +635,9 @@ _ANSWER_TEMPLATE = """<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 답안지는 리플로우 금지 — 설계 고정폭(794) 렌더. 좁은 화면은 뷰어(stage.js)가
+     균등 축소(scale)로 통째 표시한다 (발주자 실기기 반려 2026-07-21: 도형 잘림·줄바꿈 변형) -->
+<meta name="viewport" content="width=794">
 <title>{title} — 기술사 답안지</title>
 <style>
 /* 기술사 답안지 — 실물 줄 그리드 템플릿 (docs/answer-template-spec.md, v2 서버 페이지 분할)
@@ -644,11 +650,13 @@ _ANSWER_TEMPLATE = """<!DOCTYPE html>
 }
 /* 목차 번호(h2 로마자 · h3 가나다)는 서버가 텍스트로 스탬프한다 — CSS 카운터는
    페이지 분할(.content 다중화) 시 브라우저 카운터 스코프 결함으로 폐기 (2026-07 검수) */
-html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  -webkit-text-size-adjust: 100%; text-size-adjust: 100%; } /* iOS 폰트 부스팅 차단 — 리플로우 금지 */
 body {
   background: #e6e5e0; color: var(--ink);
   font-family: "Noto Serif KR", "Noto Serif CJK KR", "Nanum Myeongjo", "Source Han Serif K", Batang, AppleMyungjo, serif;
   font-size: 15px; padding: 36px 12px 48px; word-break: keep-all;
+  min-width: 794px; /* 설계 고정폭 — 좁은 화면 리플로우 대신 뷰어가 균등 축소 */
 }
 .page {
   width: min(794px, 100%); margin: 0 auto 26px;
@@ -664,13 +672,16 @@ body {
 .ph-box { width: 88px; height: 100%; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--rule2); letter-spacing: 0.3em; }
 .ph-sp { flex: 1; }
 .ph-num { width: 88px; text-align: center; border-left: 1px solid var(--rule2); }
+/* 문제 스트립 — "문)"은 좌측 번호칸(거터) 위치, 본문 열에는 요약 전사만 (발주자 확정) */
 .q-strip {
-  height: calc(4 * var(--lh)); padding: 8px 20px 0;
+  position: relative;
+  height: calc(4 * var(--lh)); padding: 8px 20px 0 58px;
   border-bottom: 2px solid var(--rule2);
   font-family: system-ui, sans-serif; color: var(--chrome); overflow: hidden;
 }
 .qs-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.qs-no { font-weight: 700; font-size: 14px; }
+.qs-no { position: absolute; left: 0; top: 8px; width: 58px; text-align: center; font-weight: 700; font-size: 14px; color: var(--ink); }
+.qs-title { font-weight: 700; font-size: 14px; color: var(--ink); }
 .qs-kind { font-size: 11.5px; font-weight: 700; border: 1px solid var(--chrome); padding: 1px 10px; border-radius: 2px; white-space: nowrap; }
 .qs-text { margin-top: 6px; font-size: 14px; line-height: 1.65; }
 .body {
@@ -686,10 +697,13 @@ body {
   background: var(--rule2); box-shadow: 15px 0 var(--rule2), 30px 0 var(--rule2); }
 .content { margin: 0 20px 0 58px; }
 .content h2, .content h3, .content p { line-height: var(--lh); font-size: 15px; font-weight: 400; }
-.content h2 { font-weight: 700; }
+.content h2 { font-weight: 700; position: relative; }
+/* 단락 로마자(Ⅰ.Ⅱ.…)는 본문이 아니라 좌측 번호칸(거터)에 — h2와 같은 줄 높이의
+   절대배치 스팬이라 줄 그리드·페이지 계측 불변 (발주자 확정 2026-07-21) */
+.content h2 .gut { position: absolute; left: -54px; top: 0; width: 50px; text-align: center; font-weight: 700; }
 .content h3 { font-weight: 700; padding-left: 18px; }
 /* 2교시형 단락(h2) 사이 1줄 여백은 서버가 .gap 블록으로 물질화한다 (페이지 분할 정합) */
-.ans { font-weight: 700; }
+.ans { font-weight: 700; padding-left: 0; } /* "답)"은 본문 첫 줄 맨 앞 — 들여쓰기 없음 (발주자 확정) */
 /* 들여쓰기 3단 (W4a — 공단 좌측 세로 3줄 가이드): Ⅰ.=0 / 가.=1칸(18px) / 본문 문단=2칸(36px).
    표·그림은 전폭 유지 (실물 관행) */
 .def { min-height: calc(2 * var(--lh)); padding-left: 36px; }
@@ -825,10 +839,13 @@ def render_answer(question: str, title: str, kind: str, points: int | str,
         )
         strip = ""
         if i == 0:
+            # "문)"은 좌측 번호칸(거터) 위치, 스트립 본문에는 요약 전사만 (발주자 확정
+            # 2026-07-21 — 문제 번호를 알면 "문2)" 형이나 입력 문항에는 번호가 없어 "문)")
             strip = (
                 '  <div class="q-strip">\n'
+                '    <span class="qs-no">문)</span>\n'
                 '    <div class="qs-top">\n'
-                f'      <span class="qs-no">문) {esc(str(title))}</span>\n'
+                f'      <span class="qs-title">{esc(str(title))}</span>\n'
                 f'      <span class="qs-kind">{esc(str(kind))} · {esc(str(points))}점</span>\n'
                 "    </div>\n"
                 f'    <p class="qs-text">{esc(str(question))}</p>\n'
