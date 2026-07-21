@@ -1,8 +1,7 @@
-/* 글루 — 문항/질문 제출, NDJSON 스트림 파싱 → 무대·레일(답안/서랍/대화) 갱신.
-   (서버리스 대응: 이벤트 채널과 대화 이력을 모두 클라이언트가 관리)
-   ui-audit.md 반영: 진행 3단계 제거 → 상태 한 줄(평시 숨김), 답안 탭(목차·두문자·
-   분량·인쇄), 빈 상태 기본 탭 = 토픽 서랍. 챗봇 겸용(발주자 확정 2026-07-17):
-   답안지 요청은 대화에 요약 카드 + 무대 렌더, 질문은 대화에 답변. */
+/* 글루 — 리디자인 ② (다크 사이드바, 시각 기준 re2.html).
+   문항 제출 → NDJSON 스트림 → 무대 렌더 + 사이드바 "이번 답안"(목차·두문자·분량·인쇄).
+   질문 슬라이드 패널(챗 겸용 — 발주자 확정, 평시 숨김), 최근 답안지(localStorage
+   최근 10건 — 서버 무상태 유지). progress.js 상태 한 줄·stage.js 렌더 재사용. */
 
 const formEl = document.getElementById("chat-form");
 const inputEl = document.getElementById("chat-input");
@@ -10,56 +9,132 @@ const askBtn = document.getElementById("ask-btn");
 const badgeEl = document.getElementById("mode-badge");
 const statusEl = document.getElementById("status-line");
 
-const sumCard = document.getElementById("sum-card");
+const nowSec = document.getElementById("now-sec");
 const sumLine = document.getElementById("sum-line");
 const tocEl = document.getElementById("toc");
 const mnCard = document.getElementById("mn-card");
 const mnBody = document.getElementById("mn-body");
+const recentEl = document.getElementById("recent-list");
 
+const sideEl = document.getElementById("side");
+const scrimEl = document.getElementById("scrim");
+const chatPanel = document.getElementById("chat-panel");
+const chatToggle = document.getElementById("chat-toggle");
 const chatLog = document.getElementById("chat-log");
 const miniForm = document.getElementById("chat-mini");
 const miniInput = document.getElementById("chat-mini-input");
 
 const history = []; // [{role, content}] — 클라이언트가 유지 (서버 대화 컨텍스트용)
 let kindHint = ""; // 교시형 칩 수동 선택 ("" = 자동 판별)
-let lastMeta = null; // 마지막 reply (목차 카드 메타 재구성용)
+let lastMeta = null; // 마지막 reply (두문자 폴백·최근 저장용)
 
-// ---------------------------------------------------------- 초기화 (배지: 수험생 언어 — ui-audit)
+// ---------------------------------------------------------- 초기화 (수험생 언어 — 내부 용어 0)
 fetch("/api/agents")
   .then((r) => r.json())
   .then((data) => {
-    if (data.demo) {
-      badgeEl.textContent = "등록 토픽 즉시 조립";
-      badgeEl.className = "badge demo";
-      badgeEl.title = "등록 토픽은 즉시 조립돼요. 미등록 토픽의 AI 예비 작성은 준비 중.";
-    } else {
-      badgeEl.textContent = "AI 예비 작성 연결됨";
-      badgeEl.className = "badge live";
-      badgeEl.title = `등록 토픽 즉시 조립 + 미등록 토픽 AI 예비 작성 (${data.provider})`;
-    }
+    badgeEl.textContent = data.demo
+      ? "등록 토픽 즉시 작성 · 미등록 AI 작성은 준비 중"
+      : "등록 토픽 즉시 작성 + 미등록 AI 작성";
   })
   .catch(() => { badgeEl.textContent = "서버 연결 실패"; });
 
 Drawer.load();
 
-// ---------------------------------------------------------- 레일 탭 (기본 = 토픽 서랍)
-const tabs = {
-  answer: [document.getElementById("tab-answer"), document.getElementById("pane-answer")],
-  drawer: [document.getElementById("tab-drawer"), document.getElementById("pane-drawer")],
-  chat: [document.getElementById("tab-chat"), document.getElementById("pane-chat")],
+// ---------------------------------------------------------- 사이드바 (모바일 햄버거)
+document.getElementById("side-toggle").onclick = () => {
+  sideEl.classList.toggle("open");
+  scrimEl.hidden = !sideEl.classList.contains("open");
 };
-function showTab(name) {
-  for (const [key, [btn, pane]] of Object.entries(tabs)) {
-    btn.classList.toggle("on", key === name);
-    pane.hidden = key !== name;
-  }
-  if (name === "chat") chatLog.scrollTop = chatLog.scrollHeight;
-}
-for (const [key, [btn]] of Object.entries(tabs)) btn.onclick = () => showTab(key);
-// 하위 호환(드로어 등 외부 호출 지점)
-function showProgressTab() { showTab("answer"); }
+scrimEl.onclick = () => {
+  sideEl.classList.remove("open");
+  closeChat();
+  scrimEl.hidden = true;
+};
 
-// ---------------------------------------------------------- 상태 한 줄 (ui-audit §2)
+// ---------------------------------------------------------- 질문 슬라이드 패널
+function openChat() {
+  chatPanel.hidden = false;
+  requestAnimationFrame(() => chatPanel.classList.add("open"));
+  chatToggle.classList.add("on");
+  chatLog.scrollTop = chatLog.scrollHeight;
+  miniInput.focus();
+}
+function closeChat() {
+  chatPanel.classList.remove("open");
+  chatToggle.classList.remove("on");
+  setTimeout(() => { if (!chatPanel.classList.contains("open")) chatPanel.hidden = true; }, 220);
+}
+chatToggle.onclick = () => (chatPanel.classList.contains("open") ? closeChat() : openChat());
+document.getElementById("chat-close").onclick = closeChat;
+
+// ---------------------------------------------------------- 새 답안지 (빈 상태 복귀)
+document.getElementById("new-btn").onclick = () => {
+  document.getElementById("stage-wrap").hidden = true;
+  document.getElementById("stage-empty").hidden = false;
+  document.getElementById("page-nav").hidden = true;
+  nowSec.hidden = true;
+  inputEl.value = "";
+  autosize();
+  sideEl.classList.remove("open");
+  scrimEl.hidden = true;
+  inputEl.focus();
+};
+
+// ---------------------------------------------------------- 최근 답안지 (localStorage ≤10건)
+const RECENT_KEY = "gisulsa.recent.v1";
+function recentAll() {
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; }
+  catch (e) { return []; }
+}
+function recentSave(ev) {
+  if (!ev.artifact || !ev.artifact.html) return;
+  const item = {
+    ts: Date.now(),
+    title: ev.artifact.title || (ev.exam && ev.exam.topic) || "답안지",
+    artifact: ev.artifact,
+    sheet: ev.sheet || null,
+    exam: ev.exam || null,
+    matched: ev.matched || [],
+    library: ev.library,
+    review: ev.review ? { warnings: ev.review.warnings || [], score: ev.review.score } : null,
+  };
+  let arr = recentAll().filter((r) => r.title !== item.title); // 같은 제목은 최신으로 교체
+  arr.unshift(item);
+  arr = arr.slice(0, 10); // 용량 고려 최근 10건 제한
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(arr)); }
+  catch (e) { try { localStorage.setItem(RECENT_KEY, JSON.stringify(arr.slice(0, 5))); } catch (e2) { /* 저장 불가 시 무시 */ } }
+  renderRecent();
+}
+function renderRecent() {
+  const arr = recentAll();
+  recentEl.innerHTML = "";
+  if (!arr.length) {
+    const d = document.createElement("div");
+    d.className = "side-empty";
+    d.textContent = "아직 없어요 — 첫 답안지를 만들어 보세요";
+    recentEl.appendChild(d);
+    return;
+  }
+  arr.forEach((r) => {
+    const div = document.createElement("div");
+    div.className = "ritem";
+    const nm = document.createElement("span");
+    nm.className = "nm";
+    nm.textContent = r.title;
+    const pg = document.createElement("small");
+    pg.textContent = r.sheet ? `${r.sheet.pages}쪽` : "";
+    div.append(nm, pg);
+    div.onclick = () => {
+      applyReply(r, null); // 저장분 재렌더 (서버 호출 없음)
+      sideEl.classList.remove("open");
+      scrimEl.hidden = true;
+    };
+    recentEl.appendChild(div);
+  });
+}
+renderRecent();
+
+// ---------------------------------------------------------- 상태 한 줄 (progress.js 재사용)
 let slowTimer = 0;
 function statusShow(text, isErr) {
   statusEl.textContent = text;
@@ -72,7 +147,7 @@ function statusHide() {
   slowTimer = 0;
 }
 
-// ---------------------------------------------------------- 대화 로그
+// ---------------------------------------------------------- 대화 로그 (질문 패널)
 function chatAdd(role, text) {
   const div = document.createElement("div");
   div.className = "msg " + role;
@@ -91,46 +166,50 @@ function chatAddSheetCard(ev) {
   btn.type = "button";
   btn.className = "view-btn";
   btn.textContent = "답안지 보기";
-  btn.onclick = () => { showTab("answer"); Stage.gotoPage(0); };
+  btn.onclick = () => { closeChat(); Stage.gotoPage(0); };
   div.appendChild(document.createElement("br"));
   div.appendChild(btn);
   chatLog.appendChild(div);
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-// ---------------------------------------------------------- 교시형 칩
+// ---------------------------------------------------------- 교시형 칩 (입력 포커스 시 노출)
 document.querySelectorAll(".kchip").forEach((chip) => {
+  chip.addEventListener("mousedown", (e) => e.preventDefault()); // 입력 포커스 유지
   chip.onclick = () => {
     document.querySelectorAll(".kchip").forEach((c) => c.classList.remove("on"));
     chip.classList.add("on");
     kindHint = chip.dataset.kind || "";
+    inputEl.focus();
   };
 });
 
-// ---------------------------------------------------------- 문항 입력 (textarea 4~8줄 자동 높이)
+// ---------------------------------------------------------- 입력 한 줄 (포커스 확장·제출 후 요약 잔존)
 function autosize() {
-  inputEl.style.height = "auto";
-  inputEl.style.height = inputEl.scrollHeight + 3 + "px"; // 상한은 CSS max-height가 제한
+  inputEl.style.height = "44px";
+  inputEl.style.height = Math.min(180, inputEl.scrollHeight + 2) + "px";
 }
 inputEl.addEventListener("input", autosize);
+inputEl.addEventListener("focus", autosize);
+inputEl.addEventListener("blur", () => { inputEl.style.height = "44px"; inputEl.scrollTop = 0; });
 inputEl.addEventListener("keydown", (e) => {
-  // Enter는 줄바꿈(문항의 가/나/다 소문항 입력용), 제출은 버튼 또는 Ctrl/Cmd+Enter
+  // Enter는 줄바꿈(가/나/다 소문항 입력), 제출은 작성 버튼 또는 Ctrl/Cmd+Enter
   if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
     e.preventDefault();
     formEl.requestSubmit();
   }
 });
 
-// ---------------------------------------------------------- 결과 요약 (수험생 언어 — "LLM N콜" 금지)
+// ---------------------------------------------------------- 결과 요약 (수험생 언어)
 function buildMeta(ev, secs) {
   const parts = [];
   if (ev.exam) parts.push(`${ev.exam.kind} ${ev.exam.points}점`);
   if (ev.library === true && Array.isArray(ev.matched)) {
     const names = ev.matched.map((id) => Drawer.name(id)).join(", ");
     parts.push(`적중 <b>${names}</b>`);
-    parts.push(ev.llm_calls === 0 ? `즉시 조립 ${secs}초` : `조립+AI 보강 ${secs}초`);
+    if (secs !== null) parts.push(ev.llm_calls === 0 ? `즉시 작성 ${secs}초` : `작성+AI 보강 ${secs}초`);
   } else if (ev.library === false && ev.artifact) {
-    parts.push(ev.demo ? "고정 예시 답안" : `AI 예비 작성 ${secs}초`);
+    parts.push(ev.demo ? "고정 예시 답안" : (secs !== null ? `AI 예비 작성 ${secs}초` : "AI 예비 작성"));
   }
   if (ev.review && typeof ev.review.score === "number") {
     let s = `채점 ${ev.review.score}점`;
@@ -144,7 +223,7 @@ function buildMeta(ev, secs) {
   return parts.join(" · ");
 }
 
-// ---------------------------------------------------------- 답안 탭 채우기 (iframe DOM 추출)
+// ---------------------------------------------------------- 이번 답안 채우기 (iframe DOM 추출)
 Stage.onReady = () => {
   const toc = Stage.outline();
   tocEl.innerHTML = "";
@@ -157,38 +236,31 @@ Stage.onReady = () => {
     b.onclick = () => Stage.gotoPage(item.page);
     tocEl.appendChild(b);
   });
-  sumCard.hidden = false;
+  nowSec.hidden = false;
 
   const mn = Stage.mnemonic();
   mnBody.innerHTML = "";
+  function mnLine(word, exp, title, page) {
+    const w = document.createElement("span");
+    w.className = "mn-word";
+    w.textContent = word || "두문자";
+    w.title = title;
+    if (page !== null) w.onclick = () => Stage.gotoPage(page);
+    const e = document.createElement("p");
+    e.className = "mn-exp";
+    e.textContent = exp;
+    mnBody.append(w, e);
+  }
   if (mn && mn.lines.length) {
     mn.lines.forEach((l) => {
-      if (!l.word && !l.exp) return;
-      const w = document.createElement("span");
-      w.className = "mn-word";
-      w.textContent = l.word || "두문자";
-      w.title = "마지막 쪽 두문자 박스로 이동";
-      w.onclick = () => Stage.gotoPage(mn.page);
-      const e = document.createElement("p");
-      e.className = "mn-exp";
-      e.textContent = l.exp;
-      mnBody.append(w, e);
+      if (l.word || l.exp) mnLine(l.word, l.exp, "마지막 쪽 두문자 박스로 이동", mn.page);
     });
     mnCard.hidden = false;
   } else if (lastMeta && lastMeta.sheet && Array.isArray(lastMeta.sheet.mnemonic)
              && lastMeta.sheet.mnemonic.length) {
-    // 만석 시트에서 두문자 박스가 생략된 경우(_pull_tail 사다리 — 인쇄 빈 쪽 금지):
-    // reply.sheet.mnemonic 데이터로 레일 카드만 렌더 (세아 반려 2026-07-19)
+    // 만석 시트에서 두문자 박스가 생략된 경우 — reply 데이터로 카드만 렌더
     lastMeta.sheet.mnemonic.forEach((l) => {
-      if (!l.word && !l.exp) return;
-      const w = document.createElement("span");
-      w.className = "mn-word";
-      w.textContent = l.word || "두문자";
-      w.title = "시트가 꽉 차 답안지에는 싣지 않은 암기 보조입니다";
-      const e = document.createElement("p");
-      e.className = "mn-exp";
-      e.textContent = l.exp;
-      mnBody.append(w, e);
+      if (l.word || l.exp) mnLine(l.word, l.exp, "시트가 꽉 차 답안지에는 싣지 않은 암기 보조입니다", null);
     });
     const note = document.createElement("p");
     note.className = "mn-exp";
@@ -200,6 +272,16 @@ Stage.onReady = () => {
     mnCard.hidden = true;
   }
 };
+
+// ---------------------------------------------------------- reply 반영 (스트림·최근 재렌더 공용)
+function applyReply(ev, secs) {
+  lastMeta = ev;
+  statusHide();
+  Stage.hideOverlay();
+  Stage.render(ev.artifact); // onReady 훅이 목차·두문자를 채운다
+  Stage.gauge(ev.sheet);
+  sumLine.innerHTML = buildMeta(ev, secs);
+}
 
 // ---------------------------------------------------------- 제출 + 스트림
 let t0 = 0;
@@ -214,26 +296,22 @@ function handleEvent(ev) {
   }
   if (ev.type !== "reply") return;
   const secs = ((performance.now() - t0) / 1000).toFixed(1);
-  lastMeta = ev;
 
   if (ev.artifact && ev.artifact.html) {
-    statusHide();
-    Stage.hideOverlay();
-    Stage.render(ev.artifact); // onReady 훅이 목차·두문자 카드를 채운다
-    Stage.gauge(ev.sheet);
-    sumLine.innerHTML = buildMeta(ev, secs);
+    applyReply(ev, secs);
+    recentSave(ev);
     chatAddSheetCard(ev);
-    showTab("answer"); // 완성 시 답안 탭 자동 전환
   } else {
-    // 질문 답변·미적중 안내 → 대화 탭
+    // 질문 답변·미적중 안내 → 질문 패널
+    lastMeta = ev;
     Stage.hideOverlay();
     if (ev.library === false && !ev.artifact) {
-      statusShow("미등록 토픽 — 서랍에서 등록 토픽을 확인하세요");
+      statusShow("미등록 토픽 — 왼쪽 서랍에서 등록 토픽을 확인하세요");
     } else {
       statusHide();
     }
     chatAdd("bot", ev.reply || "");
-    showTab("chat");
+    openChat();
   }
   history.push({ role: "assistant", content: ev.reply || "" });
   if (history.length > 30) history.splice(0, history.length - 30);
@@ -247,7 +325,6 @@ async function send(text) {
   statusHide();
   chatAdd("user", text);
   Stage.showOverlay("접수 중…");
-  // 1.5초 넘게 걸리면(폴백 LLM 경로) 상태 한 줄 노출 (ui-audit §2)
   slowTimer = setTimeout(() => {
     if (busy) statusShow("작성 중 — " + (Progress.caption() || "접수"));
   }, 1500);
@@ -294,12 +371,12 @@ formEl.addEventListener("submit", (e) => {
   e.preventDefault();
   const text = inputEl.value.trim();
   if (!text) return;
-  inputEl.value = "";
-  autosize();
+  // 제출 후에도 입력 요약 잔존 (한 줄로 접힘) — 문항 수정·재작성 용이
+  inputEl.blur();
   send(text);
 });
 
-// 대화 탭 자체 입력창 — 같은 파이프라인 (질문/문제 겸용)
+// 질문 패널 자체 입력창 — 같은 파이프라인 (질문/문제 겸용)
 miniForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const text = miniInput.value.trim();
@@ -319,12 +396,12 @@ window.addEventListener("keydown", (e) => {
     e.preventDefault();
     inputEl.focus();
   }
+  if (e.key === "Escape") closeChat();
 });
 
 window.App = {
   ask(text) {
     inputEl.value = text;
-    autosize();
-    formEl.requestSubmit();
+    send(text);
   },
 };

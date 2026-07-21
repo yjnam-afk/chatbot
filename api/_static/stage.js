@@ -9,7 +9,7 @@ const Stage = (() => {
   const overlayCap = document.getElementById("overlay-cap");
   const gaugeFill = document.getElementById("gauge-fill");
   const gaugeText = document.getElementById("gauge-text");
-  const exportBtns = ["ex-print", "ex-pdf", "ex-html", "ex-tab"].map((id) => document.getElementById(id));
+  const exportBtns = ["ex-print", "ex-pdf", "ex-tab"].map((id) => document.getElementById(id));
   const navEl = document.getElementById("page-nav");
   const pnLabel = document.getElementById("pn-label");
   const pnPrev = document.getElementById("pn-prev");
@@ -170,7 +170,6 @@ const Stage = (() => {
 
   document.getElementById("ex-print").onclick = print;
   document.getElementById("ex-pdf").onclick = print; // 인쇄 다이얼로그에서 "PDF로 저장"
-  document.getElementById("ex-html").onclick = () => current && download(current);
   document.getElementById("ex-tab").onclick = () => current && window.open(blobUrl(current));
 
   window.addEventListener("keydown", (e) => {

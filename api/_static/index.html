@@ -3,115 +3,93 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>기술사 답안 사무소 — AI 답안 작성 팀</title>
+  <title>기술사 답안 사무소 — 답안지 작성</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <span class="logo">🖋️</span>
-      <div>
-        <h1>기술사 답안 사무소</h1>
-        <p>문제를 붙여넣으면 답안지가 채워집니다</p>
-      </div>
-    </div>
-    <span></span>
-    <span id="mode-badge" class="badge">connecting…</span>
-    <form class="ask" id="chat-form">
-      <textarea id="chat-input" rows="4" placeholder="실전 문항을 통째로 붙여넣으세요 (Ctrl+Enter 제출) — 예)
-클라우드 전환에 따라 ITSM 도입을 검토 중이다. 다음에 대하여 설명하시오. (25점)
-가. ITSM의 검토 모델과 구성요소
-나. 성공적 구축을 위한 요건"></textarea>
-      <button type="submit" id="ask-btn">답안지<br>작성</button>
-    </form>
-    <div class="askmeta">
-      <div class="kinds" id="kind-chips">
-        <button type="button" class="kchip on" data-kind="">자동 판별</button>
-        <button type="button" class="kchip" data-kind="1교시형">1교시형</button>
-        <button type="button" class="kchip" data-kind="2교시형">2교시형</button>
-      </div>
-    </div>
-  </header>
+  <!-- ==================== 다크 사이드바 (리디자인 ② — scratchpad/re2.html 기준) ==================== -->
+  <aside class="side" id="side">
+    <div class="brand">기술사 답안 사무소<small id="side-stats">토픽 불러오는 중…</small></div>
+    <button type="button" class="newbtn" id="new-btn">＋ 새 답안지</button>
 
-  <main class="workbench">
-    <!-- ==================== 좌측 레일 (ui-audit.md §1·§2 — 진행 3단계 없음) ==================== -->
-    <aside class="rail">
-      <!-- 상태 한 줄: 평시 숨김, 폴백 1.5초 초과·오류·미적중만 (§2) -->
-      <div id="status-line" class="statusline" hidden></div>
-
-      <div class="rail-tabs">
-        <button type="button" id="tab-answer">답안</button>
-        <button type="button" id="tab-drawer" class="on">토픽 서랍</button>
-        <button type="button" id="tab-chat">대화</button>
-      </div>
-
-      <!-- 탭 ① 답안: 구성 요약(목차) · 두문자 · 분량 · 인쇄 -->
-      <div id="pane-answer" class="pane" hidden>
-        <div class="rcard" id="sum-card" hidden>
-          <h4>이번 답안</h4>
-          <div class="sum-line" id="sum-line"></div>
-          <div class="toc" id="toc"></div>
-        </div>
-        <div class="rcard" id="mn-card" hidden>
-          <h4>두문자 암기</h4>
+    <div class="side-scroll" id="side-scroll">
+      <!-- 이번 답안 (결과 상태 — 빈 상태에선 미표시) -->
+      <div id="now-sec" hidden>
+        <div class="sec">이번 답안</div>
+        <div class="sum-line" id="sum-line"></div>
+        <div class="toc" id="toc"></div>
+        <div id="mn-card" hidden>
+          <div class="sec sub">두문자 암기</div>
           <div id="mn-body"></div>
         </div>
-        <div class="rcard gauge">
-          <h4>분량</h4>
+        <div class="gauge">
           <div class="gbar"><i id="gauge-fill"></i></div>
-          <div class="gv" id="gauge-text">답안지 없음</div>
+          <div class="gv" id="gauge-text"></div>
         </div>
         <div class="exports">
           <button type="button" id="ex-print" class="pri" disabled>🖨️ 인쇄</button>
-          <button type="button" id="ex-pdf" disabled title="인쇄 다이얼로그에서 '대상: PDF로 저장'을 선택하세요">PDF</button>
-          <button type="button" id="ex-html" disabled>HTML</button>
+          <button type="button" id="ex-pdf" disabled title="인쇄 대화상자에서 'PDF로 저장'을 선택하세요">PDF</button>
           <button type="button" id="ex-tab" disabled>새 탭</button>
         </div>
       </div>
 
-      <!-- 탭 ② 토픽 서랍 (빈 상태의 기본 탭 — 자판기 진열창) -->
-      <div id="pane-drawer" class="pane drawer">
-        <input id="drawer-search" class="dsearch" type="text" placeholder="토픽 검색 (이름·두문자·정의)" autocomplete="off" />
-        <div id="drawer-folders"></div>
-        <div id="drawer-list"></div>
-      </div>
+      <!-- 토픽 서랍 -->
+      <div class="sec">토픽 서랍</div>
+      <input id="drawer-search" class="dsearch" type="text" placeholder="토픽 검색 — 이름·두문자·정의" autocomplete="off" />
+      <div id="drawer-folders"></div>
+      <div id="drawer-list"></div>
 
-      <!-- 탭 ③ 대화: 이력 + 자체 입력창 (답안지 요청·질문 겸용 챗봇) -->
-      <div id="pane-chat" class="pane chat" hidden>
-        <div id="chat-log" class="chat-log">
-          <div class="msg bot">문제를 주시면 답안지를 만들고, 토픽 질문에는 답변해 드려요.
-예) "ITSM 답안지 적어줘" / "SLA가 뭐야?"</div>
+      <!-- 최근 답안지 (localStorage — 서버 무상태) -->
+      <div class="sec">최근 답안지</div>
+      <div id="recent-list"><div class="side-empty">아직 없어요 — 첫 답안지를 만들어 보세요</div></div>
+    </div>
+
+    <div class="foot">
+      인쇄하면 화면과 똑같은<br>실물 답안지가 나옵니다
+      <span id="mode-badge" class="foot-badge"></span>
+    </div>
+  </aside>
+
+  <!-- ==================== 메인 (상단 바 + 무대) ==================== -->
+  <div class="main">
+    <div class="bar">
+      <button type="button" id="side-toggle" class="hamb" title="메뉴">☰</button>
+      <form class="askline" id="chat-form">
+        <textarea id="chat-input" rows="1" placeholder="기출 문제를 통째로 붙여넣으세요 — 지문·소문항(가·나·다) 포함, Ctrl+Enter 작성"></textarea>
+        <div class="kinds" id="kind-chips">
+          <button type="button" class="kchip on" data-kind="">자동 판별</button>
+          <button type="button" class="kchip" data-kind="1교시형">1교시형 10점</button>
+          <button type="button" class="kchip" data-kind="2교시형">2교시형 25점</button>
         </div>
-        <form id="chat-mini" class="chat-mini">
-          <input id="chat-mini-input" type="text" placeholder="질문 또는 문제 입력…" autocomplete="off" />
-          <button type="submit">전송</button>
-        </form>
-      </div>
-    </aside>
+        <button type="submit" id="ask-btn" class="go">작성</button>
+      </form>
+      <button type="button" id="chat-toggle" class="qbtn">질문</button>
+    </div>
+    <div id="status-line" class="statusline" hidden></div>
 
-    <!-- ==================== 무대: 답안지 ==================== -->
     <section class="stage" id="stage">
       <div id="page-nav" class="page-nav" hidden>
         <button type="button" id="pn-prev" title="이전 쪽">◀</button>
         <span id="pn-label">1 / 1 쪽</span>
         <button type="button" id="pn-next" title="다음 쪽">▶</button>
       </div>
-      <!-- 빈 상태: 실제 답안지 1쪽 미리보기 (ui-audit §1 무대 — 맨 괘선·웹 카드 금지) -->
+      <!-- 빈 상태: 실제 답안지 1쪽 고스트 (re2 그대로 — 맨 괘선·웹 카드 금지) -->
       <div id="stage-empty" class="stage-empty">
         <div class="psheet">
           <div class="ps-head"><span class="b1">번 호</span><span class="b2">기 술 사 답 안 지</span><span class="b3">1 쪽</span></div>
           <div class="ps-q">
-            <span class="ghost">문 ) 여기에 문제가 들어갑니다</span>
-            <span class="ps-pts ghost">배점 자동 판별</span>
+            <span class="ghost">문 ) 문제를 붙여넣으면 여기에 요약 전사됩니다</span>
+            <span class="ps-pts ghost">배점 자동</span>
           </div>
           <div class="ps-body">
+            <div class="ps-ans ghost">답)</div>
             <div class="empty-note">
               <p class="en-title">문제를 붙여넣으면<br>이 답안지가 3초 안에 채워집니다</p>
-              <p class="en-sub" id="en-sub">등록 토픽은 서랍에서 바로 골라도 돼요</p>
+              <p class="en-sub">왼쪽 서랍에서 등록 토픽을 골라도 돼요</p>
               <div class="examples">
                 <button type="button" class="ex-btn">SLA에 대하여 설명하시오 (25점)</button>
                 <button type="button" class="ex-btn">ITSM에 대하여 설명하시오 (25점)</button>
-                <button type="button" class="ex-btn">SWOT 분석에 대하여 설명하시오 (10점)</button>
+                <button type="button" class="ex-btn">SWOT 분석에 대하여 약술하시오 (10점)</button>
               </div>
             </div>
           </div>
@@ -122,7 +100,24 @@
         <iframe id="sheet-frame" sandbox="allow-same-origin allow-modals" title="답안지"></iframe>
       </div>
     </section>
-  </main>
+  </div>
+
+  <!-- ==================== 질문 슬라이드 패널 (챗 겸용 — 발주자 확정, 평시 숨김) ==================== -->
+  <aside class="chat-panel" id="chat-panel" hidden>
+    <div class="cp-head">
+      <b>질문</b><span class="cp-sub">토픽 개념·공부법을 물어보세요</span>
+      <button type="button" id="chat-close" title="닫기">✕</button>
+    </div>
+    <div id="chat-log" class="chat-log">
+      <div class="msg bot">문제를 주시면 답안지를 만들고, 토픽 질문에는 답변해 드려요.
+예) "ITSM 답안지 적어줘" / "SLA가 뭐야?"</div>
+    </div>
+    <form id="chat-mini" class="chat-mini">
+      <input id="chat-mini-input" type="text" placeholder="질문 또는 문제 입력…" autocomplete="off" />
+      <button type="submit">전송</button>
+    </form>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
 
   <script src="progress.js"></script>
   <script src="stage.js"></script>
