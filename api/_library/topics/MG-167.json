@@ -1,0 +1,167 @@
+{
+ "id": "MG-167",
+ "name": "리만의 소프트웨어 변화 원리(Lehman)",
+ "aliases": [
+  "리만의 소프트웨어 변화 원리",
+  "리만의 법칙",
+  "리만",
+  "Lehman",
+  "레만의 법칙",
+  "SW 진화 법칙",
+  "소프트웨어 진화 법칙",
+  "리만의 SW 변화 원리",
+  "소프트웨어 변화 원리"
+ ],
+ "category": "프로세스 · 품질 · 성과 > SW 유지보수 > 리만의 소프트웨어 변화 원리",
+ "keywords": [
+  "Lehman",
+  "E-Type",
+  "계속적 변경",
+  "복잡도 증가",
+  "형상관리"
+ ],
+ "mnemonic": {
+  "word": "지복피",
+  "expansion": [
+   "지속진화",
+   "복잡도 누적",
+   "피드백 개선"
+  ]
+ },
+ "definition": "사용자 요구에 따른 SW의 지속적 변경 시 유지·형상 관리를 위해 고려할 SW 진화 법칙",
+ "definition_long": "사용자 요구로 진화하는 SW의 유지·형상 관리를 위해 고려할 8가지 SW 진화 법칙",
+ "background": "SW는 환경 변화로 지속 변경됨 — 진화 관리 원칙 필요",
+ "lead": "SW의 지속적 변경 관리 법칙",
+ "features": [
+  {
+   "item": "지속진화",
+   "desc": "환경 따라 계속 변경"
+  },
+  {
+   "item": "복잡도 누적",
+   "desc": "변경 시 구조 복잡화"
+  },
+  {
+   "item": "피드백 개선",
+   "desc": "피드백 기반 진화"
+  }
+ ],
+ "components_title": "SW의 분류",
+ "components": [
+  {
+   "role": "S-Type",
+   "name": "진화 불요",
+   "detail": "명세 기반 고정 동작"
+  },
+  {
+   "role": "P-Type",
+   "name": "부분 진화",
+   "detail": "입력값 따라 변경 용이"
+  },
+  {
+   "role": "E-Type",
+   "name": "지속 진화",
+   "detail": "환경 연계 동작"
+  }
+ ],
+ "components_gloss": "– 리만 SW는 E-Type에 대한 변화원리 제시",
+ "sections": [
+  {
+   "title": "리만의 8가지 법칙",
+   "keys": [
+    "법칙",
+    "원리",
+    "8가지"
+   ],
+   "kind": "t3",
+   "rows": [
+    {
+     "role": "조직",
+     "name": "조직 안정성",
+     "detail": "수행 조직 일정 유지"
+    },
+    {
+     "role": "프로그램",
+     "name": "계속적 변경",
+     "detail": "환경 따라 계속 변경"
+    },
+    {
+     "role": "프로그램",
+     "name": "피드백 시스템",
+     "detail": "피드백으로 진화"
+    },
+    {
+     "role": "프로그램",
+     "name": "복잡도 증가",
+     "detail": "변경 시 복잡도 누적"
+    },
+    {
+     "role": "프로그램",
+     "name": "친근감 유지",
+     "detail": "구성원 이해 유지"
+    },
+    {
+     "role": "프로그램",
+     "name": "프로그램 진화",
+     "detail": "수명 동안 지속 진화"
+    },
+    {
+     "role": "시스템",
+     "name": "품질 저하",
+     "detail": "방치 시 품질 하락"
+    },
+    {
+     "role": "시스템",
+     "name": "지속적 성장",
+     "detail": "기능 지속 확장"
+    }
+   ]
+  },
+  {
+   "title": "리만의 소프트웨어 변화 원리 적용",
+   "keys": [
+    "적용",
+    "활용"
+   ],
+   "kind": "t3",
+   "rows": [
+    {
+     "role": "조직",
+     "name": "조직 안정성",
+     "detail": "전담 조직 유지"
+    },
+    {
+     "role": "프로세스",
+     "name": "지속적 변경",
+     "detail": "요구사항 관리 절차"
+    },
+    {
+     "role": "시스템",
+     "name": "자체 규제",
+     "detail": "형상관리 시스템"
+    }
+   ]
+  }
+ ],
+ "usage": [
+  {
+   "item": "유지보수",
+   "desc": "변경 관리 계획 수립"
+  },
+  {
+   "item": "형상관리",
+   "desc": "베이스라인 통제"
+  },
+  {
+   "item": "품질 관리",
+   "desc": "리팩토링 시점 판단"
+  }
+ ],
+ "conclusion": "ISO/IEC 14764 기반, SW 변화 형상관리",
+ "exam_points": [
+  "8가지 법칙(조직·프로그램·시스템)",
+  "SW 3분류(S·P·E-Type)",
+  "형상관리 연계"
+ ],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">요구<br>변경</div><div class=\"d-circle\">복잡도<br>증가</div><div class=\"d-circle\">품질<br>저하</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">리만 변화원리</div><div class=\"d-box soft\">SW 분류 (Ⅱ)</div><div class=\"d-box soft\">8가지 법칙 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">SW 진화 관리<small>형상관리 연계</small></div></div>"
+}

@@ -200,6 +200,38 @@ def test_composite_with_skeleton_no_wasted_call():
     assert not any("핵심 섹션" in t and "집필했어요" in t for t in writer_talks), writer_talks  # talk 진실성
 
 
+def test_korean_hygiene_guard():
+    """LLM 출력 한자·가나 혼입 → 금지 지시 강조 1회 재요청 → 정상 수용 (발주자 실사례)."""
+    import httpx
+    import _agents
+
+    os.environ["GEMINI_API_KEY"] = "test-key"
+    calls = []
+
+    def handler(request):
+        calls.append(request.read().decode())
+        content = ("프로세스가 奠定하였다며 개선되어があり며 진행" if len(calls) == 1
+                   else "프로세스 표준화로 개선함")
+        return httpx.Response(200, json={"choices": [{"message": {"content": content}}]})
+
+    orig = httpx.AsyncClient
+    _agents.httpx.AsyncClient = lambda **kw: orig(transport=httpx.MockTransport(handler))
+    try:
+        out = asyncio.run(_agents._chat("테스트", [{"role": "user", "content": "질문"}]))
+    finally:
+        _agents.httpx.AsyncClient = orig
+        os.environ.pop("GEMINI_API_KEY", None)
+
+    import json as _json
+    assert len(calls) == 2, calls  # 혼입 → 1회 재요청
+    sys2 = _json.loads(calls[1])["messages"][0]["content"]
+    assert "금지" in sys2, "재요청에 금지 지시 강조 누락"
+    assert out == "프로세스 표준화로 개선함"
+    assert not _agents._FOREIGN_RE.search(out)
+    # 재요청도 혼입이면 세정 사용
+    assert _agents._scrub_foreign("개선되어があり며 奠定하였다") == "개선되어며 하였다"
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for fn in fns:

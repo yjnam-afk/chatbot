@@ -204,11 +204,15 @@ def _pick_comparison(t: dict, question: str) -> dict | None:
 
 
 def _section_table(sec: dict, kws=None) -> str:
-    """확장 단락 부품(sections, 스키마 v1.2) → 표 HTML (t3/t2)."""
+    """확장 단락 부품(sections, 스키마 v1.2) → 표 HTML (t3/t2).
+
+    행 상한은 부품 행 수 그대로(최대 8 — 리만 8법칙 등 실물 다행 표 절단 방지).
+    """
     rows = sec.get("rows") or []
     if sec.get("kind") == "t2":
         return _t2(rows, ("구분", "설명"), kws=kws)
-    return _t3(rows, r2=True, headers=("구분", "항목", "설명"), kws=kws)
+    return _t3(rows, r2=True, headers=("구분", "항목", "설명"), kws=kws,
+               max_rows=min(8, len(rows)))
 
 
 def _intro_title(t: dict) -> str:
@@ -253,14 +257,16 @@ def _slot_structure(t: dict, parts: list, warnings: list, r2: bool,
             return True
         warnings.append(f"{s}: 구성도/구성요소 부품 없음 — Ⅱ단락 생략")
         return False
-    parts.append(f"<h2>{_esc(s)}의 구성도 및 구성요소</h2>")
+    # 개념도 없는 표 중심 토픽(실물 HRDK 리만류)은 제목에서 '구성도' 제외
+    parts.append(f"<h2>{_esc(s)}의 구성도 및 구성요소</h2>" if t.get("diagram_html")
+                 else f"<h2>{_esc(s)}의 구성요소</h2>")
     if t.get("diagram_html"):
         parts.append(f"<h3>{_esc(s)}의 구성도</h3>")
         parts.append(t["diagram_html"])
         # 본문 개념도 직후 간글 1줄 필수 (체크리스트 G1) — 부품 부재 시 keywords로 합성
         parts.append(f'<p class="gloss">{_esc(t.get("diagram_gloss") or _auto_gloss(t))}</p>')
     if t.get("components"):
-        parts.append(f"<h3>{_esc(s)}의 구성요소</h3>")
+        parts.append(f"<h3>{_esc(str(t.get('components_title') or s + '의 구성요소'))}</h3>")
         parts.append(_t3(t["components"], r2=r2, kws=t.get("keywords")))
         if t.get("components_gloss"):
             parts.append(f'<p class="gloss">{_esc(t["components_gloss"])}</p>')
@@ -319,11 +325,12 @@ def _composite_intro(topics: list[dict], joined: str) -> str:
             f'<div class="d-box">상호 관계 이해<small>활용 · 전망 (Ⅳ)</small></div></div>')
 
 
-def _feature_line(t: dict) -> str | None:
-    """1교시 Ⅰ 특징 1줄 — 키워드 2~3개 (발주자 직접 규격 2026-07-18).
+_CIRCLED = "①②③④⑤⑥⑦⑧⑨⑩"
 
-    features의 item(없으면 keywords)을 손글씨 1줄 폭(간글 상한 20) 안에서
-    2~3개 나열한다. 2개 미만이면 None(생략).
+
+def _feature_line(t: dict) -> str | None:
+    """1교시 Ⅰ 특징 1줄 — 원문자(①②③) 키워드 2~3개 나열 (실물 HRDK 손답안:
+    "특징 | ①지속진화 ②복잡도 누적 ③피드백 개선"). 2개 미만이면 None(생략).
     """
     items = [str(f.get("item") or "").strip() for f in (t.get("features") or [])]
     items = [i for i in items if i] or [str(k).strip() for k in (t.get("keywords") or [])]
@@ -331,12 +338,12 @@ def _feature_line(t: dict) -> str | None:
     for it in items:
         if len(picked) >= 3:
             break
-        cand = "– 특징: " + " · ".join(picked + [it])
-        if _wlen(cand) <= 19:
+        cand = " ".join(f"{_CIRCLED[j]}{x}" for j, x in enumerate(picked + [it]))
+        if _wlen(cand) <= 18:
             picked.append(it)
     if len(picked) < 2:
         return None
-    return "– 특징: " + " · ".join(picked)
+    return " ".join(f"{_CIRCLED[j]}{x}" for j, x in enumerate(picked))
 
 
 def assemble(question: str, kind: str, points: int, topics: list[dict],
@@ -365,27 +372,42 @@ def assemble(question: str, kind: str, points: int, topics: list[dict],
         kws = t.get("keywords") or []
         title = s
         if is_terms:
-            # ---- 1교시형 3단락 — 1단락 = 정의 2줄 + 특징 1줄(키워드 2~3개)
-            # (발주자 직접 규격 2026-07-18. 제목은 W3 재판정: lead 있으면 "리드문, ○○의
-            #  개요", 없으면 "정의"형 — 수식구 없는 단독 "○○의 개요"만 지양(M5))
+            # ---- 1교시형 3단락 (발주자 직접 규격 2026-07-18 + 실물 HRDK 손답안 2026-07-21)
+            # Ⅰ = 리드문형 제목 + 정의·특징 2열 박스 표(tdef: 정의 2줄 + 특징 1줄 원문자)
             lead = str(t.get("lead") or "").strip()
             parts.append(f"<h2>{_esc(lead + ', ' + s + '의 개요' if lead else s + '의 정의')}</h2>")
-            parts.append(f'<p class="def">{_emph(t.get("definition"), kws, quote=True)}</p>')
-            slots += 2
             fl = _feature_line(t)
+            tdef_rows = [f'<tr class="r2"><td>정의</td>'
+                         f'<td>{_emph(t.get("definition"), kws, quote=True)}</td></tr>']
             if fl:
-                parts.append(f'<p class="gloss">{_esc(fl)}</p>')
-                slots += 1
+                tdef_rows.append(f"<tr><td>특징</td><td>{_esc(fl)}</td></tr>")
+            parts.append(f'<table class="tdef"><tbody>{"".join(tdef_rows)}</tbody></table>')
+            slots += 2
             if _slot_structure(t, parts, warnings, r2=False,
                                core=core_sections.get(t.get("id"))):
                 slots += 1
-            parts.append("<h2>활용방안 및 결론</h2>")
-            if t.get("usage"):
-                parts.append(_t2(t["usage"], ("활용", "설명"), kws=kws))
-            if t.get("conclusion"):
-                parts.append(f'<p class="def">{_emph(t["conclusion"], kws, limit=1)}</p>')
-            elif t.get("usage"):
-                # 결론성 간글 1줄 폴백 (W4e — 실물: 마지막 표 아래 간글로 문항을 닫음)
+            # 확장 표 부품(sections) — 실물 표 중심 답안(개념도 없는 토픽, 리만 등):
+            # Ⅱ-나 = sections[0], Ⅲ = sections[1] (있으면 활용방안 대체)
+            secs = t.get("sections") or []
+            use_secs = secs and not t.get("diagram_html")
+            if use_secs:
+                parts.append(f"<h3>{_esc(secs[0].get('title') or s)}</h3>")
+                parts.append(_section_table(secs[0], kws=kws))
+                slots += 1
+            if use_secs and len(secs) >= 2:
+                parts.append(f"<h2>{_esc(secs[1].get('title') or '적용방안')}</h2>")
+                parts.append(_section_table(secs[1], kws=kws))
+            else:
+                parts.append("<h2>활용방안 및 결론</h2>")
+                if t.get("usage"):
+                    parts.append(_t2(t["usage"], ("활용", "설명"), kws=kws))
+            concl = t.get("conclusion")
+            if concl and _wlen(concl) <= 19:
+                # 결론성 간글 1줄로 문항을 닫는 실물 관행 (W4e)
+                parts.append(f'<p class="gloss">– {_emph(concl, kws, limit=1)}</p>')
+            elif concl:
+                parts.append(f'<p class="def">{_emph(concl, kws, limit=1)}</p>')
+            elif t.get("usage") and not use_secs:
                 its = [str(u.get("item") or "") for u in t["usage"][:2] if u.get("item")]
                 if its:
                     parts.append(f'<p class="gloss">– {_esc("·".join(its))} 중심 활용 권고</p>')

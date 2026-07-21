@@ -27,6 +27,7 @@
 | `features` | list[{item, desc}] | 특징표(t2) |
 | `components` | list[{role, name, detail}] | 구성요소 상세표(t3: 구분=role/구성요소=name/설명=detail) |
 | `components_gloss` | str | 구성요소표 아래 마무리/간글 텍스트 |
+| `components_title` | str | (선택, v1.2) 구성요소표 h3 제목 재정의 — 실물 표 중심 토픽(리만 'SW의 분류' 등). 부재 시 "{토픽}의 구성요소" |
 | `comparisons` | list[{vs, vs_name, axes[{axis, a, b}]}] | 인접 토픽 비교표(tcmp). `vs`는 존재하는 토픽 id(빌드 시 검사) |
 | `procedure` | list[{step, name, desc}] | 절차·단계 표(t3 절차표 — 구분열 "N단계") — v1.1 신설(question-spec 2-2). `step`은 1부터 정수, `name` 5~7자, `desc`는 detail과 동일 밀도 규격. 절차·과정·단계를 묻는 요구의 1순위 부품 |
 | `lead` | str | Ⅰ 리드문형 제목 앞부분(4~20자) — v1.2 신설(감사 C1). 조립기가 `"{lead}, {토픽}의 개요"`로 스탬프. 모범답안 원문 리드문 우선 |

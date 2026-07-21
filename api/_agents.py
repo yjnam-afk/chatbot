@@ -90,28 +90,55 @@ def _retry_wait(retry_after: str | None) -> float:
     return min(max(wait, 0.0), 15.0)
 
 
+# 한글 위생 가드 (발주자 실사례 2026-07-21: llama 출력 "~되어があり며"·"奠定하였다"):
+# CJK 한자(U+4E00~9FFF)·히라가나/가타카나(U+3040~30FF) 혼입 검출
+_FOREIGN_RE = re.compile(r"[一-鿿぀-ヿ]")
+_KO_GUARD = ("\n\n[중요] 출력은 반드시 한국어와 영문 약어만 사용하세요. "
+             "한자(漢字)·히라가나·가타카나 등 중국어/일본어 문자 사용 금지 — 절대 쓰지 마세요.")
+
+
+def _scrub_foreign(text: str) -> str:
+    """한자·가나 문자를 제거하고 공백을 정리한다 (재요청도 실패한 최후 세정)."""
+    out = _FOREIGN_RE.sub("", text or "")
+    out = re.sub(r"[ \t]{2,}", " ", out)
+    return re.sub(r" +([,.·)\]])", r"\1", out)
+
+
 async def _chat(system: str, messages: list[dict], json_mode: bool = False,
                 max_tokens: int = 1024) -> str:
     p = provider()
-    payload: dict[str, Any] = {
-        "model": p["model"],
-        "max_tokens": max_tokens,
-        "messages": [{"role": "system", "content": system}] + messages,
-    }
-    if json_mode:
-        payload["response_format"] = {"type": "json_object"}
+
+    def build(sys_text: str) -> dict:
+        payload: dict[str, Any] = {
+            "model": p["model"],
+            "max_tokens": max_tokens,
+            "messages": [{"role": "system", "content": sys_text}] + messages,
+        }
+        if json_mode:
+            payload["response_format"] = {"type": "json_object"}
+        return payload
+
     url = f"{p['base'].rstrip('/')}/chat/completions"
     headers = {"Authorization": f"Bearer {p['key']}"}
     async with httpx.AsyncClient(timeout=55) as client:
-        r = await client.post(url, headers=headers, json=payload)
-        if r.status_code == 429:
-            # 무료 티어 TPM 한도 — Retry-After만큼 대기 후 1회만 재시도
-            await asyncio.sleep(_retry_wait(r.headers.get("retry-after")))
+
+        async def post(payload: dict) -> str:
             r = await client.post(url, headers=headers, json=payload)
             if r.status_code == 429:
-                raise RateLimitError()
-        r.raise_for_status()
-        return r.json()["choices"][0]["message"]["content"] or ""
+                # 무료 티어 TPM 한도 — Retry-After만큼 대기 후 1회만 재시도
+                await asyncio.sleep(_retry_wait(r.headers.get("retry-after")))
+                r = await client.post(url, headers=headers, json=payload)
+                if r.status_code == 429:
+                    raise RateLimitError()
+            r.raise_for_status()
+            return r.json()["choices"][0]["message"]["content"] or ""
+
+        text = await post(build(system))
+        if _FOREIGN_RE.search(text):
+            # 한자·가나 혼입 → 금지 지시를 강조해 1회 재요청, 그래도 혼입이면 세정
+            text2 = await post(build(system + _KO_GUARD))
+            text = text2 if not _FOREIGN_RE.search(text2) else _scrub_foreign(text2)
+        return text
 
 
 def _parse_json(text: str, fallback: dict) -> dict:
@@ -143,9 +170,11 @@ def _extract_body(text: str) -> str:
 # ---- 줄 그리드 분량 모델 · 페이지 레이아웃 v2 (docs/answer-template-spec.md §1·§8)
 # 서버가 본문 블록의 줄 수를 계측해 22줄 페이지(머리행 1 + 본문 17/21)로 직접 분할한다.
 # 화면 쪽수 = 인쇄 쪽수 = sheet.pages 가 항상 일치 (발주자 3차 반려 대응).
-_PAGE1_BODY = 17   # 1쪽 본문 줄 수 (머리행 1 + 문제 스트립 4 제외)
-_PAGEN_BODY = 21   # 2쪽부터 본문 줄 수 (머리행 1 제외)
-_PAGE_LINES = 22   # 답안지 1매 환산 기준 (머리행 포함)
+# 실물 공단(HRDK) 용지 정정 (발주자 손답안 사진 2026-07-21): 상단 머리행 없음 —
+# 페이지 = 본문 전용 22줄 (1쪽만 문제 스트립 4줄 제외). 쪽 구분은 용지 밖 UI(쪽 네비).
+_PAGE1_BODY = 18   # 1쪽 본문 줄 수 (문제 스트립 4줄 제외)
+_PAGEN_BODY = 22   # 2쪽부터 본문 줄 수
+_PAGE_LINES = 22   # 답안지 1매 환산 기준
 
 _BLOCK_OPEN_RE = re.compile(r"<(h2|h3|p|table|div)\b", re.I)
 
@@ -210,14 +239,14 @@ def _stamp(blk: str, tag: str, n: int) -> str:
 
     번호는 서버가 결정 — h2마다 가나다가 리셋되고 페이지 경계와 무관하게 정확하다.
     (CSS 카운터는 페이지 분할 시 브라우저 카운터 스코프 결함으로 폐기, 2026-07 검수)
-    단락 로마자(h2)는 본문 인라인이 아니라 **좌측 번호칸(거터) 표기** — span.gut을
-    절대배치로 거터에 앉힌다 (발주자 확정 2026-07-21: "답)과 넘버링 위치"). 같은 줄
-    높이의 인라인 요소라 줄 그리드·페이지 계측에는 영향 없다. 가나(h3)는 본문 유지.
+    번호는 전부 **좌측 번호칸(거터) 표기** — span.gut 절대배치 (실물 HRDK 손답안:
+    문N)·답)·Ⅰ.·가. 모두 거터 칸, 발주자 확정 2026-07-21). h2 로마자는 바깥 칸,
+    h3 가나는 안쪽 칸(CSS). 같은 줄 높이 인라인 요소라 줄 그리드·페이지 계측 불변.
     """
     marks = _ROMANS if tag == "h2" else _GANADA
     mark = marks[min(n, len(marks)) - 1]
-    prefix = (f'<span class="gut">{mark}.</span>' if tag == "h2" else f"{mark}. ")
-    return re.sub(rf"(<{tag}[^>]*>)", lambda m: m.group(1) + prefix, blk, count=1)
+    return re.sub(rf"(<{tag}[^>]*>)",
+                  lambda m: m.group(1) + f'<span class="gut">{mark}.</span>', blk, count=1)
 
 
 def _is_heading(blk: str) -> bool:
@@ -243,6 +272,12 @@ def _layout(body_html: str, kind: str,
     sec = sub = 0
     for blk in _split_blocks(body_html or ""):
         low = blk.lstrip().lower()
+        if low.startswith('<p class="ans"'):
+            # "답)"도 거터 안쪽 칸 표기 (실물 HRDK — 조립·LLM 본문 공통 변환)
+            blk = re.sub(r'(<p class="ans"[^>]*>)\s*답\s*\)?\s*',
+                         lambda m: m.group(1) + '<span class="gut">답)</span>', blk, count=1)
+            seq.append((blk, 1))
+            continue
         if low.startswith("<h2"):
             if p2 and h2_seen:
                 seq.append((_GAP_HTML, 1))
@@ -430,14 +465,15 @@ def _lint_format(body_html: str, kind: str) -> list[str]:
     # 2) "답)" 표기
     if 'class="ans"' not in body:
         issues.append("\"답)\" 표기 누락 — 첫 줄 <p class=\"ans\">답)</p>")
-    # 3) 개념도
+    # 3) 개념도 — 1교시형은 표 중심 실물 답안(HRDK 손답안: 그림 없이 표 3개+)을 허용
+    n_table = len(re.findall(r"<table[\s>]", body, re.I))
     if not re.search(r"<div[^>]*class=\"[^\"]*diagram", body, re.I):
-        issues.append("개념도 누락 — div.diagram 1개 이상 필요")
+        if not (is_terms and n_table >= 3):
+            issues.append("개념도 누락 — div.diagram 1개 이상 필요")
     # 3-1) 2교시형 서론 로드맵(Type IV) — d7 부재는 발주자 반려 형태(텍스트 약식 서론)
     if not is_terms and 'class="diagram d7"' not in body:
         issues.append("서론 로드맵(diagram d7) 부재 — 2교시형은 Type IV 서론 필수")
     # 4) 표 개수 (구성요소 상세표 + 결론/비교표)
-    n_table = len(re.findall(r"<table[\s>]", body, re.I))
     if n_table < 2:
         issues.append(f"표 부족(현재 {n_table}개, 기준 2개 이상) — "
                       "구성요소 3단표·기대효과/비교표 필요")
@@ -454,10 +490,11 @@ def _lint_format(body_html: str, kind: str) -> list[str]:
     long_style = len(re.findall(r"(?:합니다|입니다)", text))
     if long_style >= 3:
         issues.append(f"만연체 {long_style}회 — 개조식(~임/~함/~됨) 종결 필요")
-    # 6-1) 1교시형 발주자 직접 규격 (2026-07-18): Ⅰ 특징 1줄(키워드 2~3개) + 구성요소 3단표
+    # 6-1) 1교시형 발주자 직접 규격 (2026-07-18 + 실물 HRDK 2026-07-21): Ⅰ 정의·특징
+    #      2열 박스(tdef — 특징 행 원문자 1줄) + 구성요소 3단표
     if is_terms:
-        if not re.search(r'<p class="gloss">–\s*특징', body):
-            issues.append("1교시 Ⅰ 특징 1줄(키워드 2~3개) 누락 — 발주자 규격")
+        if not re.search(r'<table class="tdef">.*?<td>특징</td>', body, re.S | re.I):
+            issues.append("1교시 Ⅰ 정의·특징 박스(tdef, 특징 1줄) 누락 — 발주자 규격")
         if not re.search(r'<table class="t3"', body, re.I):
             issues.append("구성요소 3단표(3열 구조) 없음 — 발주자 규격")
     # 6-2) 구성도 화살표 라벨 (발주자 규격: "화살표에는 각각 텍스트") — 본문 diagram 한정
@@ -519,7 +556,8 @@ def _wide_len(s: str) -> float:
 # 넘치면 위반 — 모자란 것보다 넘치는 게 죄"). 전폭 줄 19자 → 2줄 문단 38(+접두 여유 40).
 _W_FULL2 = 40.0    # p.def 2줄 문단 상한 ("(정의) " 접두 포함)
 _W_GLOSS = 20.0    # p.gloss 간글 1줄 상한 ("– " 접두 포함)
-_W_CELL = {"t3": 11.0, "texp": 11.0, "t2": 15.0, "tcmp": 8.0}  # 마지막 열 1줄 상한
+_W_CELL = {"t3": 11.0, "texp": 11.0, "t2": 15.0, "tcmp": 8.0,
+           "tdef": 18.0}  # 마지막 열 1줄 상한 (tdef = Ⅰ 정의·특징 박스, 전폭급 우측열)
 _W_CELL_MID = 8.0  # 가운데 열(구성요소) 1줄 상한 (발주자 "5~7글자" + 반각 여유)
 
 
@@ -534,8 +572,10 @@ def _lint_table_density(body_html: str) -> list[str]:
     """
     under = over = 0
     for tbl in re.findall(r"<table[^>]*>.*?</table>", body_html or "", re.S | re.I):
-        m = re.search(r'class="(t3|texp|t2|tcmp)"', tbl[:40])
-        last_cap = _W_CELL.get(m.group(1) if m else "", 15.0)
+        m = re.search(r'class="(t3|texp|t2|tcmp|tdef)"', tbl[:40])
+        cls = m.group(1) if m else ""
+        last_cap = _W_CELL.get(cls, 15.0)
+        r2_cap = 36.0 if cls == "tdef" else 22.0  # tdef 정의행은 전폭급 2줄(38자 규격)
         for tr in re.findall(r"<tr[^>]*>.*?</tr>", tbl, re.S | re.I):
             if "<th" in tr:
                 continue
@@ -548,7 +588,7 @@ def _lint_table_density(body_html: str) -> list[str]:
                     if "<br" in c.lower():
                         if w > 12.0:  # 개조식 항목이 셀 폭 한 줄을 넘침
                             over += 1
-                    elif _wide_len(html_mod.unescape(re.sub(r"<[^>]+>", "", c))) > 22.0:
+                    elif _wide_len(html_mod.unescape(re.sub(r"<[^>]+>", "", c))) > r2_cap:
                         over += 1
                 if widths and max(widths) <= 11.0 and "<br" not in tr.lower():
                     under += 1
@@ -663,15 +703,8 @@ body {
   background: var(--paper); border: 1px solid #c9c5ba;
   box-shadow: 0 2px 18px rgba(40, 40, 30, 0.12);
 }
-.page-head {
-  height: var(--lh); display: flex; align-items: center;
-  font-family: system-ui, sans-serif; font-size: 11.5px; color: var(--chrome);
-  border-bottom: 2px solid var(--rule2);
-}
-/* 내지 머리행은 최소 인쇄 — 번호 칸 + 쪽 표기만, 표제 없음 (체크리스트 U6, 실물 내지) */
-.ph-box { width: 88px; height: 100%; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--rule2); letter-spacing: 0.3em; }
-.ph-sp { flex: 1; }
-.ph-num { width: 88px; text-align: center; border-left: 1px solid var(--rule2); }
+/* 머리행 없음 — 실물 공단(HRDK) 용지는 상단에 아무 표기가 없다 (발주자 손답안 사진
+   2026-07-21). 쪽 구분은 용지 밖 UI(쪽 네비)로만. */
 /* 문제 스트립 — "문)"은 좌측 번호칸(거터) 위치, 본문 열에는 요약 전사만 (발주자 확정) */
 .q-strip {
   position: relative;
@@ -685,29 +718,39 @@ body {
 .qs-kind { font-size: 11.5px; font-weight: 700; border: 1px solid var(--chrome); padding: 1px 10px; border-radius: 2px; white-space: nowrap; }
 .qs-text { margin-top: 6px; font-size: 14px; line-height: 1.65; }
 .body {
-  position: relative;
-  height: calc(var(--body, 21) * var(--lh));
+  position: relative; isolation: isolate;
+  height: calc(var(--body, 22) * var(--lh));
   overflow: hidden;
-  background: repeating-linear-gradient(to bottom,
-    transparent 0 calc(var(--lh) - 1px),
-    var(--rule) calc(var(--lh) - 1px) var(--lh));
 }
-/* 좌측 여백 세로 3줄 — 단락 표기(Ⅰ./가./본문) 들여쓰기 가이드 (체크리스트 U3, 공단 규격) */
-.body::before { content: ""; position: absolute; left: 15px; top: 0; bottom: 0; width: 1px;
-  background: var(--rule2); box-shadow: 15px 0 var(--rule2), 30px 0 var(--rule2); }
+/* 본문 가로 괘선 — 실물은 점선 (HRDK 손답안 사진): 가로 점선 패턴을 줄 위치 마스크로
+   1px씩 노출. 바깥 테두리(.page)·표 테두리는 실선 유지 */
+.body::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: repeating-linear-gradient(to right, var(--rule) 0 6px, transparent 6px 11px);
+  -webkit-mask-image: repeating-linear-gradient(to bottom,
+    transparent 0 calc(var(--lh) - 1px), #000 calc(var(--lh) - 1px) var(--lh));
+  mask-image: repeating-linear-gradient(to bottom,
+    transparent 0 calc(var(--lh) - 1px), #000 calc(var(--lh) - 1px) var(--lh));
+}
+/* 좌측 거터 — 실물은 점선 세로줄로 구획된 좁은 칸 2개 (문N)·답)·Ⅰ.·가. 표기 칸) */
+.body::before { content: ""; position: absolute; left: 29px; top: 0; bottom: 0; width: 29px;
+  z-index: -1; border-left: 1px dashed var(--rule2); border-right: 1px dashed var(--rule2); }
 .content { margin: 0 20px 0 58px; }
 .content h2, .content h3, .content p { line-height: var(--lh); font-size: 15px; font-weight: 400; }
-.content h2 { font-weight: 700; position: relative; }
-/* 단락 로마자(Ⅰ.Ⅱ.…)는 본문이 아니라 좌측 번호칸(거터)에 — h2와 같은 줄 높이의
-   절대배치 스팬이라 줄 그리드·페이지 계측 불변 (발주자 확정 2026-07-21) */
-.content h2 .gut { position: absolute; left: -54px; top: 0; width: 50px; text-align: center; font-weight: 700; }
-.content h3 { font-weight: 700; padding-left: 18px; }
+/* 거터 표기 (실물 HRDK 손답안 — 문N)·답)·Ⅰ.·가. 전부 좌측 번호칸): h2 로마자는
+   바깥 칸(0~29px), h3 가나·답)은 안쪽 칸(29~58px). 같은 줄 높이의 절대배치 인라인
+   스팬이라 줄 그리드·페이지 계측 불변 (발주자 확정 2026-07-21) */
+.content h2, .content h3, .content .ans { position: relative; }
+.content .gut { position: absolute; top: 0; width: 29px; text-align: center; font-weight: 700; font-size: 13.5px; }
+.content h2 .gut { left: -58px; }
+.content h3 .gut, .content .ans .gut { left: -29px; }
+.content h2 { font-weight: 700; }
+.content h3 { font-weight: 700; padding-left: 0; } /* 가나가 거터로 이동 — 본문 열은 제목 텍스트만 */
 /* 2교시형 단락(h2) 사이 1줄 여백은 서버가 .gap 블록으로 물질화한다 (페이지 분할 정합) */
-.ans { font-weight: 700; padding-left: 0; } /* "답)"은 본문 첫 줄 맨 앞 — 들여쓰기 없음 (발주자 확정) */
-/* 들여쓰기 3단 (W4a — 공단 좌측 세로 3줄 가이드): Ⅰ.=0 / 가.=1칸(18px) / 본문 문단=2칸(36px).
-   표·그림은 전폭 유지 (실물 관행) */
-.def { min-height: calc(2 * var(--lh)); padding-left: 36px; }
-.gloss { padding-left: 36px; }
+.ans { font-weight: 700; padding-left: 0; } /* "답)"은 거터 안쪽 칸 — 본문 첫 줄은 빈 괘선 */
+/* 들여쓰기 (W4a 조정): 번호가 거터로 가면서 본문 문단만 1칸(18px) — 표·그림 전폭 */
+.def { min-height: calc(2 * var(--lh)); padding-left: 18px; }
+.gloss { padding-left: 18px; }
 .end { font-weight: 700; } /* "끝"은 답안이 끝난 지점 바로 옆 인라인 (체크리스트 U4·W5a) */
 .content span.end { margin-left: 10px; }
 .fill { text-align: center; letter-spacing: 0.5em; text-indent: 0.5em; padding-left: 0 !important; } /* "이하 빈칸" 중앙 (U5·W5b) */
@@ -727,6 +770,7 @@ body {
 .content th { font-weight: 700; text-align: center; } /* 실물 손답안엔 음영 없음 — 체크리스트 T2 */
 .content tr { height: var(--lh); }
 .content tr.r2 { height: calc(2 * var(--lh)); }
+.tdef td:first-child { width: 14%; text-align: center; } /* Ⅰ 정의·특징 2열 박스 (실물 HRDK — 라벨열) */
 .t3 th:nth-child(1) { width: 20%; }
 .t3 th:nth-child(2) { width: 20%; }
 .t2 th:nth-child(1), .t2 td:first-child { width: 20%; }
@@ -817,8 +861,9 @@ def render_answer(question: str, title: str, kind: str, points: int | str,
                   body: str, mnemonic_html: str) -> str:
     """답안지 템플릿에 내용을 채워 완성 HTML을 만든다 (v2 서버 페이지 분할).
 
-    본문+꼬리를 _layout으로 22줄 페이지에 배치하고, 쪽마다 머리행("N 쪽")을
-    붙인다(1쪽만 문제 스트립 포함). 목차 번호는 _layout이 스탬프하므로 여기선
+    본문+꼬리를 _layout으로 22줄 페이지에 배치한다(1쪽만 문제 스트립 포함).
+    실물 공단(HRDK) 용지는 상단 머리행이 없다 — 쪽 표기는 용지 밖 UI(쪽 네비) 몫
+    (발주자 손답안 사진 2026-07-21). 목차 번호는 _layout이 스탬프하므로 여기선
     배치만 한다. CSS 중괄호 때문에 str.format() 금지 — 입력값에 "{pages}"
     같은 리터럴이 있어도 재치환되지 않도록 단일 패스 re.sub로 치환한다.
     question/title/kind/points는 escape, body/mnemonic_html은 이미 HTML.
@@ -829,14 +874,7 @@ def render_answer(question: str, title: str, kind: str, points: int | str,
     pages = _layout(body, kind, mnemonic_html)
     page_parts = []
     for i, pg in enumerate(pages):
-        # 내지 머리행: 번호 칸 + "N 쪽"만 — 임의 표제 없음 (체크리스트 U6, 실물 내지)
-        head = (
-            '  <div class="page-head">\n'
-            '    <span class="ph-box">번 호</span>\n'
-            '    <span class="ph-sp"></span>\n'
-            f'    <span class="ph-num">{i + 1} 쪽</span>\n'
-            "  </div>\n"
-        )
+        head = ""  # 머리행 없음 (실물 정정)
         strip = ""
         if i == 0:
             # "문)"은 좌측 번호칸(거터) 위치, 스트립 본문에는 요약 전사만 (발주자 확정
@@ -888,6 +926,7 @@ _BODY_RULES = """[답안 본문 HTML 규칙 — 실물 답안지 줄 그리드 �
   p class="gloss"     간글 1줄, "– "로 시작, 19자 이내(공백 제외 환산)
   u                   키워드 밑줄(섹션당 1~3개), 강조 인용은 "쌍따옴표" 텍스트
   table class="t3|t2|tcmp|texp" + thead/tbody/tr/th/td — 2줄 행은 <tr class="r2">
+  table class="tdef"      1교시 Ⅰ 전용 정의·특징 2열 박스(헤더 없음 — 라벨열 정의/특징)
   div class="diagram"     개념도 6줄 컨테이너 (답안 전체 1~2개, 일도일표)
   div class="diagram d7"  2교시 서론 로드맵 전용 7줄 컨테이너 (서론에 1개만)
     내부 전용: div.d-row / div.d-col / div.d-box(+.soft 점선 보조, +.d-hub 중심 강조) /
@@ -914,12 +953,14 @@ _BODY_RULES = """[답안 본문 HTML 규칙 — 실물 답안지 줄 그리드 �
 - 본문 개념도(diagram) 직후에는 p.gloss 간글 1줄 필수(서론 d7 뒤는 (정의) p.def가 대체).
   h2 사이에 빈 줄·gap을 직접 넣지 말 것(서버가 페이지 배치 시 자동 삽입).
 
-[1교시형(용어, 10점) — 3단락, 22~30줄 — 발주자 직접 규격 2026-07-18]
+[1교시형(용어, 10점) — 3단락, 22~30줄 — 발주자 직접 규격 + 실물 HRDK 손답안]
 <p class="ans">답)</p>
-I. 리드문형 제목 "○○를 위한 △△의 개요" (h2) → 정의 p.def 2줄(한 줄 17~19자)
-   → 특징 1줄: <p class="gloss">– 특징: 키워드 · 키워드 · 키워드</p> (키워드 2~3개, 문장 금지)
+I. 리드문형 제목 "○○를 위한 △△의 개요" (h2) → 정의·특징 2열 박스:
+   <table class="tdef"><tbody><tr class="r2"><td>정의</td><td>정의 2줄(38자 이내)</td></tr>
+   <tr><td>특징</td><td>①키워드 ②키워드 ③키워드 (원문자 2~3개, 문장 금지)</td></tr></tbody></table>
 II. 개념도·구성요소 (h2) → 가. 개념도 (h3 + div.diagram — 6줄을 꽉 채울 것, 상하 빈 공간
-   금지, 화살표마다 라벨 + p.gloss) → 나. 구성요소 (h3 + table.t3 — 반드시 3열, 헤더1+행 4~6)
+   금지, 화살표마다 라벨 + p.gloss) → 나. 구성요소 (h3 + table.t3 — 반드시 3열, 헤더1+행 4~6).
+   그림이 어색한 표 중심 토픽은 개념도 생략 가능(대신 표 3개 이상 — 실물 관행)
 III. 활용/비교/결론 (h2 + table 또는 p.def) — 수직 확장·인접 기술 비교로 차별화,
    마지막 표 아래 결론성 간글 1줄 관행(W4e)
 
