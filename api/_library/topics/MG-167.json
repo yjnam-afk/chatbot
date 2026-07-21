@@ -28,6 +28,8 @@
    "피드백 개선"
   ]
  },
+ "intro_title": "SW의 진화 법칙, 리만의 SW 변화 원리의 정의",
+ "structure_title": "리만의 SW 분류 및 8개 법칙",
  "definition": "사용자 요구에 따른 SW의 지속적 변경 시 유지·형상 관리를 위해 고려할 SW 진화 법칙",
  "definition_long": "사용자 요구로 진화하는 SW의 유지·형상 관리를 위해 고려할 8가지 SW 진화 법칙",
  "background": "SW는 환경 변화로 지속 변경됨 — 진화 관리 원칙 필요",
@@ -46,7 +48,8 @@
    "desc": "피드백 기반 진화"
   }
  ],
- "components_title": "SW의 분류",
+ "components_title": "리만의 SW 분류",
+ "components_headers": ["구분", "관점", "설명"],
  "components": [
   {
    "role": "S-Type",
@@ -67,13 +70,15 @@
  "components_gloss": "– 리만 SW는 E-Type에 대한 변화원리 제시",
  "sections": [
   {
-   "title": "리만의 8가지 법칙",
+   "title": "리만 SW의 8개 법칙",
    "keys": [
     "법칙",
     "원리",
-    "8가지"
+    "8가지",
+    "8개"
    ],
    "kind": "t3",
+   "headers": ["구분", "법칙", "설명"],
    "rows": [
     {
      "role": "조직",
@@ -118,12 +123,13 @@
    ]
   },
   {
-   "title": "리만의 소프트웨어 변화 원리 적용",
+   "title": "리만 SW 변화 원리 적용",
    "keys": [
     "적용",
     "활용"
    ],
    "kind": "t3",
+   "headers": ["구분", "원리", "적용"],
    "rows": [
     {
      "role": "조직",

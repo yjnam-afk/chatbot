@@ -31,6 +31,10 @@
 | `comparisons` | list[{vs, vs_name, axes[{axis, a, b}]}] | 인접 토픽 비교표(tcmp). `vs`는 존재하는 토픽 id(빌드 시 검사) |
 | `procedure` | list[{step, name, desc}] | 절차·단계 표(t3 절차표 — 구분열 "N단계") — v1.1 신설(question-spec 2-2). `step`은 1부터 정수, `name` 5~7자, `desc`는 detail과 동일 밀도 규격. 절차·과정·단계를 묻는 요구의 1순위 부품 |
 | `lead` | str | Ⅰ 리드문형 제목 앞부분(4~20자) — v1.2 신설(감사 C1). 조립기가 `"{lead}, {토픽}의 개요"`로 스탬프. 모범답안 원문 리드문 우선 |
+| `intro_title` | str | (선택, v1.3) Ⅰ h2 제목 **원문 전체 재정의**(4~40자) — 발주자 실물 답안 복원용(재해석 금지 원칙, 리만 반려 2026-07-21). 있으면 lead 조합 규칙보다 우선, 1·2교시 공통 |
+| `structure_title` | str | (선택, v1.3) Ⅱ(구성) h2 제목 원문 재정의(4~40자) — 부재 시 "{토픽}의 구성(도 및 구성)요소" |
+| `components_headers` | list[str×3] | (선택, v1.3) 구성요소표 열 이름 원문(각 6자 이하) — 부재 시 구분/구성요소/설명. 조립기는 지정 시 그대로 렌더 |
+| `sections[].headers` | list[str] | (선택, v1.3) 확장 단락 표 열 이름 원문 — t3는 3개, t2는 2개(각 6자 이하). 부재 시 구분/항목/설명·구분/설명 |
 | `sections` | list[{title, keys[], kind, rows[]}] | 확장 단락 부품 — v1.2 신설(감사 C2, 모범답안 절차/검토항목/위험·해결 단락). 표준 조립은 `sections[0]`을 Ⅲ에 우선 배치(특징표 대체, 비교표는 유지), 요구 주도 조립은 요구 어구가 `keys`를 지목하면 해당 표 배치. `kind`: `t3`(rows=role/name/detail) 또는 `t2`(rows=item/desc). 밀도 규격은 components와 동일 |
 | `comparisons[].a_name` | str | (선택, v1.2) 비교표 기준측 표시명 — ITIL의 SS↔SD처럼 토픽 내부 축 비교용. 부재 시 토픽명 |
 | `mnemonic.extra` | str | (선택, v1.2) 두문자 보조 줄 `"보조어 — 풀이"` — 단일 토픽 답안의 암기 박스 둘째 줄(ISP 사실규·필시중 등) |

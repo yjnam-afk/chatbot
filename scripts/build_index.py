@@ -89,6 +89,21 @@ def main() -> int:
         if lead is not None and (not isinstance(lead, str) or not 4 <= len(lead.strip()) <= 20
                                  or "<" in lead):
             fail(f"{f.name}: lead는 4~20자 문자열(HTML 금지)이어야 함 — {lead!r}")
+        # 실물 원문 보존 훅 (스키마 v1.3, 발주자 반려 2026-07-21 — 재해석 금지):
+        # intro_title/structure_title = 제목 원문, components_headers = 표 열 이름 원문
+        for tf in ("intro_title", "structure_title"):
+            tv = t.get(tf)
+            if tv is not None and (not isinstance(tv, str) or not 4 <= len(tv.strip()) <= 40
+                                   or "<" in tv):
+                fail(f"{f.name}: {tf}는 4~40자 문자열(HTML 금지)이어야 함 — {tv!r}")
+        ch = t.get("components_headers")
+        if ch is not None:
+            if (not isinstance(ch, list) or len(ch) != 3
+                    or not all(isinstance(h, str) and 0 < len(h) <= 6 and "<" not in h
+                               for h in ch)):
+                fail(f"{f.name}: components_headers는 6자 이하 문자열 3개 배열이어야 함")
+            if not t.get("components"):
+                fail(f"{f.name}: components_headers는 components가 있어야 유효함")
         # sections 확장 단락 부품 (스키마 v1.2, 감사 C2): [{title, keys, kind, rows}]
         secs = t.get("sections")
         if secs is not None:
@@ -100,6 +115,14 @@ def main() -> int:
                         or sc.get("kind") not in ("t3", "t2") \
                         or not isinstance(sc.get("rows"), list) or not sc["rows"]:
                     fail(f"{f.name}: sections[{i}]는 {{title, keys[], kind:t3|t2, rows[]}} 필요")
+                hs = sc.get("headers")  # 실물 원문 열 이름 (v1.3) — t3=3열, t2=2열
+                if hs is not None:
+                    want = 2 if sc["kind"] == "t2" else 3
+                    if (not isinstance(hs, list) or len(hs) != want
+                            or not all(isinstance(h, str) and 0 < len(h) <= 6
+                                       and "<" not in h for h in hs)):
+                        fail(f"{f.name}: sections[{i}].headers는 6자 이하 문자열 "
+                             f"{want}개 배열이어야 함({sc['kind']})")
                 need = ("item",) if sc["kind"] == "t2" else ("name",)
                 for j, row in enumerate(sc["rows"]):
                     if not isinstance(row, dict) or not all(row.get(k) for k in need):

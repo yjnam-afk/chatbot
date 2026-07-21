@@ -209,14 +209,22 @@ def _section_table(sec: dict, kws=None) -> str:
     행 상한은 부품 행 수 그대로(최대 8 — 리만 8법칙 등 실물 다행 표 절단 방지).
     """
     rows = sec.get("rows") or []
+    hdrs = sec.get("headers")  # 실물 원문 열 이름 (스키마 v1.3 — 발주자 반려 2026-07-21:
+    # "발주자가 실물을 주면 한 글자도 재해석하지 않는다". 부재 시 표준 기본값)
     if sec.get("kind") == "t2":
-        return _t2(rows, ("구분", "설명"), kws=kws)
-    return _t3(rows, r2=True, headers=("구분", "항목", "설명"), kws=kws,
-               max_rows=min(8, len(rows)))
+        return _t2(rows, tuple(hdrs) if hdrs else ("구분", "설명"), kws=kws)
+    return _t3(rows, r2=True, headers=tuple(hdrs) if hdrs else ("구분", "항목", "설명"),
+               kws=kws, max_rows=min(8, len(rows)))
 
 
 def _intro_title(t: dict) -> str:
-    """Ⅰ 리드문형 제목 (감사 C1 — 모범답안 전건 '리드문, ○○의 개요' 형)."""
+    """Ⅰ 리드문형 제목 (감사 C1 — 모범답안 전건 '리드문, ○○의 개요' 형).
+
+    intro_title(스키마 v1.3)이 있으면 실물 원문 그대로 — 재해석 금지 (발주자 반려
+    2026-07-21, 리만 손답안 'SW의 진화 법칙, 리만의 SW 변화 원리의 정의')."""
+    override = str(t.get("intro_title") or "").strip()
+    if override:
+        return override
     s = short_name(t)
     lead = str(t.get("lead") or "").strip()
     return f"{lead}, {s}의 개요" if lead else f"{s}의 개요"
@@ -257,9 +265,14 @@ def _slot_structure(t: dict, parts: list, warnings: list, r2: bool,
             return True
         warnings.append(f"{s}: 구성도/구성요소 부품 없음 — Ⅱ단락 생략")
         return False
-    # 개념도 없는 표 중심 토픽(실물 HRDK 리만류)은 제목에서 '구성도' 제외
-    parts.append(f"<h2>{_esc(s)}의 구성도 및 구성요소</h2>" if t.get("diagram_html")
-                 else f"<h2>{_esc(s)}의 구성요소</h2>")
+    # 개념도 없는 표 중심 토픽(실물 HRDK 리만류)은 제목에서 '구성도' 제외.
+    # structure_title(스키마 v1.3)이 있으면 실물 원문 제목 그대로 (재해석 금지)
+    st = str(t.get("structure_title") or "").strip()
+    if st:
+        parts.append(f"<h2>{_esc(st)}</h2>")
+    else:
+        parts.append(f"<h2>{_esc(s)}의 구성도 및 구성요소</h2>" if t.get("diagram_html")
+                     else f"<h2>{_esc(s)}의 구성요소</h2>")
     if t.get("diagram_html"):
         parts.append(f"<h3>{_esc(s)}의 구성도</h3>")
         parts.append(t["diagram_html"])
@@ -267,7 +280,10 @@ def _slot_structure(t: dict, parts: list, warnings: list, r2: bool,
         parts.append(f'<p class="gloss">{_esc(t.get("diagram_gloss") or _auto_gloss(t))}</p>')
     if t.get("components"):
         parts.append(f"<h3>{_esc(str(t.get('components_title') or s + '의 구성요소'))}</h3>")
-        parts.append(_t3(t["components"], r2=r2, kws=t.get("keywords")))
+        ch = t.get("components_headers")  # 실물 원문 열 이름 (v1.3, 부재 시 표준)
+        parts.append(_t3(t["components"], r2=r2,
+                         headers=tuple(ch) if ch else ("구분", "구성요소", "설명"),
+                         kws=t.get("keywords")))
         if t.get("components_gloss"):
             parts.append(f'<p class="gloss">{_esc(t["components_gloss"])}</p>')
     return True
@@ -374,8 +390,10 @@ def assemble(question: str, kind: str, points: int, topics: list[dict],
         if is_terms:
             # ---- 1교시형 3단락 (발주자 직접 규격 2026-07-18 + 실물 HRDK 손답안 2026-07-21)
             # Ⅰ = 리드문형 제목 + 정의·특징 2열 박스 표(tdef: 정의 2줄 + 특징 1줄 원문자)
+            # intro_title(v1.3)이 있으면 실물 원문 그대로 (발주자 반려 — 재해석 금지)
             lead = str(t.get("lead") or "").strip()
-            parts.append(f"<h2>{_esc(lead + ', ' + s + '의 개요' if lead else s + '의 정의')}</h2>")
+            intro = str(t.get("intro_title") or "").strip()
+            parts.append(f"<h2>{_esc(intro or (lead + ', ' + s + '의 개요' if lead else s + '의 정의'))}</h2>")
             fl = _feature_line(t)
             tdef_rows = [f'<tr class="r2"><td>정의</td>'
                          f'<td>{_emph(t.get("definition"), kws, quote=True)}</td></tr>']
