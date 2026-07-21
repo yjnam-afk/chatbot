@@ -171,8 +171,10 @@ def _extract_body(text: str) -> str:
 # 서버가 본문 블록의 줄 수를 계측해 22줄 페이지(머리행 1 + 본문 17/21)로 직접 분할한다.
 # 화면 쪽수 = 인쇄 쪽수 = sheet.pages 가 항상 일치 (발주자 3차 반려 대응).
 # 실물 공단(HRDK) 용지 정정 (발주자 손답안 사진 2026-07-21): 상단 머리행 없음 —
-# 페이지 = 본문 전용 22줄 (1쪽만 문제 스트립 4줄 제외). 쪽 구분은 용지 밖 UI(쪽 네비).
-_PAGE1_BODY = 18   # 1쪽 본문 줄 수 (문제 스트립 4줄 제외)
+# 페이지 = 본문 전용 22줄. 쪽 구분은 용지 밖 UI(쪽 네비).
+# 문제 스트립 폐지 (발주자 반려 2026-07-21): 문제는 괘선 첫 줄(들)에 요약 전사
+# ("문)" 거터, 1~2줄)로 쓰고 다음 줄 답) — 전사·답) 줄이 본문 줄로 계측된다.
+_PAGE1_BODY = 22   # 1쪽 본문 줄 수 (문제 전사 1~2줄 + 답) 포함)
 _PAGEN_BODY = 22   # 2쪽부터 본문 줄 수
 _PAGE_LINES = 22   # 답안지 1매 환산 기준
 
@@ -254,11 +256,25 @@ def _is_heading(blk: str) -> bool:
     return low.startswith("<h2") or low.startswith("<h3")
 
 
+def _fit_wide(s: str, cap: float) -> str:
+    """손글씨 환산 폭(cap) 이내로 절삭 — 문제 요약 전사 2줄 상한 안전판."""
+    out: list[str] = []
+    w = 0.0
+    for ch in str(s):
+        w += 0.0 if ch.isspace() else (0.5 if ord(ch) < 128 else 1.0)
+        if w > cap:
+            return "".join(out).rstrip() + "…"
+        out.append(ch)
+    return s
+
+
 def _layout(body_html: str, kind: str,
-            mnemonic_html: str = "<p><b>—</b></p>") -> list[dict]:
-    """본문+꼬리("끝"·여백·두문자 박스)를 페이지(17/21줄)로 배치한다.
+            mnemonic_html: str = "<p><b>—</b></p>", summary: str = "") -> list[dict]:
+    """본문+꼬리("끝"·여백·두문자 박스)를 페이지(22줄)로 배치한다.
 
     반환: [{"blocks": [html...], "cap": 줄수, "used": 점유 줄수}]
+    - summary: 문제 요약 전사 — 괘선 첫 줄(들)에 "문)" 거터로 표기 (실물 HRDK,
+      발주자 반려 2026-07-21 — 스트립 폐지). 1줄(환산 19자 이하) 또는 2줄로 계측.
     - 목차 번호(h2 로마자·h3 가나다)는 여기서 스탬프 — h2마다 가나다 리셋 (검수 결함 1)
     - 2교시형 단락(h2) 사이 1줄 여백은 명시적 .gap 블록으로 물질화 (페이지 첫 줄이면 생략)
     - 고아 제목 방지: 제목(연속 제목 포함)은 뒤따르는 내용 1블록과 같은 페이지에 못
@@ -268,6 +284,13 @@ def _layout(body_html: str, kind: str,
     """
     p2 = "1교시" not in str(kind)
     seq: list[tuple[str, int]] = []
+    if str(summary or "").strip():
+        # 문제 요약 전사 — 실물처럼 괘선 위에 직접 쓴다. 밀도 규격(한 줄 17~19자,
+        # 공백 제외·영문 반각)으로 1줄/2줄 판정, 2줄 상한(38자) 초과분은 절삭.
+        txt = _fit_wide(str(summary).strip(), 38.0)
+        q2 = _wide_len(txt) > 19.0
+        seq.append((f'<p class="q{" q2" if q2 else ""}"><span class="gut">문)</span>'
+                    f"{html_mod.escape(txt)}</p>", 2 if q2 else 1))
     h2_seen = False
     sec = sub = 0
     for blk in _split_blocks(body_html or ""):
@@ -432,9 +455,11 @@ def _pull_tail(pages: list[dict]) -> None:
     pages.pop()
 
 
-def _volume(body_html: str, kind: str) -> dict:
-    """답안 분량 — 페이지 레이아웃 실측 기반. 화면/인쇄 쪽수와 항상 일치한다."""
-    pages = _layout(body_html, kind)
+def _volume(body_html: str, kind: str, summary: str = "") -> dict:
+    """답안 분량 — 페이지 레이아웃 실측 기반. 화면/인쇄 쪽수와 항상 일치한다.
+
+    summary(문제 요약 전사)는 render_answer와 같은 값을 넘겨야 쪽수가 일치한다."""
+    pages = _layout(body_html, kind, summary=summary)
     total = sum(p["used"] for p in pages)
     return {
         "lines": total,
@@ -705,18 +730,15 @@ body {
 }
 /* 머리행 없음 — 실물 공단(HRDK) 용지는 상단에 아무 표기가 없다 (발주자 손답안 사진
    2026-07-21). 쪽 구분은 용지 밖 UI(쪽 네비)로만. */
-/* 문제 스트립 — "문)"은 좌측 번호칸(거터) 위치, 본문 열에는 요약 전사만 (발주자 확정) */
-.q-strip {
-  position: relative;
-  height: calc(4 * var(--lh)); padding: 8px 20px 0 58px;
-  border-bottom: 2px solid var(--rule2);
-  font-family: system-ui, sans-serif; color: var(--chrome); overflow: hidden;
+/* 문제 스트립 폐지 (발주자 반려 2026-07-21) — 문제는 괘선 첫 줄(들)에 요약 전사
+   ("문)" 거터), 다음 줄 답). 교시형·배점 배지는 용지 밖 메타 한 줄로 이동:
+   용지 안에는 실물에 없는 요소를 두지 않는다. */
+.sheet-meta {
+  width: min(794px, 100%); margin: 0 auto 10px;
+  display: flex; justify-content: flex-end;
+  font-family: system-ui, sans-serif; font-size: 11.5px; color: var(--chrome);
 }
-.qs-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.qs-no { position: absolute; left: 0; top: 8px; width: 58px; text-align: center; font-weight: 700; font-size: 14px; color: var(--ink); }
-.qs-title { font-weight: 700; font-size: 14px; color: var(--ink); }
-.qs-kind { font-size: 11.5px; font-weight: 700; border: 1px solid var(--chrome); padding: 1px 10px; border-radius: 2px; white-space: nowrap; }
-.qs-text { margin-top: 6px; font-size: 14px; line-height: 1.65; }
+.sheet-meta span { border: 1px solid #b9b5aa; border-radius: 2px; padding: 1px 10px; font-weight: 700; }
 .body {
   position: relative; isolation: isolate;
   height: calc(var(--body, 22) * var(--lh));
@@ -744,6 +766,10 @@ body {
 .content .gut { position: absolute; top: 0; width: 29px; text-align: center; font-weight: 700; font-size: 13.5px; }
 .content h2 .gut { left: -58px; }
 .content h3 .gut, .content .ans .gut { left: -29px; }
+/* 문제 요약 전사 — 괘선 첫 줄(들), "문)"은 거터 두 칸 전체(58px) 사용 (실물 문N) 폭) */
+.content .q { position: relative; padding-left: 0; }
+.content .q .gut { left: -58px; width: 58px; }
+.content .q2 { min-height: calc(2 * var(--lh)); }
 .content h2 { font-weight: 700; }
 .content h3 { font-weight: 700; padding-left: 0; } /* 가나가 거터로 이동 — 본문 열은 제목 텍스트만 */
 /* 2교시형 단락(h2) 사이 1줄 여백은 서버가 .gap 블록으로 물질화한다 (페이지 분할 정합) */
@@ -850,6 +876,7 @@ body {
   .page { width: auto; margin: 0; border: none; box-shadow: none; page-break-after: always; }
   .page:last-child { page-break-after: auto; }
   .mnemonic { display: none; } /* W5c — 두문자 박스는 창작 요소: 인쇄(실물 충실) 시 제외 */
+  .sheet-meta { display: none; } /* 용지 밖 메타 — 인쇄(실물 충실) 시 제외 */
 }
 </style>
 </head>
@@ -863,37 +890,26 @@ def render_answer(question: str, title: str, kind: str, points: int | str,
                   body: str, mnemonic_html: str) -> str:
     """답안지 템플릿에 내용을 채워 완성 HTML을 만든다 (v2 서버 페이지 분할).
 
-    본문+꼬리를 _layout으로 22줄 페이지에 배치한다(1쪽만 문제 스트립 포함).
-    실물 공단(HRDK) 용지는 상단 머리행이 없다 — 쪽 표기는 용지 밖 UI(쪽 네비) 몫
-    (발주자 손답안 사진 2026-07-21). 목차 번호는 _layout이 스탬프하므로 여기선
-    배치만 한다. CSS 중괄호 때문에 str.format() 금지 — 입력값에 "{pages}"
-    같은 리터럴이 있어도 재치환되지 않도록 단일 패스 re.sub로 치환한다.
-    question/title/kind/points는 escape, body/mnemonic_html은 이미 HTML.
+    본문+꼬리를 _layout으로 22줄 페이지에 배치한다. 문제는 별도 스트립 없이
+    괘선 첫 줄(들)에 요약 전사(title = _strip_summary 결과, "문)" 거터)로 쓰고
+    다음 줄이 답) — 실물 공단(HRDK) 손답안과 동일 (발주자 반려 2026-07-21).
+    교시형·배점 배지는 용지 밖 메타 한 줄. question 전문은 용지에 싣지 않는다
+    (실물에 없는 요소 금지 — 전문은 앱 화면·대화에 있음). 목차 번호는 _layout이
+    스탬프하므로 여기선 배치만 한다. CSS 중괄호 때문에 str.format() 금지 —
+    입력값에 "{pages}" 같은 리터럴이 있어도 재치환되지 않도록 단일 패스 re.sub로
+    치환한다. title/kind/points는 escape, body/mnemonic_html은 이미 HTML.
     """
     is_terms = "1교시" in str(kind)
     pcls = "p1" if is_terms else "p2"
     esc = html_mod.escape
-    pages = _layout(body, kind, mnemonic_html)
-    page_parts = []
-    for i, pg in enumerate(pages):
-        head = ""  # 머리행 없음 (실물 정정)
-        strip = ""
-        if i == 0:
-            # "문)"은 좌측 번호칸(거터) 위치, 스트립 본문에는 요약 전사만 (발주자 확정
-            # 2026-07-21 — 문제 번호를 알면 "문2)" 형이나 입력 문항에는 번호가 없어 "문)")
-            strip = (
-                '  <div class="q-strip">\n'
-                '    <span class="qs-no">문)</span>\n'
-                '    <div class="qs-top">\n'
-                f'      <span class="qs-title">{esc(str(title))}</span>\n'
-                f'      <span class="qs-kind">{esc(str(kind))} · {esc(str(points))}점</span>\n'
-                "    </div>\n"
-                f'    <p class="qs-text">{esc(str(question))}</p>\n'
-                "  </div>\n"
-            )
+    pages = _layout(body, kind, mnemonic_html, summary=str(title))
+    page_parts = [
+        f'<div class="sheet-meta"><span>{esc(str(kind))} · {esc(str(points))}점</span></div>'
+    ]
+    for pg in pages:
         content = "\n".join(pg["blocks"])
         page_parts.append(
-            f'<div class="page">\n{head}{strip}'
+            '<div class="page">\n'
             f'  <div class="body" style="--body:{pg["cap"]}">\n'
             f'    <div class="content {pcls}">\n'
             f"{content}\n"
@@ -1129,7 +1145,8 @@ async def _demo_exam() -> AsyncIterator[dict]:
         body=_DEMO_BODY,
         mnemonic_html=_DEMO_MNEMONIC,
     )
-    vol = _volume(_DEMO_BODY, "2교시형(서술)")  # 데모도 실측 분량 노출
+    vol = _volume(_DEMO_BODY, "2교시형(서술)",
+                  summary="제로 트러스트 보안 모델")  # 데모도 실측 분량 노출
     yield {
         "type": "reply",
         "reply": "라이브 파이프라인 고정 데모입니다 (요청하신 '데모' 시연 — 실제 질문과 무관한 예시 답안). 📄\n"
@@ -1739,8 +1756,8 @@ async def _assembly_path(message: str, kind: str, points: int,
     # 세아 — 규칙 검증 (0콜)
     yield _ev("reviewer", "working", "검증 중…")
     await asyncio.sleep(0.12)
-    sheet = render_answer(question=message,
-                          title=_strip_summary(kind, topics, parsed, result["title"]),
+    strip_title = _strip_summary(kind, topics, parsed, result["title"])
+    sheet = render_answer(question=message, title=strip_title,
                           kind=kind, points=points,
                           body=result["body"], mnemonic_html=result["mnemonic_html"])
     warnings = result["warnings"] + _verify_assembly(result["body"], sheet, kind)
@@ -1761,7 +1778,7 @@ async def _assembly_path(message: str, kind: str, points: int,
     yield _ev("orchestrator", "done", "납품 완료")
     yield _talk("orchestrator", "답안지 납품 완료! 라이브러리 덕에 즉답이었어요 ⚡")
 
-    vol = _volume(result["body"], kind)
+    vol = _volume(result["body"], kind, summary=strip_title)
     # 뼈대 토픽이 보강 없이 조립됐으면(무키 등) 반쪽 답안임을 먼저 알린다 (발주자 피드백 2026-07)
     stub_names = [short_name(t) for t in topics
                   if not (t.get("components") or t.get("diagram_html")) and t.get("id") not in core]
@@ -1853,7 +1870,7 @@ async def _live_exam(message: str, kind: str, points: int,
     # 분량 기준: 1교시형 최소 1.0매/목표 1.4매, 2교시형 최소 2.5매/목표 3.5매.
     # 최소 미달·린트 위반은 점수와 무관하게 보완 강제 (최대 1회).
     min_pages, rec_pages = (1.0, 1.4) if is_terms else (2.5, 3.5)
-    vol = _volume(body, kind)
+    vol = _volume(body, kind, summary=topic)
     # 폴백(LLM) 경로는 밀도 린터(표+문단) 위반도 보완 사유
     lint = _lint_format(body, kind) + _lint_table_density(body) + _lint_text_density(body)
     reviewer_system = (
@@ -1926,7 +1943,7 @@ async def _live_exam(message: str, kind: str, points: int,
         if revised:
             body = revised
         rounds = 1
-        vol = _volume(body, kind)
+        vol = _volume(body, kind, summary=topic)
         lint = (_lint_format(body, kind) + _lint_table_density(body)
                 + _lint_text_density(body))  # 밀도 린터도 보완 사유
         under = vol["pages_frac"] < min_pages

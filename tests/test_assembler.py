@@ -51,6 +51,59 @@ def test_multi_hit_still_works():
     assert sorted(evs[-1]["matched"]) == ["MG-004", "MG-005"]
 
 
+def test_lehman_verbatim_restore():
+    """MG-167 리만 — 발주자 실물 손답안 1:1 복원 (반려 2026-07-21: 재해석 금지).
+
+    단락 제목·표 열 이름·행 카테고리 병합·간글 문구가 손답안 원문과 일치해야 한다.
+    """
+    import re
+    evs = _run_pipeline("리만의 소프트웨어 변화 원리에 대하여 설명하시오 (10점)")
+    r = evs[-1]
+    assert r["matched"] == ["MG-167"], r.get("matched")
+    html = r["artifact"]["html"]
+    text = re.sub(r"<[^>]+>", "", html)
+    # 단락 제목 (Ⅰ 정의형 — 개요 아님 / Ⅱ 분류+8개 법칙 / Ⅲ 적용)
+    assert "SW의 진화 법칙, 리만의 SW 변화 원리의 정의" in text
+    assert "리만의 SW 분류 및 8개 법칙" in text
+    assert "리만의 SW 분류" in text
+    assert "리만 SW의 8개 법칙" in text
+    assert "리만 SW 변화 원리 적용" in text
+    # 표 열 이름 원문 (구분|관점|설명 · 구분|법칙|설명 · 구분|원리|적용)
+    heads = [re.findall(r"<th>(.*?)</th>", th)
+             for th in re.findall(r"<thead>(.*?)</thead>", html, re.S)]
+    assert ["구분", "관점", "설명"] in heads, heads
+    assert ["구분", "법칙", "설명"] in heads, heads
+    assert ["구분", "원리", "적용"] in heads, heads
+    # 8개 법칙 rowspan — 프로그램 5행·시스템 2행 병합
+    assert re.search(r'rowspan="5"[^>]*>프로그램', html), "프로그램 5행 병합 누락"
+    assert re.search(r'rowspan="2"[^>]*>시스템', html), "시스템 2행 병합 누락"
+    # 간글 원문
+    assert "– 리만 SW는 E-Type에 대한 변화원리 제시" in text
+    assert "ISO/IEC 14764 기반, SW 변화" in text
+    # SW 3분류 행
+    for row in ("S-Type", "진화 불요", "P-Type", "부분 진화", "E-Type", "지속 진화"):
+        assert row in text, row
+
+
+def test_question_on_rule_lines_no_strip():
+    """문제 스트립 폐지 (발주자 반려 2026-07-21) — 요약 전사가 괘선 첫 줄에 '문)' 거터로
+    표기되고, 용지 안에 교시·배점 배지가 없어야 한다(배지는 용지 밖 메타 한 줄)."""
+    import re
+    evs = _run_pipeline("SLA에 대하여 설명하시오 (25점)")
+    html = evs[-1]["artifact"]["html"]
+    assert "q-strip" not in html
+    m = re.search(r'<p class="q[^"]*"><span class="gut">문\)</span>', html)
+    assert m, "문제 전사(p.q + 문) 거터) 누락"
+    # 전사 → 답) 순서: 첫 페이지 content에서 q가 ans보다 앞
+    assert html.find('<p class="q') < html.find('class="ans"')
+    # 배지는 용지 밖 sheet-meta 한 줄(인쇄 제외), .page 내부에는 없음
+    assert '<div class="sheet-meta"><span>' in html
+    page0 = html[html.find('<div class="page">'):]
+    assert "교시형" not in page0.split('</div>')[0]
+    # 페이지 수 = reply.sheet.pages (전사 포함 계측 정합)
+    assert html.count('<div class="page">') == evs[-1]["sheet"]["pages"]
+
+
 def test_routing_answer_first():
     """답안지 우선 라우팅 — 구어체 답안 요청·토픽명 단독은 시험 경로, 의문문만 채팅."""
     import _agents
