@@ -30,7 +30,8 @@ import httpx
 
 import _question
 import _topic_library as _library
-from _assembler import assemble, assemble_requirements, short_name, split_subjects
+from _assembler import (assemble, assemble_requirements, lead_tautology, repair_intro_title,
+                        short_name, split_intro_title, split_subjects)
 
 # 역할은 라이브러리 파이프라인의 실제 코드 단계와 1:1 (docs/library-spec.md 2-5).
 # 프런트 표기의 단일 출처 — progress.js는 role 문자열을 하드코딩하지 않는다.
@@ -487,6 +488,13 @@ def _lint_format(body_html: str, kind: str) -> list[str]:
             issues.append(f"단락 수 {n_h2}개(기준 3개) — Ⅰ~Ⅲ 구조로 재편 필요")
     elif not 4 <= n_h2 <= 6:
         issues.append(f"단락 수 {n_h2}개(기준 4~6개) — Ⅰ~Ⅳ(요구 많으면 ~Ⅵ) 구조로 재편 필요")
+    # 1-1) Ⅰ 리드문 동어반복 (발주자 반려 2026-10-30 "개인정보 보호의 기술 총칭,
+    #      개인정보 보호기술 정의" — 말장난 리드문). 첫 h2만 검사
+    m = re.search(r"<h2[^>]*>(.*?)</h2>", body, re.S | re.I)
+    if m:
+        why = lead_tautology(*split_intro_title(html_mod.unescape(re.sub(r"<[^>]+>", "", m.group(1)))))
+        if why:
+            issues.append(f"Ⅰ 제목 {why}(예: '유출·오남용 방지를 위한')")
     # 2) "답)" 표기
     if 'class="ans"' not in body:
         issues.append("\"답)\" 표기 누락 — 첫 줄 <p class=\"ans\">답)</p>")
@@ -966,6 +974,9 @@ _BODY_RULES = """[답안 본문 HTML 규칙 — 실물 답안지 줄 그리드 �
 - **행 높이 = 내용 밀도 (손글씨 기준)**: 표 셀은 손글씨 폭 — 구분열 3~4자, 구성요소열 5~7자,
   설명열 한 줄 ~10자. 설명이 11자 이하면 1줄 행(tr), "- " 항목 2개(각 10자 내외)면 2줄 행(tr.r2).
   r2 셀 합계 20자 상한 — 넘치면 손으로 못 베낀다(위반). 내용 1구절뿐인 r2도 금지.
+- **리드문(Ⅰ 제목 쉼표 앞)은 목적·배경 = "왜 필요한가"** (예: "유출·오남용 방지를 위한",
+  "경계 없는 보안을 위한"). 주제어를 풀어 되풀이하거나("개인정보 보호의 기술 총칭, 개인정보
+  보호기술") '총칭·통칭·개념·정의' 같은 메타어로 정의를 흉내내는 말장난 금지 — 서버 린트가 반려.
 - 문체: **명사(체언) 종결 기본**("…관리체계", "…확보", "…필요" — 실물 압도적 관행 W4b),
   ~임/~함/~됨은 보조. "~합니다/입니다" 금지. 정의·설명은 키워드 나열형 — 문장을 만들지 말 것.
 - 본문 개념도(diagram) 직후에는 p.gloss 간글 1줄 필수(서론 d7 뒤는 (정의) p.def가 대체).
@@ -1275,6 +1286,15 @@ def _verify_requirements(body: str, parsed: dict, roadmap: list[str]) -> list[st
                 and "<table" not in low:
             warns.append(f"절차 요구({r.get('label')}) 단락에 절차표 없음")
     return warns
+
+
+def _repair_lead(body: str) -> str:
+    """보완 후에도 남은 동어반복 리드문은 떼어 '주제의 개요'로 강등 (최후 세정, 0콜)."""
+    def fix(m: re.Match) -> str:
+        txt = html_mod.unescape(re.sub(r"<[^>]+>", "", m.group(2)))
+        out = repair_intro_title(txt)
+        return m.group(0) if out == txt else f"{m.group(1)}{html_mod.escape(out)}</h2>"
+    return re.sub(r"(<h2[^>]*>)(.*?)</h2>", fix, body or "", count=1, flags=re.S | re.I)
 
 
 def _verify_assembly(body: str, sheet: str, kind: str) -> list[str]:
@@ -1974,6 +1994,11 @@ async def _live_exam(message: str, kind: str, points: int,
         yield _ev("reviewer", "done", f"{score}점")
         yield _talk("reviewer", review.get("say") or f"{score}점, 합격권이에요. 출고! ✅")
 
+    # 보완 후에도 남은 동어반복 리드문은 코드로 강등 — 말장난 제목은 납품하지 않는다
+    fixed = _repair_lead(body)
+    if fixed != body:
+        body = fixed
+        lint = [w for w in lint if not w.startswith("Ⅰ 제목 리드문")]
     # 보완 후에도 남은 정량 위반은 weak_points에 명시
     if lint:
         weak += [w for w in lint if w not in weak]

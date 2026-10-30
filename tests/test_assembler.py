@@ -291,3 +291,23 @@ if __name__ == "__main__":
         fn()
         print(f"PASS {fn.__name__}")
     print(f"\n{len(fns)}개 테스트 전부 통과")
+
+
+def test_lead_tautology_rejected_and_repaired():
+    # 발주자 반려 2026-10-30: "개인정보 보호의 기술 총칭, 개인정보 보호기술 정의" — 말장난 리드문
+    from _assembler import lead_tautology, repair_intro_title, split_intro_title
+    import _agents
+
+    bad = "개인정보 보호의 기술 총칭, 개인정보 보호기술 정의"
+    assert lead_tautology(*split_intro_title(bad))
+    assert lead_tautology("데이터 보호를 위한 데이터 보호기술", "데이터 보호기술의 개요")
+    assert repair_intro_title(bad) == "개인정보 보호기술의 개요"
+    # 목적·배경 리드문은 주제어 일부를 공유해도 통과
+    for ok in ("개인정보 유출 방지를 위한, 개인정보 보호기술의 개요",
+               "경계 없는 보안을 위한, 제로 트러스트의 개요",
+               "SW의 진화 법칙, 리만의 SW 변화 원리의 정의"):
+        assert lead_tautology(*split_intro_title(ok)) is None, ok
+        assert repair_intro_title(ok) == ok
+    body = f'<p class="ans">답)</p><h2>{bad}</h2><h2>Ⅱ</h2>'
+    assert any("리드문" in w for w in _agents._lint_format(body, "1교시형"))
+    assert "<h2>개인정보 보호기술의 개요</h2>" in _agents._repair_lead(body)

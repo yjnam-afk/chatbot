@@ -21,6 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "api"))
+from _assembler import lead_tautology, short_name  # noqa: E402
 from _topic_library import topic_terms  # noqa: E402
 
 LIB_DIR = ROOT / "api" / "_library"
@@ -89,6 +90,10 @@ def main() -> int:
         if lead is not None and (not isinstance(lead, str) or not 4 <= len(lead.strip()) <= 20
                                  or "<" in lead):
             fail(f"{f.name}: lead는 4~20자 문자열(HTML 금지)이어야 함 — {lead!r}")
+        # 동어반복·메타어 리드문 차단 (발주자 반려 2026-10-30 — 말장난 리드문).
+        # intro_title은 실물 원문이라 검사 제외(재해석 금지)
+        if isinstance(lead, str) and (why := lead_tautology(lead, short_name(t))):
+            fail(f"{f.name}: {why} — {lead!r}")
         # 실물 원문 보존 훅 (스키마 v1.3, 발주자 반려 2026-07-21 — 재해석 금지):
         # intro_title/structure_title = 제목 원문, components_headers = 표 열 이름 원문
         for tf in ("intro_title", "structure_title"):

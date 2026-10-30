@@ -230,6 +230,65 @@ def _intro_title(t: dict) -> str:
     return f"{lead}, {s}의 개요" if lead else f"{s}의 개요"
 
 
+# 리드문 동어반복 판정 (발주자 반려 2026-10-30: "개인정보 보호의 기술 총칭, 개인정보
+# 보호기술 정의" — "이런 말장난 같은 리드문이라니"). 리드문은 목적·배경(왜 필요한가)이어야
+# 하며, 주제어를 풀어 되풀이하거나 '총칭·개념' 같은 메타어로 정의를 흉내내면 안 된다.
+_LEAD_META_RE = re.compile(r"총칭|통칭|일컫|이르는\s*말|의미하는|뜻하는|개념|정의")
+_SUBJ_TAIL_RE = re.compile(r"\s*(?:의)?\s*(?:개요|정의|개념)\s*$")
+
+
+def _lcs_len(a: str, b: str) -> int:
+    """최장 공통 부분 문자열 길이 (짧은 제목 전용 — O(n·m))."""
+    best = 0
+    prev = [0] * (len(b) + 1)
+    for ca in a:
+        cur = [0] * (len(b) + 1)
+        for j, cb in enumerate(b, 1):
+            if ca == cb:
+                cur[j] = prev[j - 1] + 1
+                best = max(best, cur[j])
+        prev = cur
+    return best
+
+
+def lead_tautology(lead: str, subject: str) -> str | None:
+    """리드문이 주제어 되풀이·메타 정의면 사유 문자열, 정상이면 None (무LLM).
+
+    - 메타어: '총칭·통칭·일컫는·개념·정의' 등 — 리드문이 정의를 흉내낸 말장난
+    - 되풀이: 주제어(정규화)의 60% 이상·4자 이상이 리드문에 그대로 등장
+      ("개인정보 유출 방지를 위한, 개인정보 보호기술"은 4/8자라 허용)
+    """
+    lead = (lead or "").strip()
+    core = _norm(_SUBJ_TAIL_RE.sub("", subject or ""))
+    if not lead or not core:
+        return None
+    m = _LEAD_META_RE.search(lead)
+    if m:
+        return f"리드문 메타어 '{m.group(0)}' — 목적·배경 어구로"
+    n = _lcs_len(_norm(lead), core)
+    if n >= 4 and n >= 0.6 * len(core):
+        return "리드문이 주제어 되풀이 — 목적·배경 어구로"
+    return None
+
+
+def split_intro_title(h2_text: str) -> tuple[str, str]:
+    """'리드문, 주제의 개요' → (리드문, 주제부). 쉼표 없으면 ("", 전체)."""
+    t = (h2_text or "").strip()
+    if "," not in t:
+        return "", t
+    lead, subj = t.rsplit(",", 1)
+    return lead.strip(), subj.strip()
+
+
+def repair_intro_title(h2_text: str) -> str:
+    """동어반복 리드문이면 리드문을 떼고 '주제의 개요'로 강등 (최후 세정, 무LLM)."""
+    lead, subj = split_intro_title(h2_text)
+    if not lead_tautology(lead, subj):
+        return h2_text
+    core = _SUBJ_TAIL_RE.sub("", subj).strip() or subj
+    return f"{core}의 개요"
+
+
 # ---------------------------------------------------------------- 슬롯 조립
 
 def _slot_intro_p2(t: dict, parts: list, warnings: list) -> None:
