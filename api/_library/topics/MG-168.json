@@ -1,0 +1,193 @@
+{
+ "id": "MG-168",
+ "name": "개인정보 보호기술(PET, Privacy Enhancing Technologies)",
+ "aliases": [
+  "개인정보 보호기술",
+  "개인정보보호기술",
+  "개인정보 보호 기술",
+  "개인정보 강화기술",
+  "프라이버시 강화기술",
+  "프라이버시 강화 기술",
+  "프라이버시 보호기술",
+  "PET",
+  "PETs",
+  "Privacy Enhancing Technologies",
+  "Privacy Enhancing Technology"
+ ],
+ "category": "보안 > 개인정보보호 > 개인정보 보호기술(PET)",
+ "keywords": [
+  "차분 프라이버시",
+  "동형암호",
+  "다자간 계산",
+  "연합학습",
+  "기밀 컴퓨팅",
+  "TEE",
+  "합성데이터",
+  "가명처리"
+ ],
+ "mnemonic": {
+  "word": "변암분",
+  "expansion": [
+   "데이터 변환",
+   "암호 연산",
+   "분산·격리"
+  ]
+ },
+ "lead": "데이터 활용과 프라이버시 양립",
+ "definition": "개인정보 노출 없이 데이터를 분석·활용하도록 수집·처리·공유 전 과정을 보호하는 기술",
+ "definition_long": "개인정보 노출 없이 데이터를 분석·활용하도록 처리 전 과정을 보호하는 기술군",
+ "background": "데이터 경제 확산 — 활용과 보호 동시 요구",
+ "features": [
+  {
+   "item": "활용 보장",
+   "desc": "원본 비노출 분석"
+  },
+  {
+   "item": "전주기 보호",
+   "desc": "수집·처리·공유 보호"
+  },
+  {
+   "item": "수학적 보증",
+   "desc": "암호·통계 기반 증명"
+  }
+ ],
+ "structure_title": "개인정보 보호기술(PET)의 유형",
+ "components_title": "PET의 유형별 기술",
+ "components_headers": [
+  "구분",
+  "기술",
+  "설명"
+ ],
+ "components": [
+  {
+   "role": "변환",
+   "name": "차분 프라이버시",
+   "detail": "노이즈 추가로 식별 차단"
+  },
+  {
+   "role": "변환",
+   "name": "합성데이터",
+   "detail": "통계 특성 보존 가상데이터"
+  },
+  {
+   "role": "암호",
+   "name": "동형암호",
+   "detail": "암호문 상태 그대로 연산"
+  },
+  {
+   "role": "암호",
+   "name": "다자간 계산",
+   "detail": "입력 비공개 공동 연산"
+  },
+  {
+   "role": "분산",
+   "name": "연합학습",
+   "detail": "원본 이동 없이 모델 학습"
+  },
+  {
+   "role": "격리",
+   "name": "기밀 컴퓨팅",
+   "detail": "TEE 내 사용 중 데이터 보호"
+  }
+ ],
+ "sections": [
+  {
+   "title": "PET 적용 사례",
+   "keys": [
+    "사례",
+    "적용"
+   ],
+   "kind": "t3",
+   "headers": [
+    "구분",
+    "PET",
+    "설명"
+   ],
+   "rows": [
+    {
+     "role": "APPLE",
+     "name": "차분 프라이버시",
+     "detail": "메시지 앱, 검색어 추천"
+    },
+    {
+     "role": "Google",
+     "name": "연합학습",
+     "detail": "키보드 앱 개인정보 전송"
+    },
+    {
+     "role": "Facebook",
+     "name": "다자간 계산",
+     "detail": "광고·마케팅 정보 수집"
+    },
+    {
+     "role": "통계청",
+     "name": "동형암호 등",
+     "detail": "통계 데이터 허브 플랫폼"
+    }
+   ]
+  },
+  {
+   "title": "신뢰 실행 환경 제공을 위한, 기밀 컴퓨팅",
+   "keys": [
+    "기밀 컴퓨팅",
+    "Confidential Computing",
+    "TEE"
+   ],
+   "kind": "t3",
+   "headers": [
+    "구분",
+    "구성요소",
+    "설명"
+   ],
+   "rows": [
+    {
+     "role": "격리",
+     "name": "TEE",
+     "detail": "격리 실행, 데이터 보호"
+    },
+    {
+     "role": "검증",
+     "name": "실행증명",
+     "detail": "실행 응용 신뢰성 확인"
+    },
+    {
+     "role": "HW",
+     "name": "주변장치",
+     "detail": "TDX·SEV 가상머신 격리"
+    },
+    {
+     "role": "SW",
+     "name": "시스템 SW",
+     "detail": "HW 연동 프로그래밍 모델"
+    },
+    {
+     "role": "SW",
+     "name": "응용",
+     "detail": "TPM 키·인증서 암복호화"
+    }
+   ]
+  }
+ ],
+ "usage": [
+  {
+   "item": "데이터 결합",
+   "desc": "기관 간 안전 결합"
+  },
+  {
+   "item": "AI 학습",
+   "desc": "원본 비노출 학습"
+  },
+  {
+   "item": "공공 통계",
+   "desc": "통계 공개 재식별 차단"
+  }
+ ],
+ "conclusion": "가명정보 제도와 연계한 PET 도입 확산",
+ "exam_points": [
+  "134회 1교시 — Ⅲ 기밀 컴퓨팅(TEE·실행증명) 심화",
+  "PET 적용 사례(APPLE·Google·Facebook·통계청)",
+  "유형 분류(변환·암호·분산·격리)"
+ ],
+ "related": [],
+ "intro_diagram_html": "<div class=\"diagram d7\"><div class=\"d-col\"><div class=\"d-circle\">데이터<br>경제</div><div class=\"d-circle\">AI<br>학습</div><div class=\"d-circle\">유출<br>위협</div></div><span class=\"d-sep\"></span><span class=\"d-arrow\">→</span><div class=\"d-col\"><div class=\"d-box d-hub\">PET</div><div class=\"d-box soft\">PET 유형 (Ⅱ)</div><div class=\"d-box soft\">기밀 컴퓨팅 (Ⅲ)</div></div><span class=\"d-arrow\">→</span><span class=\"d-sep\"></span><div class=\"d-box\">활용·보호 양립<small>가명정보 연계</small></div></div>"
+}
